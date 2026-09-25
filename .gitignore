@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/
+supabase/functions/.env
+supabase/functions/.env.cloud
+# cache Overpass (batas wilayah)
+scripts/data/*-raw*.json
+.DS_Store
+
+.vercel

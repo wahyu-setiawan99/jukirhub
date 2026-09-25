@@ -1,0 +1,22 @@
+# Build Vercel berjalan dari root repo (web mengimpor supabase/functions/_shared).
+# File di bawah TIDAK boleh ikut ter-upload.
+
+# berisi URL Supabase LOKAL — env produksi diambil dari Environment Variables Vercel
+web/.env.local
+web/.env.*.local
+
+# dibuat `vercel link`
+.env
+.env.local
+.env.*.local
+
+# secret Edge Function (lokal & cloud)
+supabase/functions/.env
+supabase/functions/.env.cloud
+
+supabase/.temp
+supabase/.branches
+scripts/data/*-raw*.json
+web/dist
+node_modules
+web/node_modules

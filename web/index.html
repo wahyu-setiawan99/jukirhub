@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#18181b" />
+  <script>
+    // Tema terang (ikon di header) dipasang sebelum halaman digambar agar tidak berkedip; lihat src/lib/tema.js.
+    try {
+      if (localStorage.getItem("jukirhub_tema") === "terang") {
+        document.documentElement.dataset.tema = "terang";
+        document.querySelector("meta[name=theme-color]").setAttribute("content", "#ffffff");
+      }
+    } catch (e) {}
+  </script>
+  <!--seo-kepala-->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/ikon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/ikon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/ikon-apple-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="JukirHub" />
+</head>
+
+<body>
+  <div id="root"><!--seo-isi--></div>
+  <noscript>
+    <p style="padding: 16px; font-family: system-ui, sans-serif">Aktifkan JavaScript untuk melihat info juru parkir
+      dari laporan warga di JukirHub.</p>
+  </noscript>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>
