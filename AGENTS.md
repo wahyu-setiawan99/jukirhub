@@ -46,8 +46,8 @@ data memuat disclaimer itu.
 
 | | |
 |---|---|
-| Web | belum ada domain (bagian 11); Vercel belum disiapkan |
-| Backend | Supabase, **proyek baru khusus JukirHub** (belum dibuat) |
+| Web | https://jukirhub.vercel.app (Vercel, deploy otomatis dari `main`; domain sendiri belum, bagian 11) |
+| Backend | Supabase, proyek khusus JukirHub, ref `dcjnufascffooyotwqki` (https://dcjnufascffooyotwqki.supabase.co) |
 | Repo | https://github.com/wahyu-setiawan99/jukirhub (cabang `main`) |
 | Rujukan | repo Adami di `../Adami App` (baca saja) |
 
@@ -203,7 +203,7 @@ Pola feed berita Adami (Adami AGENTS.md 10.6), ditambah pencocokan lokasi:
 | `web/` | Web app: React 19, Vite 8, react-router 7, MapLibre 6 (dimuat belakangan), PWA dengan service worker tulisan tangan |
 | `web/src/pages/` | Beranda, Peta (di `App.jsx` + `components/Peta.jsx`), Daftar, Info |
 | `web/src/components/` | Komponen React (nama bahasa Indonesia: `Peta.jsx`, `CariTempat.jsx`, `LembarTempat.jsx`, `LaporLayar.jsx`, `Legenda.jsx`) |
-| `web/src/lib/` | Logika web tanpa React bila memungkinkan: `lokasi.js`, `cari.js` (Nominatim), `offline.js`, `seo.js`, `tema.js`, `koneksi.js`, `konten-beranda.js`, `util.js` |
+| `web/src/lib/` | Logika web tanpa React bila memungkinkan: `data.js` (baca view publik lewat `fetch` REST, tanpa supabase-js), `tempat.js` (gabung data, cocokkan tempat, kalimat ringkasan), `lokasi.js`, `cari.js` (Nominatim), `offline.js`, `seo.js`, `tema.js`, `koneksi.js`, `konten-beranda.js`, `util.js` |
 | `web/src/state.jsx` | Context app: data tempat + ringkasan, posisi pengguna, kendaraan terpilih (motor/mobil) |
 | `web/src/app.css` | **Satu file CSS**, semua warna lewat variabel (bagian 6.3) |
 | `supabase/functions/` | Edge Function: `lapor` (juga membuat tempat baru bila belum ada), `komentar` (periksa komentar di latar, M4), `berita` (M5), nanti `telegram` (kabar ke pemilik) |
@@ -346,16 +346,25 @@ laporan motor"). Bila tarif resmi daerah sudah diperiksa pemilik, tampil berdamp
 ### 6.3 Tampilan (meniru Adami)
 
 - **Kerangka** sama dengan Adami (`.app` grid): header · banner offline · isi · bilah aksi (tombol utama
-  **"Laporkan parkir"**, membuka Peta di lokasi pengguna) · menu bawah **4 tab: Beranda, Peta, Daftar, Info**
-  (tab Data ditunda, bagian 1.2).
+  **"Laporkan parkir"**, membuka Peta di lokasi pengguna + petunjuk "Ketuk tempat Anda parkir") · menu bawah
+  **4 tab: Beranda, Peta, Daftar, Info** (tab Data ditunda, bagian 1.2). **Di tab Peta bilah aksi tidak ditampilkan**
+  (tombol "Laporkan parkir" ada di lembar tempat; dua tombol sama bertumpuk membingungkan).
 - **Header:** logo + "JukirHub", pilihan **Motor / Mobil** (pengganti Pertalite/Solar di Adami; menentukan tarif yang
   ditampilkan dan kendaraan di form lapor), lalu ikon tema di kanan. Di HP < 360 px tulisan "JukirHub"
   disembunyikan, logo tetap.
 - **Peta:** MapLibre dimuat belakangan, peta dasar OpenFreeMap `dark` / `positron` mengikuti tema (cadangan tile OSM),
   atribusi wajib terlihat. **Kolom cari di atas peta.** Penanda hanya untuk tempat yang sudah dilaporkan (bagian 1.2
-  poin 4). Tata letak lapisan lain sama dengan Adami (zoom kanan atas, panel info + legenda kiri bawah, tombol lokasi
-  kanan bawah).
-- **Lembar tempat** (setengah layar) sesuai bagian 1.2 poin 2. Halaman statis per tempat ditunda.
+  poin 4). Tata letak lapisan lain sama dengan Adami (zoom kanan atas di bawah kolom cari, panel info + legenda kiri
+  bawah, tombol lokasi kanan bawah).
+  - Gaya `dark`/`positron` **tidak menggambar POI**, jadi `components/Peta.jsx` menambah lapisan sendiri
+    `jh-poi-titik` + `jh-poi-nama` dari source-layer `poi` OpenMapTiles (warna dari variabel tema), tampil mulai
+    **zoom 15** (`ZOOM_NAMA_TEMPAT`); di bawah itu muncul petunjuk "Perbesar peta…". Ketuk dicari dalam kotak ±14 px.
+    `feature.id` POI tidak dipakai sebagai `osm_ref` (jenis node/way tidak diketahui); `osm_ref` hanya dari Nominatim.
+  - Tempat yang diketuk/dicari/dipin dicocokkan dulu ke tempat terlapor (`cocokkanTempat`, `lib/tempat.js`).
+  - Di jendela yang tersembunyi MapLibre berhenti menggambar (penanda belum muncul); uji lewat DOM +
+    `window.__peta` (hanya dev), atau picu screenshot dulu.
+- **Lembar tempat** (setengah layar) sesuai bagian 1.2 poin 2; **tombol Laporkan parkir & Petunjuk arah tepat di bawah
+  nama** (terlihat tanpa gulir di 360×640), lalu ringkasan. Halaman statis per tempat ditunda.
 - **Daftar:** tempat yang sudah dilaporkan, terdekat dulu bila lokasi diizinkan; ketuk → Peta + lembar tempat.
 - **Warna hanya untuk makna:** level indikasi, bintang rating, dan aksen biru rambu parkir. Selebihnya netral
   hitam-putih seperti Adami. Warna tidak pernah sendirian: selalu disertai teks/ikon.
@@ -460,7 +469,7 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **Web:** Vercel, `installCommand` `npm ci --prefix web`, `buildCommand` `npm run build --prefix web`, output
   `web/dist`, `cleanUrls: true`. Tujuan rewrite SPA **tanpa** `.html` (pelajaran Adami: `/index.html` membuat alamat
   tak dikenal jadi 404 polos). Salin `vercel.json` Adami lalu sesuaikan domain.
-- **Environment Vercel:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, opsional `VITE_SITE_URL`.
+- **Environment Vercel** (diisi pemilik): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (kunci anon **atau** publishable `sb_publishable_…`; hanya dikirim di header `apikey`), opsional `VITE_SITE_URL`. Tanpa keduanya app tetap jalan dengan data kosong. Untuk dev: `web/.env.local` (di-gitignore).
 - **Edge Function** (dideploy pemilik): `npx supabase functions deploy <nama>`.
 - **Secret Edge Function** (lewat `npm run cloud:secrets`, dijalankan pemilik): `ALLOWED_ORIGINS`, `URL_WEB`,
   `REPORTER_SALT`, `IP_SALT`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_CHAT_ID`, `PEMANTAUAN_SECRET`, mulai M4 `GEMINI_API_KEY` (dipasang pemilik sendiri).
@@ -480,7 +489,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | Tahap | Isi |
 |---|---|
 | **M0 Fondasi** | Kerangka `web/` meniru Adami, tema, Poppins, service worker, SEO dasar, migrasi awal, tes. *Selesai (lihat status).* |
-| **M1 Peta & pilih tempat** | Peta MapLibre + penanda tempat terlapor + gugus, ketuk tempat di peta dasar, cari (lokal + Nominatim), tekan lama untuk pin, lembar tempat (baca dari view publik), Daftar |
+| **M1 Peta & pilih tempat** | Peta MapLibre + penanda tempat terlapor + gugus, ketuk tempat di peta dasar, cari (lokal + Nominatim), tekan lama untuk pin, lembar tempat (baca dari view publik), Daftar *Selesai 29 Sept (lihat status).* |
 | **M2 Laporkan parkir** | Form 1 layar (1.2 poin 3), Edge Function `lapor` (gerbang 250 m, batas, GPS palsu, buat tempat baru), `skor-pungli.js` + ringkasan, penanda berubah warna setelah lapor |
 | **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan |
 | **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) |
@@ -490,26 +499,23 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 wilayah + CSV, halaman statis per tempat, rincian kerja jukir, atribut resmi, tag sikap, foto, notifikasi, bot
 Telegram warga, koin pelapor, hak jawab pemilik tempat, lencana "Resmi terverifikasi Dishub", akun pemerintah.
 
-**Status M0 (26 Sept 2026): selesai dan sudah disesuaikan ke 1.2; di-commit & push ke `main` (repo GitHub).**
+**Status (29 Sept 2026): M0 dan M1 selesai.** Situs tayang di https://jukirhub.vercel.app (cek setelah push M0: semua
+halaman 200, canonical & sitemap benar, tampilan HP benar).
 
-- Web: kerangka `.app`, header (logo P, Motor/Mobil, ikon tema), **4 tab** (Beranda, Peta, Daftar, Info), tombol
-  bawah **"Laporkan parkir"** yang membuka Peta + petunjuk "Ketuk tempat Anda parkir". Beranda/Daftar/Info berisi
-  keadaan kosong + penjelasan alur 1.2; Peta masih pengganti (M1). `app.css` berisi token 6.3; Poppins self-host;
-  service worker; HTML statis SEO untuk `/`, `/peta`, `/daftar`, `/info` + robots + sitemap. JS awal **±86 kB gzip**
-  (Supabase belum diimpor).
-- `_shared/konstanta.js`: kendaraan, `INDIKASI_PUNGLI` (4 kode + poin), level, ambang, `BATAS` (gerbang 250 m,
-  tempat sama 30 m). `_shared/format.js`: Rupiah & jarak.
-- Migrasi `20260924000001_skema.sql` (model 1.2): `tarif_resmi`, `titik_parkir` (nama, `osm_ref` unik, geom, kota,
-  status), `laporan` (`bantu_datang`, `bantu_pergi`, `bayar`, `pungli[]`, `bintang`, …), `ringkasan_titik`; RLS
-  tertutup; view `titik_publik`, `ringkasan_titik_publik` (level/alasan pungli hanya setelah 3 laporan / 2 perangkat;
-  membantu, tarif, bintang sejak laporan pertama), `tarif_publik`; `titik_terdekat`; retensi 7 hari + cron 03:00 WITA.
-  Diuji di PGlite + PostGIS (constraint, ambang, retensi, hak anon). **Belum diterapkan ke cloud**, jadi selama
-  belum `db push` migrasi ini masih boleh ditulis ulang.
-- Tes: `tema`, `karakter-tak-terlihat`, `konstanta-db` (konstanta = constraint DB, kolom model lama tidak ada),
-  `format`, `seo` — 19 tes lolos.
-- Dicek di server dev lewat DOM: 375×812, 360×640, 1280×800, tema gelap & terang, tanpa scroll horizontal, tombol
-  ≥ 44 px, tombol "Laporkan parkir" terlihat tanpa scroll dan membuka Peta + petunjuk, console bersih.
-- **Menunggu pemilik:** import repo ke Vercel, proyek Supabase baru "jukirhub" (jangan pakai proyek Adami).
+- **M0:** kerangka `.app` meniru Adami, 4 tab, tema, Poppins, service worker, SEO statis `/`, `/peta`, `/daftar`,
+  `/info`; `_shared/konstanta.js` (indikasi pungli, level, ambang, `BATAS`), `_shared/format.js`; migrasi
+  `20260924000001_skema.sql` model 1.2 (diuji di PGlite + PostGIS).
+- **M1:** peta MapLibre (dimuat terpisah ±283 kB gzip; ditanya dulu di koneksi lambat), lapisan nama tempat sendiri,
+  penanda tempat terlapor + gugus, ketuk nama tempat / cari (lokal + Nominatim) / tekan lama → lembar tempat, Daftar
+  & Beranda dari view publik, snapshot offline. Tombol "Laporkan parkir" di lembar **belum membuka form** (pesan
+  "sedang disiapkan"); form = M2. JS awal **91,6 kB gzip**.
+- Tes 45 lolos (`tema`, `karakter-tak-terlihat`, `konstanta-db`, `format`, `seo`, `tempat`, `cari-data`, `lokasi`).
+- Dicek di server dev dengan data uji di snapshot `localStorage` (dihapus lagi): 375×812, 360×640, 1280×800, tema gelap &
+  terang, tanpa scroll horizontal, tombol ≥ 44 px (zoom peta juga), lembar & pencarian berfungsi, console bersih.
+- **Menunggu pemilik (sebelum data sungguhan tampil):**
+  1. Terapkan migrasi ke proyek `dcjnufascffooyotwqki` (`npx supabase link` + `npx supabase db push`, dijalankan
+     pemilik). Setelah itu migrasi **tidak boleh lagi ditulis ulang**; perubahan skema = file migrasi baru.
+  2. Isi `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` di Vercel (lalu Redeploy) dan di `web/.env.local` untuk dev.
 
 ---
 
@@ -535,6 +541,11 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   - Repo: https://github.com/wahyu-setiawan99/jukirhub.
   - Ditambah: **komentar pada riwayat tempat** dan **berita parkir** yang lokasinya dideteksi AI lalu diselipkan ke
     detail tempat (bagian 1.3). Urutan (rekomendasi Claude): setelah alur dasar tayang, komentar (M4) lalu berita (M5).
+- **29 Sept 2026:**
+  - Pemilik: jukirhub.vercel.app sudah tayang; proyek Supabase `dcjnufascffooyotwqki`; "silahkan lanjut" → M1.
+  - Keputusan teknis Claude saat M1 (boleh ditinjau pemilik): **supabase-js tidak dipakai** (web hanya membaca view
+    lewat `fetch` REST; lebih ringan), lapisan nama tempat sendiri di atas peta, **bilah "Laporkan parkir" disembunyikan
+    di tab Peta** (tombolnya ada di lembar tempat), tombol aksi lembar dipindah ke atas ringkasan.
 
 **Belum diputuskan (tanyakan pemilik sebelum dikerjakan):**
 

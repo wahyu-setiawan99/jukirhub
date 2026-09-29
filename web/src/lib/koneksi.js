@@ -1,6 +1,6 @@
 // Kondisi koneksi & pemuatan bagian app yang dipisah dari unduhan awal (pola Adami).
 
-// Koneksi sangat lambat / mode hemat data: jangan unduh peta tanpa diminta (dipakai mulai M1).
+// Koneksi sangat lambat / mode hemat data: jangan unduh peta tanpa diminta.
 export function koneksiLambat() {
   const koneksi = navigator.connection;
   return !!koneksi && (koneksi.saveData === true || ['slow-2g', '2g'].includes(koneksi.effectiveType));
@@ -8,6 +8,8 @@ export function koneksiLambat() {
 
 // Satu titik impor per bagian: React.lazy di App dan pramuat di sini memakai modul yang sama,
 // jadi setiap file hanya diunduh sekali.
+export const muatModulPeta = () => import('../components/Peta.jsx');
+
 export const muatBagian = {
   daftar: () => import('../pages/Daftar.jsx'),
   info: () => import('../pages/Info.jsx')
@@ -20,6 +22,13 @@ function saatSenggang(jalankan, cadanganMs) {
   }
   const id = setTimeout(jalankan, cadanganMs);
   return () => clearTimeout(id);
+}
+
+// Peta (MapLibre + worker + CSS, jauh lebih besar dari sisa app): setelah Beranda tampil & perangkat senggang,
+// unduh di latar agar "Buka peta" terasa instan. Tidak saat koneksi lambat, hemat data, atau offline.
+export function pramuatPetaSaatSenggang() {
+  if (koneksiLambat() || navigator.onLine === false) return () => {};
+  return saatSenggang(() => { muatModulPeta().catch(() => { /* dicoba lagi saat peta dibuka */ }); }, 2500);
 }
 
 // Bagian-bagian kecil dipramuat juga di koneksi lambat supaya tersimpan service worker dan tetap bisa dibuka

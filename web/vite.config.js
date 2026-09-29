@@ -57,6 +57,10 @@ function seoHalaman() {
 export default defineConfig({
   plugins: [react(), seoHalaman()],
   resolve: { alias: { '@shared': shared } },
+  // MapLibre v6 memuat worker lewat URL relatif (maplibre-gl-worker.mjs + shared.mjs).
+  // Pre-bundling Vite memindahkan modul ke .vite/deps tanpa file worker → source tidak pernah dimuat (pelajaran Adami).
+  optimizeDeps: { exclude: ['maplibre-gl'] },
+  worker: { format: 'es' },
   server: {
     // 5174: tidak bentrok dengan server dev Adami (5173).
     port: 5174,

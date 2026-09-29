@@ -1,30 +1,54 @@
+import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LABEL_KENDARAAN } from '@shared/konstanta.js';
 import { useApp } from '../state.jsx';
 import { CATATAN_KAKI, FAQ, HERO, LANGKAH, TENTANG, WILAYAH } from '../lib/konten-beranda.js';
+import { urutkanTempat } from '../lib/tempat.js';
+import { pramuatPetaSaatSenggang } from '../lib/koneksi.js';
+import BarisTempat from '../components/BarisTempat.jsx';
 
-// Layar pertama: ringan (tanpa peta), penjelasan app untuk pengunjung baru & mesin pencari.
-// Teks penjelasan juga ditanam statis saat build (lib/seo.js). Tempat terdekat tampil mulai M1.
+const JUMLAH_SOROTAN = 3;
+
+// Layar pertama: ringan (tanpa peta), tempat terlapor terdekat/terbaru + penjelasan app untuk pengunjung baru &
+// mesin pencari. Teks penjelasan juga ditanam statis saat build (lib/seo.js).
 export default function Beranda() {
-  const { kendaraan } = useApp();
+  const { kendaraan, daftar, statusData, posisi } = useApp();
   const navigate = useNavigate();
+
+  useEffect(() => pramuatPetaSaatSenggang(), []);
+
+  const sorotan = useMemo(() => urutkanTempat(daftar, posisi).slice(0, JUMLAH_SOROTAN), [daftar, posisi]);
 
   return (
     <div className="halaman beranda">
       <section className="beranda-pembuka">
         <h1>{HERO.judul}</h1>
         <p className="redup">{HERO.sub}</p>
-        <p className="beranda-status" role="status">Belum ada tempat parkir yang dilaporkan.</p>
+        <p className="beranda-status" role="status">
+          {statusData === 'memuat' && 'Memuat data tempat parkir…'}
+          {statusData === 'galat' && 'Data belum bisa dimuat.'}
+          {statusData === 'siap' && (daftar.length
+            ? `${daftar.length} tempat parkir sudah dilaporkan warga`
+            : 'Belum ada tempat parkir yang dilaporkan.')}
+        </p>
       </section>
 
       <section className="kartu-beranda" aria-labelledby="judul-sorotan">
         <div className="kepala-seksi">
-          <h2 id="judul-sorotan">Tempat parkir terdekat · {LABEL_KENDARAAN[kendaraan]}</h2>
+          <h2 id="judul-sorotan">
+            {posisi ? 'Tempat parkir terdekat' : 'Laporan terbaru'} · {LABEL_KENDARAAN[kendaraan]}
+          </h2>
         </div>
-        <div className="kosong">
-          <strong>Belum ada laporan di sekitar Anda.</strong>
-          <span>Baru parkir di depan toko atau pinggir jalan? Buka Peta, ketuk tempat Anda parkir, lalu laporkan supaya warga lain tahu.</span>
-        </div>
+        {sorotan.length > 0 ? (
+          <ul className="daftar-tempat">
+            {sorotan.map(t => <BarisTempat key={t.id} t={t} />)}
+          </ul>
+        ) : (
+          <div className="kosong">
+            <strong>Belum ada laporan di sekitar Anda.</strong>
+            <span>Baru parkir di depan toko atau pinggir jalan? Buka Peta, ketuk tempat Anda parkir, lalu laporkan supaya warga lain tahu.</span>
+          </div>
+        )}
         <div className="aksi-beranda">
           <button type="button" className="tombol-sekunder" onClick={() => navigate('/peta')}>Buka peta</button>
           <button type="button" className="tombol-sekunder" onClick={() => navigate('/daftar')}>Lihat daftar</button>

@@ -462,6 +462,339 @@ a { color: var(--aksen); }
 .statis .atas { position: sticky; top: 0; }
 .statis .halaman { height: auto; overflow: visible; }
 
+/* ------------------------------------------------ peta (pola Adami) */
+
+/* CSS MapLibre dimuat belakangan dan memberi .maplibregl-map position: relative.
+   Selektor dua kelas memastikan aturan ini tetap menang, apa pun urutan pemuatan CSS. */
+.peta-wadah, .peta-wadah > .peta { position: absolute; inset: 0; }
+/* Tombol zoom minimal 44 px (AGENTS.md 7). */
+.peta-wadah .maplibregl-ctrl-group button { width: 44px; height: 44px; }
+/* Kontrol zoom turun di bawah kolom cari. */
+.peta-wadah .maplibregl-ctrl-top-right { top: 58px; }
+
+/* Kolom cari di atas peta (AGENTS.md 1.2 poin 1) */
+.cari-peta {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  max-width: 560px;
+  margin-inline: auto;
+  z-index: 3;
+}
+/* Layar lebar: pesan di bawah kolom cari ikut di tengah (di HP menyisakan tempat untuk tombol zoom di kanan). */
+@media (min-width: 760px) {
+  .catatan-lokasi, .petunjuk-zoom { right: 10px; max-width: 560px; margin-inline: auto; }
+}
+.baris-cari {
+  display: flex;
+  gap: 4px;
+  padding: 2px;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  background: var(--permukaan);
+  box-shadow: var(--bayang);
+}
+.baris-cari input {
+  flex: 1;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--teks);
+  font: inherit;
+}
+.baris-cari input::placeholder { color: var(--redup); }
+.tombol-cari {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--utama);
+  color: var(--utama-teks);
+  cursor: pointer;
+}
+.hasil-cari {
+  margin-top: 6px;
+  max-height: min(60vh, 420px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  background: var(--permukaan);
+  box-shadow: var(--bayang);
+}
+.hasil-cari ul { list-style: none; margin: 0 0 4px; padding: 0; display: grid; gap: 2px; }
+.hasil-cari li button {
+  position: relative;
+  display: grid;
+  gap: 1px;
+  width: 100%;
+  min-height: 48px;
+  padding: 6px 28px 6px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.hasil-cari li button:hover { background: var(--lembut); }
+.hasil-cari li .titik-warna { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
+.kepala-hasil { padding: 6px 8px 2px; color: var(--redup); font-size: 0.8rem; font-weight: 600; }
+.pesan-hasil { padding: 8px; font-size: 0.875rem; line-height: 1.45; }
+.atribusi-cari { padding: 4px 8px 2px; }
+
+/* Pesan di bawah kolom cari: lokasi / petunjuk memilih tempat */
+.catatan-lokasi {
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  right: 56px;
+  max-width: 480px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 6px 8px 12px;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  background: var(--permukaan);
+  box-shadow: var(--bayang);
+  max-height: calc(50% - 60px);
+  overflow: auto;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  z-index: 2;
+}
+.catatan-lokasi p { flex: 1; padding: 4px 0; }
+.tutup-catatan {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -4px 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--lembut);
+  color: var(--teks);
+  cursor: pointer;
+}
+.petunjuk-zoom {
+  position: absolute;
+  top: 62px;
+  left: 10px;
+  right: 56px;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--kaca);
+  color: var(--teks-isi);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.tombol-lokasi {
+  position: absolute;
+  right: 10px;
+  bottom: 40px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  background: var(--permukaan);
+  color: var(--aksen);
+  box-shadow: var(--bayang);
+  cursor: pointer;
+  z-index: 2;
+}
+.tombol-lokasi:disabled { opacity: 0.6; cursor: progress; }
+
+.info-peta {
+  position: absolute;
+  left: 10px;
+  bottom: 40px;
+  display: grid;
+  gap: 2px;
+  width: min(320px, calc(100% - 74px));
+  max-height: calc(100% - 130px);
+  overflow: auto;
+  padding: 8px 12px 0;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  background: var(--permukaan);
+  box-shadow: var(--bayang);
+  font-size: 0.85rem;
+  z-index: 2;
+}
+.info-peta .ringkas-peta { color: var(--teks-isi); }
+.info-peta .galat { color: var(--merah-teks); }
+.legenda-peta summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--aksen);
+  font-weight: 600;
+  cursor: pointer;
+}
+.legenda-peta .legenda { padding-bottom: 6px; }
+.legenda-peta .legenda li .lencana-indikasi { min-width: 0; }
+.legenda-peta > p { padding-bottom: 10px; }
+.legenda-peta .legenda li { grid-template-columns: 1fr; row-gap: 2px; }
+
+.titik-saya {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--utama);
+  border: 3px solid var(--utama-teks);
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.25);
+}
+
+/* Penanda tempat terlapor: tombol 44 px, warna = level indikasi pungli (AGENTS.md 1.2 poin 4) */
+.mk {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.mk-bulat {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--warna-indikasi);
+  border: 2px solid var(--permukaan);
+  color: var(--latar);
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+.mk.indikasi-kurang .mk-bulat {
+  background: var(--pudar-latar);
+  border: 2px dashed var(--indikasi-kurang);
+  color: var(--pudar-teks);
+}
+.mk.terpilih .mk-bulat { outline: 3px solid var(--aksen); outline-offset: 2px; }
+.mk-klaster {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid var(--klaster-garis);
+  background: var(--klaster-latar);
+  color: var(--klaster-teks);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+/* Pin tempat yang dipilih tapi belum dilaporkan */
+.mk-pilih {
+  width: 26px;
+  height: 26px;
+  margin-bottom: 6px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--utama);
+  border: 3px solid var(--utama-teks);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* ------------------------------------------------ lembar tempat (setengah layar, pola lembar SPBU Adami) */
+
+.lembar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: calc(var(--lebar-kolom) + 32px);
+  margin-inline: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px 16px;
+  background: var(--permukaan);
+  z-index: 4;
+}
+.lembar-peta {
+  max-height: 62%;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
+}
+.lembar-kepala { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.lembar h2 { font-size: 1.1rem; line-height: 1.3; outline: none; }
+.lembar-kepala .redup { margin-top: 2px; }
+.tombol-ikon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--latar);
+  color: var(--teks);
+  cursor: pointer;
+}
+.ringkas-tempat { display: grid; gap: 8px; line-height: 1.45; }
+.baris-ringkas { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
+.baris-ringkas dt { color: var(--redup); font-size: 0.875rem; padding-top: 1px; }
+.baris-ringkas dd { margin: 0; }
+.bintang { color: var(--bintang); }
+.ajakan { font-weight: 600; }
+.aksi-lembar { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.tombol-aksi {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 8px;
+  border: 1px solid var(--aksen);
+  border-radius: 12px;
+  background: var(--permukaan);
+  color: var(--aksen);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.tombol-aksi.utama { border-color: var(--utama); background: var(--utama); color: var(--utama-teks); }
+
+/* ------------------------------------------------ baris tempat (Beranda, Daftar) */
+
+.daftar-tempat { list-style: none; margin-block: 0; padding: 0; display: grid; gap: 6px; }
+.baris-tempat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 12px;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  background: var(--permukaan);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.baris-teks { display: grid; gap: 1px; min-width: 0; }
+.baris-teks strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.titik-warna.besar { width: 14px; height: 14px; }
+.kartu-beranda .daftar-tempat { margin: 0; }
+
 /* Judul untuk pembaca layar saja. Sengaja di akhir file: aturan lebar kolom (.info > * dst.) tidak boleh
    menimpa width 1px, kalau tidak judul ini melebar ke luar layar. */
 .judul-tersembunyi {

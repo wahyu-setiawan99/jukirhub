@@ -1,6 +1,7 @@
 // Isi SVG (viewBox 0 0 24 24, stroke currentColor) per nama ikon. String statis milik app — aman disisipkan sebagai HTML.
 export const IKON = {
   silang: '<path d="M7 7l10 10M17 7L7 17"/>',
+  cari: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>',
   lokasi: '<circle cx="12" cy="12" r="3.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>',
   kembali: '<path d="M15 5l-7 7 7 7"/>',
   // tombol tema di header: matahari = ganti ke terang, bulan = ganti ke gelap

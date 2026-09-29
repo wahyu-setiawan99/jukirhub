@@ -1,18 +1,25 @@
-import { Component, Suspense, lazy, useEffect } from 'react';
+import { Component, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { KENDARAAN, LABEL_KENDARAAN } from '@shared/konstanta.js';
 import { useApp } from './state.jsx';
 import Beranda from './pages/Beranda.jsx';
-import { muatBagian, pramuatBagianSaatSenggang } from './lib/koneksi.js';
+import { koneksiLambat, muatBagian, muatModulPeta, pramuatBagianSaatSenggang } from './lib/koneksi.js';
 import { HALAMAN, SITUS } from './lib/konten-beranda.js';
 import { svgLogoInline } from './lib/logo.js';
 import { useTema } from './lib/tema.js';
+import { cocokkanTempat } from './lib/tempat.js';
 import { Ikon } from './components/Ikon.jsx';
+import CariTempat from './components/CariTempat.jsx';
+import LembarTempat from './components/LembarTempat.jsx';
+import { LegendaIndikasi } from './components/Legenda.jsx';
 
 // Halaman & layar yang tidak dibutuhkan saat app dibuka dimuat terpisah (unduhan awal lebih kecil),
 // lalu dipramuat saat perangkat senggang agar tetap tersedia offline (lib/koneksi.js).
 const Daftar = lazy(muatBagian.daftar);
 const Info = lazy(muatBagian.info);
+
+// Pustaka peta (MapLibre + worker + CSS) jauh lebih besar dari sisa app: dimuat terpisah saat tab Peta dibuka.
+const muatKomponenPeta = () => lazy(muatModulPeta);
 
 // Teks statis dari lib/logo.js (bukan masukan pengguna), aman ditempel sebagai SVG.
 const LOGO_HEADER = svgLogoInline(28);
@@ -76,11 +83,16 @@ export default function App() {
         </BatasGalatMuat>
       </main>
 
-      {/* Laporan selalu dimulai dari tempat di peta (AGENTS.md 1.2): tombol ini membuka Peta + petunjuk memilih tempat. */}
-      <div className="aksi">
-        <button type="button" className="tombol-lapor" onClick={() => navigate('/peta', { state: { pilihTempat: true } })}>
-          Laporkan parkir
-        </button>
+      {/* Laporan selalu dimulai dari tempat di peta (AGENTS.md 1.2): tombol ini membuka Peta + petunjuk memilih tempat.
+          Di tab Peta sendiri tidak ditampilkan (tombolnya ada di lembar tempat); baris grid tetap ada, isinya kosong. */}
+      <div className="wadah-aksi">
+        {pathname !== '/peta' && (
+          <div className="aksi">
+            <button type="button" className="tombol-lapor" onClick={() => navigate('/peta', { state: { pilihTempat: true } })}>
+              Laporkan parkir
+            </button>
+          </div>
+        )}
       </div>
 
       <nav className="bawah" aria-label="Navigasi utama">
@@ -169,28 +181,137 @@ class BatasGalatMuat extends Component {
   }
 }
 
-// Peta MapLibre (dimuat belakangan), cari tempat, dan lembar tempat dibuat di M1 (AGENTS.md 1.2).
-// Sementara: pengganti yang jujur. Datang dari tombol "Laporkan parkir" → tampilkan petunjuk memilih tempat.
+
+// Gagal mengunduh bagian peta (mis. sinyal putus) → pesan + coba lagi, bukan layar kosong.
+class BatasGalatPeta extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { galat: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { galat: true };
+  }
+
+  componentDidCatch(err) {
+    console.warn('[peta] gagal dimuat:', err);
+  }
+
+  render() {
+    if (!this.state.galat) return this.props.children;
+    return (
+      <div className="peta-pengganti" role="alert">
+        <p><strong>Peta gagal dimuat.</strong></p>
+        <p className="redup">Periksa koneksi Anda. Daftar tempat tetap bisa dipakai.</p>
+        <div className="baris-tombol">
+          <button type="button" className="tombol-utama" onClick={this.props.onCobaLagi}>Coba lagi</button>
+          <button type="button" className="tombol-sekunder" onClick={this.props.onKeDaftar}>Lihat daftar tempat</button>
+        </div>
+      </div>
+    );
+  }
+}
+
+// Pilihan "Muat peta" di koneksi lambat berlaku selama tab terbuka.
+let petaDiizinkanSesiIni = false;
+
+// Tab Peta (AGENTS.md 1.2): pilih tempat (ketuk nama tempat / cari / tekan lama) → lembar tempat.
 function HalamanPeta() {
+  const { daftar, statusData, muatUlang, mintaPosisi } = useApp();
+  const lokasi = useLocation();
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const [pilihanMentah, setPilihanMentah] = useState(null);
+  const [fokus, setFokus] = useState(null);
+  const [petunjuk, setPetunjuk] = useState(false);
+  // Di koneksi sangat lambat peta ditanya dulu, kecuali datang untuk melihat satu tempat.
+  const [muatPeta, setMuatPeta] = useState(
+    () => petaDiizinkanSesiIni || !koneksiLambat() || lokasi.state?.fokusTempat != null
+  );
+  // React.lazy menyimpan kegagalan impor; percobaan ulang butuh instance baru.
+  const [Peta, setPeta] = useState(() => muatKomponenPeta());
+  const [kunciPeta, setKunciPeta] = useState(0);
+
+  // Penanda diketuk → { id }; tempat di peta / hasil cari / pin → dicocokkan dulu dengan tempat terlapor (≤ 30 m).
+  const pilihan = useMemo(() => {
+    if (!pilihanMentah) return null;
+    if (pilihanMentah.id != null) return daftar.find(t => t.id === pilihanMentah.id) ?? null;
+    return cocokkanTempat(pilihanMentah, daftar) ?? pilihanMentah;
+  }, [pilihanMentah, daftar]);
+
+  const pilih = useCallback((p) => {
+    setPilihanMentah(p);
+    if (p) setPetunjuk(false);
+  }, []);
+  const pilihDanFokus = useCallback((p) => {
+    pilih(p);
+    setFokus({ lat: p.lat, lng: p.lng, kunci: Date.now() });
+  }, [pilih]);
+  const tutup = useCallback(() => setPilihanMentah(null), []);
+
+  // Datang dari Daftar/Beranda ({ fokusTempat }) atau tombol "Laporkan parkir" ({ pilihTempat }).
+  // Tangani sekali, lalu bersihkan state agar tombol Kembali tidak memicu ulang.
+  useEffect(() => {
+    const s = lokasi.state;
+    if (!s) return;
+    if (s.fokusTempat != null) {
+      const t = daftar.find(x => x.id === s.fokusTempat);
+      if (!t) return;   // tunggu data termuat
+      pilihDanFokus({ id: t.id, lat: t.lat, lng: t.lng });
+    } else if (s.pilihTempat) {
+      setPilihanMentah(null);
+      setPetunjuk(true);
+      mintaPosisi().catch(() => { /* pesan lokasi tampil di peta */ });
+    }
+    navigate(lokasi.pathname, { replace: true, state: null });
+  }, [lokasi.state, lokasi.pathname, navigate, daftar, pilihDanFokus, mintaPosisi]);
+
   return (
     <>
       <h1 className="judul-tersembunyi">{HALAMAN['/peta'].h1}</h1>
-      <div className="peta-pengganti" role="region" aria-label="Peta belum tersedia">
-        <Ikon nama="peta" ukuran={32} />
-        {state?.pilihTempat && (
-          <p className="kotak-info" role="status">Ketuk tempat Anda parkir di peta, lalu tekan Laporkan parkir.</p>
-        )}
-        <p><strong>Peta tempat parkir sedang disiapkan.</strong></p>
-        <p className="redup">
-          Nanti Anda bisa mengetuk tempat di peta atau mencari namanya untuk melihat laporan parkir dan melapor.
-          Tempat yang sudah dilaporkan diberi warna indikasi pungli.
-        </p>
-        <div className="baris-tombol">
-          <button type="button" className="tombol-sekunder" onClick={() => navigate('/info')}>Arti tanda di peta</button>
+      {muatPeta ? (
+        <BatasGalatPeta key={kunciPeta} onKeDaftar={() => navigate('/daftar')}
+          onCobaLagi={() => { setPeta(() => muatKomponenPeta()); setKunciPeta(k => k + 1); }}>
+          <Suspense fallback={<div className="peta-pengganti" role="status"><p>Memuat peta…</p></div>}>
+            <Peta pilihan={pilihan} onPilih={pilih} fokus={fokus}
+              petunjukPilih={petunjuk} onTutupPetunjuk={() => setPetunjuk(false)} />
+          </Suspense>
+        </BatasGalatPeta>
+      ) : (
+        <div className="peta-pengganti" role="region" aria-label="Peta belum dimuat">
+          <p><strong>Koneksi lambat atau mode hemat data terdeteksi.</strong></p>
+          <p className="redup">Peta butuh unduhan cukup besar. Daftar tempat lebih ringan.</p>
+          <div className="baris-tombol">
+            <button type="button" className="tombol-utama" onClick={() => { petaDiizinkanSesiIni = true; setMuatPeta(true); }}>
+              Muat peta
+            </button>
+            <button type="button" className="tombol-sekunder" onClick={() => navigate('/daftar')}>Lihat daftar tempat</button>
+          </div>
         </div>
-      </div>
+      )}
+
+      <CariTempat onPilih={pilihDanFokus} />
+
+      {!pilihan && (
+        <div className="info-peta">
+          {statusData === 'memuat' && <span>Memuat data…</span>}
+          {statusData === 'galat' && (
+            <span className="galat">
+              Data belum bisa dimuat. <button type="button" className="tautan" onClick={muatUlang}>Coba lagi</button>
+            </span>
+          )}
+          {statusData === 'siap' && (
+            <span className="ringkas-peta">
+              {daftar.length ? `${daftar.length} tempat sudah dilaporkan` : 'Belum ada tempat yang dilaporkan'}
+            </span>
+          )}
+          <details className="legenda-peta">
+            <summary>Arti warna</summary>
+            <LegendaIndikasi />
+          </details>
+        </div>
+      )}
+
+      <LembarTempat tempat={pilihan} onTutup={tutup} />
     </>
   );
 }
