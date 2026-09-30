@@ -477,6 +477,11 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA); mulai M4 `periksa-komentar` (tiap 5 menit, hanya bila ada yang menunggu); mulai M5 `berita` (tiap 3 jam).
 - Pemilik menerima kabar Telegram untuk setiap tempat baru dan laporan (yang berpola GPS palsu diberi tanda) —
   menyusul setelah alur 1.2 jalan.
+- **Hanya SATU proyek Vercel: `jukirhub`** (memegang jukirhub.vercel.app). 30 Sept 2026 repo ternyata tersambung juga ke
+  duplikat `jukirhub-aywb` (import kedua, preset Vite → build selalu gagal) dan production `jukirhub` tertahan di M0
+  sampai pemilik menjalankan **Promote to Production** pada deploy M2. Setelah push, pastikan bundle di situs berganti;
+  kalau tidak, cek tab Deployments proyek `jukirhub` (bukan build lokal). Status deploy juga terlihat di
+  `https://api.github.com/repos/wahyu-setiawan99/jukirhub/commits/<sha>/status`.
 - **Jangan mengecek situs langsung dengan loop cepat** (mis. `curl` tiap 10 detik): 29 Sept 2026 hal itu memicu
   **Vercel Security Checkpoint** (403 `x-vercel-mitigated: challenge`) untuk jaringan pemilik, termasuk browser pane.
   Tunggu ±2 menit setelah push, lalu cek sekali; jangan pernah mencoba melewati tantangan anti-bot.
@@ -502,7 +507,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 wilayah + CSV, halaman statis per tempat, rincian kerja jukir, atribut resmi, tag sikap, foto, notifikasi, bot
 Telegram warga, koin pelapor, hak jawab pemilik tempat, lencana "Resmi terverifikasi Dishub", akun pemerintah.
 
-**Status (30 Sept 2026): M0, M1, dan M2 selesai.** Situs tayang di https://jukirhub.vercel.app (cek setelah push M0: semua
+**Status (30 Sept 2026): M0, M1, dan M2 selesai dan tayang** di https://jukirhub.vercel.app (M2 dicek langsung 30 Sept: bundle baru, view Supabase 200, form lapor terbuka) (cek setelah push M0: semua
 halaman 200, canonical & sitemap benar, tampilan HP benar).
 
 - **M0:** kerangka `.app` meniru Adami, 4 tab, tema, Poppins, service worker, SEO statis `/`, `/peta`, `/daftar`,
