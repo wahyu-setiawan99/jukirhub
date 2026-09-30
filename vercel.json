@@ -7,7 +7,7 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/((?!assets/|sw\\.js|manifest\\.webmanifest|ikon|og\\.png|robots\\.txt|sitemap\\.xml).*)",
+      "source": "/((?!assets/|sw\\.js|manifest\\.webmanifest|ikon|og\\.png|robots\\.txt|sitemap\\.xml|versi\\.json).*)",
       "destination": "/"
     }
   ],
@@ -36,6 +36,15 @@
         {
           "key": "Content-Type",
           "value": "application/manifest+json"
+        }
+      ]
+    },
+    {
+      "source": "/versi.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
         }
       ]
     }

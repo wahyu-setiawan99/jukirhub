@@ -489,6 +489,12 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA); mulai M4 `periksa-komentar` (tiap 5 menit, hanya bila ada yang menunggu); mulai M5 `berita` (tiap 3 jam).
 - Pemilik menerima kabar Telegram untuk setiap tempat baru dan laporan (yang berpola GPS palsu diberi tanda) —
   menyusul setelah alur 1.2 jalan.
+- **Alur rilis (seperti Adami): `git push` ke `main` → Vercel build & tayang otomatis → `npm run cek:tayang`.**
+  Build menulis `/versi.json` (commit yang tayang); `scripts/cek-tayang.js` membandingkannya dengan HEAD tiap 30 detik
+  (maks. 10 menit) sambil membaca status build Vercel di GitHub, lalu melapor: tayang / build gagal (dengan tautan log) /
+  build sukses tapi tidak dijadikan Production (dengan cara memperbaikinya) / diblokir checkpoint. Pemilik tidak perlu
+  membuka Vercel kecuali skrip menyuruh. Syarat sekali di Vercel: Environments → Production → Branch Tracking `main`
+  + "Auto-assign Custom Production Domains" aktif.
 - **Hanya SATU proyek Vercel: `jukirhub`** (memegang jukirhub.vercel.app). 30 Sept 2026 repo ternyata tersambung juga ke
   duplikat `jukirhub-aywb` (import kedua, preset Vite → build selalu gagal) dan production `jukirhub` tertahan di M0
   sampai pemilik menjalankan **Promote to Production** pada deploy M2. Setelah push, pastikan bundle di situs berganti;

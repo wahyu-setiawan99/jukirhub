@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -10,10 +11,17 @@ import { JALUR_STATIS, buatIsiStatis, buatKepalaSeo, buatRobots, buatSitemap } f
 // ke Edge Function. Web mengimpornya lewat alias ini — satu file, tidak disalin.
 const shared = fileURLToPath(new URL('../supabase/functions/_shared', import.meta.url));
 
+// Commit yang sedang dibangun (Vercel mengisi VERCEL_GIT_COMMIT_SHA). Ditulis ke /versi.json supaya
+// `npm run cek:tayang` bisa memastikan push terakhir benar-benar tayang (AGENTS.md bagian 9).
+function commitSekarang() {
+  if (process.env.VERCEL_GIT_COMMIT_SHA) return process.env.VERCEL_GIT_COMMIT_SHA;
+  try { return execSync('git rev-parse HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch { return 'lokal'; }
+}
+
 // SEO: app dirender JavaScript, jadi HTML awalnya kosong bagi mesin pencari & pratinjau tautan.
 // Plugin ini menanam meta, JSON-LD, dan konten statis ke index.html (Beranda), lalu membuat HTML
-// statis untuk /peta, /daftar, /info (disajikan lewat cleanUrls di vercel.json), robots.txt, sitemap.xml.
-// Alamat situs dari VITE_SITE_URL. Halaman per tempat ditunda (AGENTS.md 1.2).
+// statis untuk /peta, /daftar, /info (disajikan lewat cleanUrls di vercel.json), robots.txt, sitemap.xml,
+// versi.json. Alamat situs dari VITE_SITE_URL. Halaman per tempat ditunda (AGENTS.md 1.2).
 function seoHalaman() {
   let url = SITUS.urlBawaan;
   let supabaseUrl = '';
@@ -34,6 +42,7 @@ function seoHalaman() {
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source: buatRobots(url) });
       this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: buatSitemap(url, new Date()) });
+      this.emitFile({ type: 'asset', fileName: 'versi.json', source: `${JSON.stringify({ commit: commitSekarang(), dibangun: new Date().toISOString() })}\n` });
     },
     // index.html final (sudah berisi tag script/CSS hasil build) → salin per halaman, ganti bagian SEO-nya.
     writeBundle(options, bundle) {
