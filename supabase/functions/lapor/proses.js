@@ -27,10 +27,12 @@ const sukses = (titik) => ({ status: 200, body: { ok: true, pesan: PESAN_SUKSES,
  *     dibekukan: boolean, lat: number, lng: number } | null>,
  *   buatTitik(t: { nama: string, osm_ref: string | null, lat: number, lng: number, dibuat_oleh: string }): Promise<number>,
  *   riwayatPerangkat(reporterKey: string): Promise<Array<{ lat: number | null, lng: number | null, akurasi_m: number | null, dibuat: string }>>,
- *   simpanLaporan(baris: Record<string, unknown>): Promise<void>,
+ *   simpanLaporan(baris: Record<string, unknown>): Promise<number>,
+ *   simpanKomentar?(k: { laporan_id: number, titik_id: number, isi: string }): Promise<number>,
  *   laporanTitik(titikId: number, sejakHari: number): Promise<Array<Record<string, unknown>>>,
  *   simpanRingkasan(titikId: number, ringkasan: Record<string, unknown>): Promise<void>
- * }, kabar?: { tempatBaru(t: { id: number, nama: string, sumber: string, lat: number, lng: number }): void } }} p
+ * }, kabar?: { tempatBaru(t: { id: number, nama: string, sumber: string, lat: number, lng: number }): void,
+ *   komentarBaru?(k: { id: number, isi: string, namaTempat: string }): void } }} p
  * @returns {Promise<{ status: number, body: Record<string, unknown> }>}
  */
 export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.now() }) {
@@ -100,7 +102,7 @@ export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.
     try { kabar?.tempatBaru({ id, nama: d.tempat.nama, sumber: d.tempat.sumber, lat: d.tempat.lat, lng: d.tempat.lng }); } catch { /* abaikan */ }
   }
 
-  await db.simpanLaporan({
+  const laporanId = await db.simpanLaporan({
     titik_id: titik.id,
     ada_jukir: d.ada_jukir,
     kendaraan: d.kendaraan,
@@ -118,9 +120,15 @@ export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.
     bobot_manual: gps.bobotManual
   });
 
+  // Komentar (M4): disimpan 'menunggu', tampil setelah pemilik menekan Tampilkan di Telegram (AGENTS.md 1.3.1).
+  if (d.komentar && db.simpanKomentar) {
+    const idKomentar = await db.simpanKomentar({ laporan_id: laporanId, titik_id: titik.id, isi: d.komentar });
+    try { kabar?.komentarBaru?.({ id: idKomentar, isi: d.komentar, namaTempat: titik.nama }); } catch { /* abaikan */ }
+  }
+
   // Ringkasan publik tempat ini dihitung ulang langsung (AGENTS.md 6.2).
   const laporan = await db.laporanTitik(titik.id, HARI_RINGKASAN);
   await db.simpanRingkasan(titik.id, ringkasTempat(laporan, { sekarang }));
 
-  return sukses(titik);
+  return { status: 200, body: { ...sukses(titik).body, ...(d.komentar ? { komentar: 'menunggu' } : {}) } };
 }

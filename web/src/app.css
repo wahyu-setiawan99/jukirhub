@@ -802,6 +802,20 @@ a { color: var(--aksen); }
 }
 .tombol-aksi.utama { border-color: var(--utama); background: var(--utama); color: var(--utama-teks); }
 
+/* Riwayat laporan di lembar tempat (M4) */
+.riwayat { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--garis); }
+.riwayat h3 { margin: 0; font-size: 0.95rem; }
+.daftar-riwayat { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.daftar-riwayat li { display: grid; gap: 2px; padding-bottom: 10px; border-bottom: 1px solid var(--garis); line-height: 1.45; }
+.daftar-riwayat li:last-child { border-bottom: 0; padding-bottom: 0; }
+.riwayat-kepala { font-size: 0.9rem; }
+.riwayat-rincian { font-size: 0.875rem; color: var(--teks-isi); }
+.riwayat-indikasi { font-size: 0.85rem; color: var(--kuning-teks); }
+.riwayat-komentar { display: grid; gap: 0; margin-top: 4px; padding: 8px 10px; border-radius: 10px; background: var(--lembut); }
+.riwayat-komentar p:first-child { font-size: 0.9rem; }
+.tautan-kecil-aduan { justify-self: start; padding: 0; min-height: 44px; font-size: 0.8rem; color: var(--redup); }
+.isian-komentar { resize: vertical; min-height: 84px; line-height: 1.45; }
+
 /* ------------------------------------------------ baris tempat (Beranda, Daftar) */
 
 .daftar-tempat { list-style: none; margin-block: 0; padding: 0; display: grid; gap: 6px; }

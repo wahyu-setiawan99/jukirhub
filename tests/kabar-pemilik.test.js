@@ -15,8 +15,10 @@ test('pesan tempat baru: nama di-escape, asal nama, tautan OpenStreetMap; tanpa 
 test('data tombol ≤ 64 byte, bisa dibaca kembali, sampah ditolak', () => {
   assert.equal(dataTombol('sembunyikan', 123456789012345), 'jh:s:123456789012345');
   assert.ok(dataTombol('sembunyikan', 123456789012345).length <= 64);
-  assert.deepEqual(bacaTombol('jh:s:12'), { aksi: 'sembunyikan', id: 12 });
-  assert.deepEqual(bacaTombol('jh:t:12'), { aksi: 'tampilkan', id: 12 });
+  assert.deepEqual(bacaTombol('jh:s:12'), { jenis: 'tempat', aksi: 'sembunyikan', id: 12 });
+  assert.deepEqual(bacaTombol('jh:t:12'), { jenis: 'tempat', aksi: 'tampilkan', id: 12 });
+  assert.deepEqual(bacaTombol('jh:ks:9'), { jenis: 'komentar', aksi: 'tampilkan', id: 9 });
+  assert.deepEqual(bacaTombol('jh:kx:9'), { jenis: 'komentar', aksi: 'tolak', id: 9 });
   for (const x of ['jh:x:1', 'jh:s:', 'jh:s:1;drop', null]) assert.equal(bacaTombol(x), null);
   assert.equal(tombolUntuk('aktif', 5).inline_keyboard[0][0].callback_data, 'jh:s:5');
   assert.equal(tombolUntuk('disembunyikan', 5).inline_keyboard[0][0].callback_data, 'jh:t:5');

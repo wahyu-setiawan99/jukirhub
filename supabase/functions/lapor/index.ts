@@ -4,7 +4,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { prosesLapor } from './proses.js';
 import { diLatar, kabariPemilik } from '../_shared/telegram.ts';
-import { pesanTempatBaru, tombolUntuk } from '../_shared/kabar-pemilik.js';
+import { pesanKomentarBaru, pesanTempatBaru, tombolKomentar, tombolUntuk } from '../_shared/kabar-pemilik.js';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -76,7 +76,10 @@ const db = {
       .order('dibuat', { ascending: false }).limit(50)) ?? [];
   },
   async simpanLaporan(baris: Record<string, unknown>) {
-    periksa(await supabase.from('laporan').insert(baris));
+    return (periksa(await supabase.from('laporan').insert(baris).select('id').single()) as { id: number }).id;
+  },
+  async simpanKomentar(k: { laporan_id: number; titik_id: number; isi: string }) {
+    return (periksa(await supabase.from('komentar').insert(k).select('id').single()) as { id: number }).id;
   },
   async laporanTitik(titikId: number, sejakHari: number) {
     return periksa(await supabase.from('laporan')
@@ -93,6 +96,9 @@ const db = {
 const kabar = {
   tempatBaru(t: { id: number; nama: string; sumber: string; lat: number; lng: number }) {
     diLatar(kabariPemilik(pesanTempatBaru(t, URL_WEB), tombolUntuk('aktif', t.id)));
+  },
+  komentarBaru(k: { id: number; isi: string; namaTempat: string }) {
+    diLatar(kabariPemilik(pesanKomentarBaru(k), tombolKomentar('menunggu', k.id)));
   }
 };
 

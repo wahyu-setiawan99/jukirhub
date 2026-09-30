@@ -13,18 +13,31 @@ const KASAR = ['anjing', 'anjir', 'bangsat', 'babi', 'bajingan', 'kontol', 'meme
   'goblok', 'goblog', 'tolol', 'kampret', 'asu', 'tai', 'setan', 'keparat'];
 const POLA_KASAR = new RegExp(`(^|[^\\p{L}])(${KASAR.join('|')})([^\\p{L}]|$)`, 'iu');
 
-// Nama tempat (satu-satunya teks bebas di versi 1.2): 2–60 huruf, tanpa nomor HP, tautan, email, plat, kata kasar.
-// null = boleh; string = pesan untuk pengguna.
+// Saringan teks bebas (nama tempat & komentar, AGENTS.md bagian 4): tanpa nomor HP / NIK / angka panjang, tautan,
+// email, plat nomor, kata kasar. null = boleh; string = pesan untuk pengguna.
+function periksaTeks(n, label) {
+  if (/\d[\d\s.-]{7,}\d/.test(n)) return `${label} tidak boleh memuat nomor telepon atau angka panjang.`;
+  if (/https?:|www\.|\.(com|id|net|org)\b|@/i.test(n)) return `${label} tidak boleh memuat tautan atau email.`;
+  if (/\b[A-Z]{1,2}\s?\d{1,4}\s?[A-Z]{1,3}\b/.test(n)) return `${label} tidak boleh memuat nomor plat kendaraan.`;
+  if (POLA_KASAR.test(n)) return `${label} tidak boleh memuat kata kasar.`;
+  return null;
+}
+
+// Nama tempat: 2–60 huruf.
 export function periksaNamaTempat(nama) {
   const n = String(nama ?? '').trim();
   if (n.length < 2 || n.length > BATAS.panjangNamaTempatMaks) {
     return `Nama tempat 2–${BATAS.panjangNamaTempatMaks} huruf, mis. "Pinggir Jl. Veteran depan warung".`;
   }
-  if (/\d[\d\s.-]{7,}\d/.test(n)) return 'Nama tempat tidak boleh memuat nomor telepon atau angka panjang.';
-  if (/https?:|www\.|\.(com|id|net|org)\b|@/i.test(n)) return 'Nama tempat tidak boleh memuat tautan atau email.';
-  if (/\b[A-Z]{1,2}\s?\d{1,4}\s?[A-Z]{1,3}\b/.test(n)) return 'Nama tempat tidak boleh memuat nomor plat kendaraan.';
-  if (POLA_KASAR.test(n)) return 'Nama tempat tidak boleh memuat kata kasar.';
-  return null;
+  return periksaTeks(n, 'Nama tempat');
+}
+
+// Komentar opsional (M4, AGENTS.md 1.3.1): kosong = boleh; 3–200 huruf. Tampil hanya setelah disetujui pemilik.
+export function periksaKomentar(komentar) {
+  const k = String(komentar ?? '').trim();
+  if (!k) return null;
+  if (k.length < 3 || k.length > BATAS.panjangKomentarMaks) return `Komentar 3–${BATAS.panjangKomentarMaks} huruf.`;
+  return periksaTeks(k, 'Komentar');
 }
 
 // Body permintaan → { ok: true, data } atau { ok: false, kode, pesan }. Tidak ada validasi yang dipercayakan ke client.
@@ -68,10 +81,16 @@ export function validasiLaporan(body) {
     tempat = { nama: String(t.nama).trim(), osm_ref: t.osm_ref ?? null, lat: t.lat, lng: t.lng, sumber };
   }
 
+  if (b.komentar != null && typeof b.komentar !== 'string') return galat('komentar', 'Komentar tidak valid.');
+  const pesanKomentar = periksaKomentar(b.komentar);
+  if (pesanKomentar) return galat('komentar', pesanKomentar);
+  const komentar = String(b.komentar ?? '').trim() || null;
+
   return {
     ok: true,
     data: {
       perangkat: b.perangkat,
+      komentar,
       titik_id: b.titik_id ?? null,
       tempat,
       ada_jukir: adaJukir,

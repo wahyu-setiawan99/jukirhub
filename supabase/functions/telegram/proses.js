@@ -1,8 +1,10 @@
-// Webhook bot Telegram pemilik (AGENTS.md bagian 5): tombol "Sembunyikan" / "Tampilkan lagi" pada kabar tempat baru.
-// JavaScript murni: database & Telegram disuntikkan supaya bisa dites dengan node:test. Hanya chat pemilik yang
-// boleh mengubah status tempat; permintaan tanpa secret webhook yang benar ditolak.
+// Webhook bot Telegram pemilik (AGENTS.md bagian 5 & 1.3.1): tombol pada kabar tempat baru (Sembunyikan / Tampilkan
+// lagi) dan komentar (Tampilkan / Tolak). JavaScript murni: database & Telegram disuntikkan supaya bisa dites dengan
+// node:test. Hanya chat pemilik yang boleh mengubah status; permintaan tanpa secret webhook yang benar ditolak.
 
-import { barisStatus, bacaTombol, escapeHtml, tombolUntuk } from '../_shared/kabar-pemilik.js';
+import {
+  barisStatus, barisStatusKomentar, bacaTombol, escapeHtml, tombolKomentar, tombolUntuk
+} from '../_shared/kabar-pemilik.js';
 
 export function samaAman(a, b) {
   const x = String(a ?? ''), y = String(b ?? '');
@@ -12,9 +14,13 @@ export function samaAman(a, b) {
   return beda === 0;
 }
 
+// Teks asli pesan tanpa baris status lama (supaya status tidak menumpuk saat tombol ditekan berulang).
+const tanpaStatus = (teks) => String(teks ?? '').replace(/\n\n(🙈|✅|🚫)[^\n]*$/u, '');
+
 /**
  * @param {{ update: any, rahasiaHeader: string | null, rahasia: string, chatPemilik: string,
- *   db: { ubahStatus(id: number, status: 'aktif' | 'disembunyikan'): Promise<{ nama: string } | null> },
+ *   db: { ubahStatus(id: number, status: 'aktif' | 'disembunyikan'): Promise<{ nama: string } | null>,
+ *     ubahStatusKomentar(id: number, status: 'tampil' | 'ditolak'): Promise<{ isi: string } | null> },
  *   tg: { jawabTombol(idCallback: string, teks: string): Promise<unknown>,
  *     ubahPesan(chatId: number, idPesan: number, teksHtml: string, tombol: unknown): Promise<unknown>,
  *     kirim(chatId: number, teksHtml: string): Promise<unknown> } }} p
@@ -35,6 +41,23 @@ export async function prosesTelegram({ update, rahasiaHeader, rahasia, chatPemil
       await tg.jawabTombol(cb.id, 'Tombol tidak dikenali.');
       return { status: 200 };
     }
+    const pesan = cb.message;
+    const ubahPesan = (teksStatus, markup) => (pesan?.chat?.id != null && pesan.message_id != null
+      ? tg.ubahPesan(pesan.chat.id, pesan.message_id, escapeHtml(tanpaStatus(pesan.text)) + teksStatus, markup)
+      : null);
+
+    if (tombol.jenis === 'komentar') {
+      const status = tombol.aksi === 'tampilkan' ? 'tampil' : 'ditolak';
+      const komentar = await db.ubahStatusKomentar(tombol.id, status);
+      if (!komentar) {
+        await tg.jawabTombol(cb.id, 'Komentar tidak ditemukan.');
+        return { status: 200 };
+      }
+      await tg.jawabTombol(cb.id, status === 'tampil' ? 'Komentar ditampilkan.' : 'Komentar tidak ditampilkan.');
+      await ubahPesan(barisStatusKomentar(status), tombolKomentar(status, tombol.id));
+      return { status: 200 };
+    }
+
     const status = tombol.aksi === 'sembunyikan' ? 'disembunyikan' : 'aktif';
     const tempat = await db.ubahStatus(tombol.id, status);
     if (!tempat) {
@@ -42,18 +65,13 @@ export async function prosesTelegram({ update, rahasiaHeader, rahasia, chatPemil
       return { status: 200 };
     }
     await tg.jawabTombol(cb.id, status === 'disembunyikan' ? `${tempat.nama} disembunyikan.` : `${tempat.nama} ditampilkan lagi.`);
-    const pesan = cb.message;
-    if (pesan?.chat?.id != null && pesan.message_id != null) {
-      // Teks asli (tanpa baris status lama) + status baru; tombol berganti arah supaya bisa dibatalkan.
-      const asli = String(pesan.text ?? '').replace(/\n\n(🙈|✅)[^\n]*$/u, '');
-      await tg.ubahPesan(pesan.chat.id, pesan.message_id, escapeHtml(asli) + barisStatus(status), tombolUntuk(status, tombol.id));
-    }
+    await ubahPesan(barisStatus(status), tombolUntuk(status, tombol.id));
     return { status: 200 };
   }
 
   const msg = update?.message;
   if (msg?.chat?.id != null && pemilik(msg.chat.id) && /^\/start\b/.test(String(msg.text ?? ''))) {
-    await tg.kirim(msg.chat.id, 'Terhubung. Kabar tempat parkir baru dari JukirHub akan masuk ke sini, lengkap dengan tombol Sembunyikan.');
+    await tg.kirim(msg.chat.id, 'Terhubung. Kabar tempat parkir baru dan komentar warga dari JukirHub akan masuk ke sini.');
   }
   // Pesan lain (termasuk dari orang lain) diabaikan: bot ini hanya untuk pengelola.
   return { status: 200 };

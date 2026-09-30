@@ -51,6 +51,7 @@ export function susunLaporan({ tempat, isian, posisi, perangkat }) {
     bayar: isian.bayar,
     pungli: [...isian.pungli],
     bintang: isian.bintang,
+    ...(String(isian.komentar ?? '').trim() ? { komentar: String(isian.komentar).trim() } : {}),
     lat: posisi?.lat,
     lng: posisi?.lng,
     akurasi_m: posisi?.akurasi != null ? Math.round(posisi.akurasi) : undefined

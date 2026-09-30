@@ -17,6 +17,11 @@ const db = {
     const { data, error } = await supabase.from('titik_parkir').update({ status }).eq('id', id).select('nama').maybeSingle();
     if (error) throw error;
     return data;
+  },
+  async ubahStatusKomentar(id: number, status: 'tampil' | 'ditolak') {
+    const { data, error } = await supabase.from('komentar').update({ status, alasan: 'pemilik' }).eq('id', id).select('isi').maybeSingle();
+    if (error) throw error;
+    return data;
   }
 };
 

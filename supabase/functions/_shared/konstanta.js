@@ -39,5 +39,8 @@ export const BATAS = {
   laporanPerPerangkatPerHari: 10,
   laporanPerIpPerJam: 10,
   laporanPerTempatPerJam: 10,
-  panjangNamaTempatMaks: 60
+  panjangNamaTempatMaks: 60,
+  panjangKomentarMaks: 200,
+  aduanSembunyikan: 3,          // aduan dari perangkat berbeda → komentar disembunyikan otomatis (AGENTS.md 1.3.1)
+  aduanPerIpPerJam: 20
 };

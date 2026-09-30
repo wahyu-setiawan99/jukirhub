@@ -5,6 +5,7 @@ import {
   jumlahAdaJukir, kalimatBantu, kalimatTanpaJukir, kodeLevel, labelLevel, teksBintang, teksTarif
 } from '../lib/tempat.js';
 import { LencanaIndikasi } from './Legenda.jsx';
+import Riwayat from './Riwayat.jsx';
 import { Ikon } from './Ikon.jsx';
 
 // Lembar tempat di tab Peta (AGENTS.md 1.2 poin 2): setengah layar supaya peta tetap terlihat.
@@ -81,6 +82,8 @@ export default function LembarTempat({ tempat, onTutup, onLapor }) {
       ) : (
         <p className="ajakan">Belum ada laporan parkir di sini. Jadilah yang pertama melapor.</p>
       )}
+
+      {terlapor && <Riwayat titikId={tempat.id} />}
 
       <p className="disclaimer">Laporan warga, belum diverifikasi pihak berwenang. Indikasi bukan tuduhan.</p>
     </section>

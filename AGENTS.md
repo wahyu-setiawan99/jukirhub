@@ -160,19 +160,20 @@ moderasi dan kunci AI yang berjalan. Tetap sederhana: satu komentar per laporan,
   parkir Anda"). Satu laporan = maks. satu komentar, **tanpa balas-membalas**. Alasannya: komentar ikut lolos gerbang
   lokasi & batas laporan (bagian 6.1), jadi tidak bisa dipakai menyerang tempat dari jauh.
 - **Moderasi sebelum tampil** (komentar = teks bebas, risiko UU ITE bagi JukirHub):
-  1. Saringan server (`_shared/komentar.js`, aturan pasti, dites): tolak nomor HP, email, tautan, NIK/angka panjang,
-     plat nomor (mis. `DD 1234 XY`), kata kasar dari daftar. Ditolak → pelapor diberi tahu alasannya, laporan tetap
-     tersimpan tanpa komentar.
-  2. Pemeriksaan AI (Gemini, pola Adami 10.1) **di latar** setelah laporan tersimpan: memilih satu dari daftar tetap
-     `layak` · `menyebut_identitas` (nama/ciri orang) · `tuduhan_pidana` (menuduh orang tertentu) · `kasar` · `spam` ·
-     `tidak_relevan`. Hanya `layak` yang tampil. Gagal/tanpa kunci AI → `menunggu`, ditinjau pemilik
-     (`npm run moderasi`, kabar Telegram).
-  3. Tombol **"Laporkan komentar"** di tiap komentar: aduan dari ≥ 3 perangkat berbeda → disembunyikan otomatis dan
-     masuk antrean pemilik.
+  1. Saringan server (`periksaKomentar` di `_shared/lapor.js`, aturan sama dengan nama tempat, dites): tolak nomor HP,
+     email, tautan, NIK/angka panjang, plat nomor (mis. `DD 1234 XY`), kata kasar; 3–200 huruf. Web memeriksa dulu dengan
+     fungsi yang sama; server menolak seluruh laporan dengan pesan jelas (kode `komentar`) supaya pelapor bisa membetulkan.
+  2. **Persetujuan pemilik lewat Telegram** (dibuat 1 Okt 2026): komentar disimpan `menunggu`, pesan 💬 dengan tombol
+     **✅ Tampilkan / 🚫 Tolak** (setelah tampil: 🙈 Sembunyikan). Tidak ada halaman moderasi. **Pemeriksaan AI (Gemini)
+     belum dibuat**; bila nanti ditambah: kategori tetap `layak` · `menyebut_identitas` · `tuduhan_pidana` · `kasar` ·
+     `spam` · `tidak_relevan`, hanya `layak` yang boleh tampil otomatis.
+  3. Tombol **"Laporkan komentar"** → Edge Function `aduan`: satu perangkat = satu aduan; ≥ 3 perangkat berbeda →
+     komentar disembunyikan otomatis + pesan 🚩 ke pemilik (tombol Tampilkan). Balasan selalu sama.
 - Komentar **tidak memengaruhi** skor pungli, bintang, atau ringkasan (hanya dibaca manusia).
-- **Data:** tabel `komentar` (`laporan_id` unik, `titik_id`, `isi`, `status` `menunggu`/`tampil`/`ditolak`/
-  `disembunyikan`, `alasan`, `dibuat`), `aduan_komentar` (`komentar_id`, `reporter_key` hash, `dibuat`); view
-  `riwayat_publik` (kolom laporan tanpa kunci/lokasi/bobot + komentar berstatus `tampil`).
+- **Data** (migrasi `20261001000001_riwayat_komentar.sql`): tabel `komentar` (`laporan_id` unik, `titik_id`, `isi`,
+  `status` `menunggu`/`tampil`/`ditolak`/`disembunyikan`, `alasan`), `aduan_komentar` (`komentar_id`, `reporter_key` hash,
+  `ip_hash`); view `riwayat_publik` (kolom laporan tanpa kunci/lokasi/bobot, **waktu dibulatkan ke jam**, komentar hanya
+  berstatus `tampil`). Web: `components/Riwayat.jsx`, `lib/riwayat.js`, `ambilRiwayat` di `lib/data.js`.
 - Info memuat cara meminta penghapusan komentar (pemilik tempat / pihak yang disebut).
 
 #### 1.3.2 Berita parkir di detail tempat (M5)
@@ -524,7 +525,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M1 Peta & pilih tempat** | Peta MapLibre + penanda tempat terlapor + gugus, ketuk tempat di peta dasar, cari (lokal + Nominatim), tekan lama untuk pin, lembar tempat (baca dari view publik), Daftar *Selesai 29 Sept (lihat status).* |
 | **M2 Laporkan parkir** | Form 1 layar (1.2 poin 3), Edge Function `lapor` (gerbang 250 m, batas, GPS palsu, buat tempat baru), `skor-pungli.js` + ringkasan, penanda berubah warna setelah lapor *Selesai 30 Sept (lihat status).* |
 | **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan. *Materi siap 30 Sept: `docs/peluncuran/` (checklist, poster A5 ×2, teks WhatsApp, QR `npm run qr`). Sisa: uji HP lapangan & cold start oleh pemilik, domain (opsional).* |
-| **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) |
+| **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) *Selesai 1 Okt (moderasi lewat Telegram; AI menyusul).* |
 | **M5 Berita parkir** | Edge Function `berita` (RSS + AI deteksi lokasi + Nominatim), "Berita parkir di sekitar sini" di lembar tempat (bagian 1.3.2) |
 
 **Ditunda (hanya bila pemilik meminta setelah M3):** estimasi pendapatan / mode amati, tab Data & dashboard per

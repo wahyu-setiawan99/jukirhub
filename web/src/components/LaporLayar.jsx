@@ -21,6 +21,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
     bayarLain: false,
     pungli: new Set(),
     bintang: 0,
+    komentar: '',
     // Pin: nama bisa sudah terisi dari kolom cari ("Laporkan di lokasi saya"), tetap bisa diubah.
     namaTempat: tempat.sumber === 'pin' ? (tempat.nama ?? '') : ''
   });
@@ -72,7 +73,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
     if (!cek.ok) { setKirim({ status: 'galat', pesan: cek.pesan }); return; }
     setKirim({ status: 'mengirim', pesan: null });
     const h = await panggilFungsi(fetch, KONFIGURASI, 'lapor', body);
-    if (h.ok) setKirim({ status: 'sukses', pesan: h.data.pesan, hasil: h.data.titik });
+    if (h.ok) setKirim({ status: 'sukses', pesan: h.data.pesan, hasil: h.data.titik, komentar: h.data.komentar });
     else setKirim({ status: 'galat', pesan: h.pesan });
   };
 
@@ -85,6 +86,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
           <p className="redup">
             Laporan Anda ikut dihitung di {kirim.hasil?.nama}. Indikasi pungli baru tampil setelah cukup laporan dari warga lain.
           </p>
+          {kirim.komentar === 'menunggu' && <p className="redup">Cerita Anda tampil di riwayat setelah diperiksa pengelola.</p>}
           <button type="button" className="tombol-utama lebar-penuh" onClick={() => onSelesai(kirim.hasil)}>Lihat di peta</button>
         </div>
       </div>
@@ -191,6 +193,19 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
           </div>
         </fieldset>
         </>)}
+
+        {isian.adaJukir != null && (
+          <label className="blok">
+            <span className="tanya">Cerita singkat <span className="redup">(opsional)</span></span>
+            <textarea className="isian-teks isian-komentar" rows={3} maxLength={BATAS.panjangKomentarMaks}
+              value={isian.komentar} onChange={e => ubah('komentar', e.target.value)}
+              placeholder="Mis. jukir membantu menyeberangkan motor saat jalan ramai." />
+            <span className="kecil redup">
+              {isian.komentar.length}/{BATAS.panjangKomentarMaks} · Tampil setelah diperiksa pengelola. Jangan tulis nama,
+              nomor HP, plat, atau tuduhan kepada orang tertentu.
+            </span>
+          </label>
+        )}
 
         {kirim.status === 'galat' && <p className="kotak-galat" role="alert">{kirim.pesan}</p>}
 
