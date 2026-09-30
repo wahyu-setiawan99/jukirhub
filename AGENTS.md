@@ -493,7 +493,7 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
   Build menulis `/versi.json` (commit yang tayang); `scripts/cek-tayang.js` membandingkannya dengan HEAD tiap 30 detik
   (maks. 10 menit) sambil membaca status build Vercel di GitHub, lalu melapor: tayang / build gagal (dengan tautan log) /
   build sukses tapi tidak dijadikan Production (dengan cara memperbaikinya) / diblokir checkpoint. Pemilik tidak perlu
-  membuka Vercel kecuali skrip menyuruh. Syarat sekali di Vercel: Environments → Production → Branch Tracking `main`
+  membuka Vercel kecuali skrip menyuruh. Syarat sekali di Vercel: Environments → Production → Branch Tracking `main` (bukan `master`)
   + "Auto-assign Custom Production Domains" aktif.
 - **Hanya SATU proyek Vercel: `jukirhub`** (memegang jukirhub.vercel.app). 30 Sept 2026 repo ternyata tersambung juga ke
   duplikat `jukirhub-aywb` (import kedua, preset Vite → build selalu gagal) dan production `jukirhub` tertahan di M0
@@ -589,7 +589,8 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   - Pemilik: tempat yang tidak ada di peta harus bisa dilaporkan (cafe-nya sendiri). Usul link Google Maps ditolak
     (bagian 5); diganti tombol **"Laporkan di lokasi saya"** (bagian 1.2 poin 1).
   - Pemilik tidak mau membuka Vercel untuk tiap rilis → pipeline `git push` + `npm run cek:tayang` (bagian 9). Skrip
-    menemukan "Auto-assign Custom Production Domains" nonaktif; pemilik mengaktifkannya 30 Sept.
+    menemukan deploy tidak dijadikan Production: penyebab utamanya **Branch Tracking Vercel = `master`** (repo hanya punya
+    `main`). Pemilik mengganti ke `main` dan mengaktifkan "Auto-assign Custom Production Domains" (30 Sept).
   - Pemilik: nama tempat baru cukup **dikabarkan** ke pemilik; selama tidak dihapus berarti sah, tanpa halaman
     moderasi → Telegram + tombol Sembunyikan (bagian 5).
 
