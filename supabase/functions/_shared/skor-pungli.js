@@ -55,9 +55,11 @@ export function median(angka) {
 
 // Laporan satu tempat → baris tabel ringkasan_titik. Jumlah, "x dari y", dan median memakai semua laporan
 // (pelapor melihat laporannya ikut terhitung); skor & bintang memakai bobot (GPS palsu 0,2, bagian 4).
+// Laporan "tidak ada jukir" (ada_jukir = false) hanya dihitung di jumlah_laporan & jumlah_tanpa_jukir.
 export function ringkasTempat(laporan, { sekarang = Date.now(), tarifResmi = null } = {}) {
   const batas = sekarang - HARI_RINGKASAN * 24 * 3_600_000;
-  const l = (laporan ?? []).filter(x => Date.parse(x.dibuat) >= batas);
+  const semua = (laporan ?? []).filter(x => Date.parse(x.dibuat) >= batas);
+  const l = semua.filter(x => x.ada_jukir !== false);
   const opsi = { tarifResmi };
   const bobot = (x) => (Number.isFinite(Number(x.bobot_manual)) ? Number(x.bobot_manual) : 1);
   const totalBobot = l.reduce((s, x) => s + bobot(x), 0);
@@ -66,8 +68,9 @@ export function ringkasTempat(laporan, { sekarang = Date.now(), tarifResmi = nul
   const per = (k) => l.filter(x => x.kendaraan === k);
   const bintang = rataBerbobot(x => Number(x.bintang));
   return {
-    jumlah_laporan: l.length,
-    jumlah_perangkat: new Set(l.map(x => x.reporter_key)).size,
+    jumlah_laporan: semua.length,
+    jumlah_tanpa_jukir: semua.length - l.length,
+    jumlah_perangkat: new Set(l.map(x => x.reporter_key)).size,   // untuk ambang level: hanya laporan ada jukir
     skor_pungli: skor == null ? null : Math.round(skor * 10) / 10,
     level_pungli: skor == null ? null : levelDariSkor(skor),
     alasan_pungli: alasanUtama(l, opsi),
@@ -78,6 +81,6 @@ export function ringkasTempat(laporan, { sekarang = Date.now(), tarifResmi = nul
     bayar_median_mobil: median(per('mobil').map(x => Number(x.bayar))),
     jumlah_mobil: per('mobil').length,
     bintang_rata: bintang == null ? null : Math.round(bintang * 100) / 100,
-    laporan_terakhir: l.length ? l.map(x => x.dibuat).sort().at(-1) : null
+    laporan_terakhir: semua.length ? semua.map(x => x.dibuat).sort().at(-1) : null
   };
 }

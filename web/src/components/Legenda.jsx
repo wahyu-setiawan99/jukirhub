@@ -5,7 +5,8 @@ const LEVEL = [
   ['rendah', 'Rendah', 'Laporan umumnya tanpa indikasi pungli.'],
   ['sedang', 'Sedang', 'Sebagian laporan menyebut indikasi pungli.'],
   ['tinggi', 'Tinggi', 'Banyak laporan menyebut indikasi pungli.'],
-  ['kurang', 'Data belum cukup', `Belum ada ${AMBANG_TAMPIL.laporan} laporan dari ${AMBANG_TAMPIL.perangkat} orang berbeda.`]
+  ['kurang', 'Data belum cukup', `Belum ada ${AMBANG_TAMPIL.laporan} laporan dari ${AMBANG_TAMPIL.perangkat} orang berbeda.`],
+  ['tanpa', 'Tanpa jukir', 'Sebagian besar laporan menyebut tidak ada juru parkir di tempat ini.']
 ];
 
 export function LencanaIndikasi({ level, label }) {

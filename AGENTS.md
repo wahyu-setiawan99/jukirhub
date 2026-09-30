@@ -112,12 +112,17 @@ Peta ──► pilih tempat (ketuk di peta / cari nama) ──► lembar tempat 
 
 | # | Pertanyaan | Pilihan | Wajib |
 |---|---|---|---|
+| 0 | **Ada jukir di tempat ini?** | Ada jukir · Tidak ada jukir | ya; **"Tidak ada jukir" → pertanyaan 1–5 disembunyikan, langsung kirim** |
 | 1 | **Saat datang**, jukir… | Membantu · Tidak membantu | ya |
 | 2 | **Saat mau pergi**, jukir… | Membantu · Tidak membantu | ya |
 | 3 | **Bayar berapa?** | 0 · 1.000 · 2.000 · 3.000 · 5.000 · Lainnya (ketik) | ya |
 | 4 | **Ada indikasi pungli?** (pilih yang dialami, boleh kosong) | Tidak diberi karcis · Tarif kemahalan · Memaksa / marah · Ada tulisan "parkir gratis" | tidak |
 | 5 | **Rating** | ★ 1–5 | ya |
 
+- **Laporan "tidak ada jukir"** (keputusan 30 Sept): `laporan.ada_jukir = false`, jawaban lain kosong (constraint
+  `laporan_isian_sesuai_jukir`). Tidak ikut skor pungli, tarif, membantu, bintang; hanya `jumlah_tanpa_jukir`. Ambang
+  level pungli dihitung dari laporan yang ada jukirnya. Lembar: "Dilaporkan tidak ada jukir (x dari y)" bila
+  kebanyakan, "Pernah dilaporkan tanpa jukir" bila sebagian kecil.
 - Kendaraan diambil dari pilihan **Motor / Mobil** di header (bukan pertanyaan tersendiri), ditampilkan di form dan
   bisa diganti di situ.
 - Tanpa teks bebas (kecuali nama tempat baru), tanpa foto, tanpa akun.
@@ -126,6 +131,7 @@ Peta ──► pilih tempat (ketuk di peta / cari nama) ──► lembar tempat 
 
 **4. Tampilan di peta:**
 
+- **Kebanyakan laporan tanpa jukir** = penanda berlubang tepi hijau dengan **✓** ("Tanpa jukir", kode `tanpa`).
 - **Tempat yang sudah dilaporkan** = bulatan penanda berwarna level indikasi pungli (rendah / sedang / tinggi) +
   ikon; **abu-abu bergaris** = baru 1–2 laporan (data belum cukup). Jauh = dikelompokkan (gugus berangka).
 - **Tempat yang belum dilaporkan tidak diberi penanda apa pun.** Peta dasar sudah menampilkan nama tempatnya;
@@ -517,7 +523,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M0 Fondasi** | Kerangka `web/` meniru Adami, tema, Poppins, service worker, SEO dasar, migrasi awal, tes. *Selesai (lihat status).* |
 | **M1 Peta & pilih tempat** | Peta MapLibre + penanda tempat terlapor + gugus, ketuk tempat di peta dasar, cari (lokal + Nominatim), tekan lama untuk pin, lembar tempat (baca dari view publik), Daftar *Selesai 29 Sept (lihat status).* |
 | **M2 Laporkan parkir** | Form 1 layar (1.2 poin 3), Edge Function `lapor` (gerbang 250 m, batas, GPS palsu, buat tempat baru), `skor-pungli.js` + ringkasan, penanda berubah warna setelah lapor *Selesai 30 Sept (lihat status).* |
-| **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan |
+| **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan. *Materi siap 30 Sept: `docs/peluncuran/` (checklist, poster A5 ×2, teks WhatsApp, QR `npm run qr`). Sisa: uji HP lapangan & cold start oleh pemilik, domain (opsional).* |
 | **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) |
 | **M5 Berita parkir** | Edge Function `berita` (RSS + AI deteksi lokasi + Nominatim), "Berita parkir di sekitar sini" di lembar tempat (bagian 1.3.2) |
 

@@ -27,4 +27,5 @@ export async function ambilView(fetchFn, konfigurasi, view, kolom) {
 
 export const KOLOM_TITIK = 'id,nama,osm_ref,kota,lat,lng';
 export const KOLOM_RINGKASAN = 'titik_id,jumlah_laporan,data_cukup,level_pungli,alasan_pungli,bantu_datang_ya,' +
-  'bantu_pergi_ya,bayar_median_motor,jumlah_motor,bayar_median_mobil,jumlah_mobil,bintang_rata,laporan_terakhir';
+  'bantu_pergi_ya,bayar_median_motor,jumlah_motor,bayar_median_mobil,jumlah_mobil,bintang_rata,laporan_terakhir,' +
+  'jumlah_tanpa_jukir';

@@ -27,6 +27,7 @@ export function gabungTempat(titik, ringkasan) {
         lng: Number(t.lng),
         ringkasan: {
           jumlah: angka(r.jumlah_laporan) ?? 0,
+          tanpaJukir: angka(r.jumlah_tanpa_jukir) ?? 0,
           dataCukup: r.data_cukup === true,
           level: r.data_cukup === true ? (r.level_pungli ?? null) : null,
           alasan: r.data_cukup === true ? (r.alasan_pungli ?? null) : null,
@@ -43,15 +44,29 @@ export function gabungTempat(titik, ringkasan) {
     });
 }
 
-// Kelas warna penanda / lencana: level pungli, atau 'kurang' bila data belum cukup.
+// Laporan yang ADA jukirnya (dasar "x dari y" membantu, tarif, pungli).
+export const jumlahAdaJukir = (r) => Math.max(0, (r?.jumlah ?? 0) - (r?.tanpaJukir ?? 0));
+// Sebagian besar laporan menyebut tidak ada jukir (AGENTS.md 1.2 poin 3).
+export const kebanyakanTanpaJukir = (r) => (r?.tanpaJukir ?? 0) * 2 > (r?.jumlah ?? 0);
+
+export function kalimatTanpaJukir(r) {
+  if (!r?.tanpaJukir) return null;
+  return kebanyakanTanpaJukir(r)
+    ? `Dilaporkan tidak ada jukir (${r.tanpaJukir} dari ${r.jumlah} laporan)`
+    : `Pernah dilaporkan tanpa jukir (${r.tanpaJukir} dari ${r.jumlah} laporan)`;
+}
+
+// Kelas warna penanda / lencana: 'tanpa' (kebanyakan tanpa jukir), level pungli, atau 'kurang' bila data belum cukup.
 export function kodeLevel(ringkasan) {
+  if (kebanyakanTanpaJukir(ringkasan)) return 'tanpa';
   return ringkasan?.dataCukup && LEVEL_PUNGLI.some(l => l.kode === ringkasan.level) ? ringkasan.level : 'kurang';
 }
 
 export function labelLevel(ringkasan) {
   const kode = kodeLevel(ringkasan);
-  // Ambangnya (AMBANG_TAMPIL) dijelaskan di legenda; di sini cukup jumlah laporannya (AGENTS.md 6.2).
-  if (kode === 'kurang') return `Data belum cukup (${ringkasan?.jumlah ?? 0} laporan)`;
+  if (kode === 'tanpa') return 'Tanpa jukir';
+  // Ambangnya (AMBANG_TAMPIL) dijelaskan di legenda; di sini cukup jumlah laporan yang ada jukirnya (AGENTS.md 6.2).
+  if (kode === 'kurang') return `Data belum cukup (${jumlahAdaJukir(ringkasan)} laporan)`;
   return `Indikasi pungli ${LEVEL_PUNGLI.find(l => l.kode === kode).label.toLowerCase()}`;
 }
 
@@ -73,8 +88,8 @@ export function teksTarif(ringkasan, kendaraan) {
 
 export function teksBintang(ringkasan) {
   const r = ringkasan?.bintang;
-  if (r == null || !ringkasan?.jumlah) return null;
-  return `${String(Math.round(r * 10) / 10).replace('.', ',')} (${ringkasan.jumlah})`;
+  if (r == null || !jumlahAdaJukir(ringkasan)) return null;
+  return `${String(Math.round(r * 10) / 10).replace('.', ',')} (${jumlahAdaJukir(ringkasan)})`;
 }
 
 // Tempat yang diketuk di peta / hasil cari / pin → tempat terlapor yang sama bila ada (AGENTS.md bagian 5):

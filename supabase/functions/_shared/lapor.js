@@ -34,15 +34,18 @@ export function validasiLaporan(body) {
   if (typeof b.perangkat !== 'string' || b.perangkat.length < 8 || b.perangkat.length > 100) {
     return galat('perangkat', 'Identitas perangkat tidak valid.');
   }
+  if (b.ada_jukir != null && typeof b.ada_jukir !== 'boolean') return galat('ada_jukir', 'Jawab: ada jukir di tempat ini?');
+  // "Tidak ada jukir": cukup tempat & lokasi; jawaban lain tidak berlaku (AGENTS.md 1.2 poin 3).
+  const adaJukir = b.ada_jukir !== false;
   if (!KENDARAAN.includes(b.kendaraan)) return galat('kendaraan', 'Pilih motor atau mobil.');
-  if (typeof b.bantu_datang !== 'boolean') return galat('bantu_datang', 'Jawab: saat datang, jukir membantu atau tidak?');
-  if (typeof b.bantu_pergi !== 'boolean') return galat('bantu_pergi', 'Jawab: saat mau pergi, jukir membantu atau tidak?');
-  if (!Number.isInteger(b.bayar) || b.bayar < 0 || b.bayar > MAKS_BAYAR) {
+  if (adaJukir && typeof b.bantu_datang !== 'boolean') return galat('bantu_datang', 'Jawab: saat datang, jukir membantu atau tidak?');
+  if (adaJukir && typeof b.bantu_pergi !== 'boolean') return galat('bantu_pergi', 'Jawab: saat mau pergi, jukir membantu atau tidak?');
+  if (adaJukir && (!Number.isInteger(b.bayar) || b.bayar < 0 || b.bayar > MAKS_BAYAR)) {
     return galat('bayar', `Isi berapa yang Anda bayar (0–${MAKS_BAYAR.toLocaleString('id-ID')} rupiah).`);
   }
-  const pungli = Array.isArray(b.pungli) ? [...new Set(b.pungli)] : null;
+  const pungli = !adaJukir ? [] : Array.isArray(b.pungli) ? [...new Set(b.pungli)] : null;
   if (!pungli || pungli.some(k => !KODE_PUNGLI.has(k))) return galat('pungli', 'Pilihan indikasi pungli tidak valid.');
-  if (!Number.isInteger(b.bintang) || b.bintang < 1 || b.bintang > 5) return galat('bintang', 'Beri rating 1–5 bintang.');
+  if (adaJukir && (!Number.isInteger(b.bintang) || b.bintang < 1 || b.bintang > 5)) return galat('bintang', 'Beri rating 1–5 bintang.');
   if (!angka(b.lat) || !angka(b.lng) || Math.abs(b.lat) > 90 || Math.abs(b.lng) > 180) {
     return galat('lokasi', 'Melapor hanya bisa dari lokasi parkir. Aktifkan lokasi lalu coba lagi.');
   }
@@ -71,12 +74,13 @@ export function validasiLaporan(body) {
       perangkat: b.perangkat,
       titik_id: b.titik_id ?? null,
       tempat,
+      ada_jukir: adaJukir,
       kendaraan: b.kendaraan,
-      bantu_datang: b.bantu_datang,
-      bantu_pergi: b.bantu_pergi,
-      bayar: b.bayar,
+      bantu_datang: adaJukir ? b.bantu_datang : null,
+      bantu_pergi: adaJukir ? b.bantu_pergi : null,
+      bayar: adaJukir ? b.bayar : 0,
       pungli,
-      bintang: b.bintang,
+      bintang: adaJukir ? b.bintang : null,
       lat: b.lat,
       lng: b.lng,
       akurasi_m: b.akurasi_m

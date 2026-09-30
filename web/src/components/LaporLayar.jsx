@@ -13,6 +13,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
   const { kendaraan: kendaraanHeader, mintaPosisi } = useApp();
   const [lokasi, setLokasi] = useState({ status: 'mencari', posisi: null, kode: null });
   const [isian, setIsian] = useState({
+    adaJukir: null,   // pertanyaan pertama; "Tidak ada" → laporan tanpa jukir (AGENTS.md 1.2 poin 3)
     kendaraan: kendaraanHeader,
     bantuDatang: null,
     bantuPergi: null,
@@ -64,6 +65,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
       const pesan = periksaNamaTempat(isian.namaTempat);
       if (pesan) { setKirim({ status: 'galat', pesan }); return; }
     }
+    if (isian.adaJukir == null) { setKirim({ status: 'galat', pesan: 'Jawab dulu: ada jukir di tempat ini?' }); return; }
     const body = susunLaporan({ tempat, isian, posisi: lokasi.posisi, perangkat: kunciPerangkat() });
     // Pesan yang sama dengan server, sebelum dikirim (server tetap memeriksa ulang).
     const cek = validasiLaporan(body);
@@ -124,6 +126,18 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
         )}
 
         <fieldset className="blok">
+          <legend className="tanya">Ada jukir di tempat ini?</legend>
+          <div className="pilihan-2">
+            <button type="button" aria-pressed={isian.adaJukir === true} onClick={() => ubah('adaJukir', true)}>Ada jukir</button>
+            <button type="button" aria-pressed={isian.adaJukir === false} onClick={() => ubah('adaJukir', false)}>Tidak ada jukir</button>
+          </div>
+          {isian.adaJukir === false && (
+            <p className="redup">Laporan mencatat bahwa tidak ada juru parkir di tempat ini saat Anda di sini. Langsung kirim.</p>
+          )}
+        </fieldset>
+
+        {isian.adaJukir === true && (<>
+        <fieldset className="blok">
           <legend className="tanya">Kendaraan</legend>
           <div className="pilihan-2">
             {KENDARAAN.map(k => (
@@ -176,6 +190,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
             ))}
           </div>
         </fieldset>
+        </>)}
 
         {kirim.status === 'galat' && <p className="kotak-galat" role="alert">{kirim.pesan}</p>}
 

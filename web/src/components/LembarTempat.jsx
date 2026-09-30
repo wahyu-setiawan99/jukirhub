@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useApp } from '../state.jsx';
 import { formatJarak, jarakM } from '../lib/util.js';
-import { kalimatBantu, kodeLevel, labelLevel, teksBintang, teksTarif } from '../lib/tempat.js';
+import {
+  jumlahAdaJukir, kalimatBantu, kalimatTanpaJukir, kodeLevel, labelLevel, teksBintang, teksTarif
+} from '../lib/tempat.js';
 import { LencanaIndikasi } from './Legenda.jsx';
 import { Ikon } from './Ikon.jsx';
 
@@ -64,13 +66,17 @@ export default function LembarTempat({ tempat, onTutup, onLapor }) {
       {terlapor ? (
         <div className="ringkas-tempat">
           <p><LencanaIndikasi level={kodeLevel(r)} label={labelLevel(r)} /></p>
+          {kalimatTanpaJukir(r) && <p>{kalimatTanpaJukir(r)}</p>}
           {r.alasan && <p>{r.alasan}</p>}
-          <dl className="baris-ringkas">
-            <dt>Saat datang</dt><dd>{kalimatBantu(r.bantuDatangYa, r.jumlah)}</dd>
-            <dt>Saat pergi</dt><dd>{kalimatBantu(r.bantuPergiYa, r.jumlah)}</dd>
-            <dt>Biasa dibayar</dt><dd>{tarif ?? `belum ada laporan ${kendaraan}`}</dd>
-            {bintang && <><dt>Rating</dt><dd><span className="bintang" aria-hidden="true">★</span> {bintang}</dd></>}
-          </dl>
+          {/* Ringkasan jukir hanya dari laporan yang ada jukirnya. */}
+          {jumlahAdaJukir(r) > 0 && (
+            <dl className="baris-ringkas">
+              <dt>Saat datang</dt><dd>{kalimatBantu(r.bantuDatangYa, jumlahAdaJukir(r))}</dd>
+              <dt>Saat pergi</dt><dd>{kalimatBantu(r.bantuPergiYa, jumlahAdaJukir(r))}</dd>
+              <dt>Biasa dibayar</dt><dd>{tarif ?? `belum ada laporan ${kendaraan}`}</dd>
+              {bintang && <><dt>Rating</dt><dd><span className="bintang" aria-hidden="true">★</span> {bintang}</dd></>}
+            </dl>
+          )}
         </div>
       ) : (
         <p className="ajakan">Belum ada laporan parkir di sini. Jadilah yang pertama melapor.</p>

@@ -102,6 +102,7 @@ export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.
 
   await db.simpanLaporan({
     titik_id: titik.id,
+    ada_jukir: d.ada_jukir,
     kendaraan: d.kendaraan,
     bantu_datang: d.bantu_datang,
     bantu_pergi: d.bantu_pergi,

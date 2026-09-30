@@ -80,7 +80,7 @@ const db = {
   },
   async laporanTitik(titikId: number, sejakHari: number) {
     return periksa(await supabase.from('laporan')
-      .select('kendaraan, bantu_datang, bantu_pergi, bayar, pungli, bintang, reporter_key, bobot_manual, dibuat')
+      .select('ada_jukir, kendaraan, bantu_datang, bantu_pergi, bayar, pungli, bintang, reporter_key, bobot_manual, dibuat')
       .eq('titik_id', titikId).gte('dibuat', menitLalu(sejakHari * 24 * 60)).limit(5000)) ?? [];
   },
   async simpanRingkasan(titikId: number, ringkasan: Record<string, unknown>) {

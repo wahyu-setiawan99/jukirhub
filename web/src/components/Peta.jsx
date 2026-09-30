@@ -339,14 +339,14 @@ function sinkronMarker(m, marker, onPilihRef, pilihanIdRef) {
 
 function isiMarker(el, p, onPilihRef) {
   // classList, bukan className: jangan hapus class maplibregl-marker bawaan (posisi absolut)
-  el.classList.remove('indikasi-rendah', 'indikasi-sedang', 'indikasi-tinggi', 'indikasi-kurang');
+  el.classList.remove('indikasi-rendah', 'indikasi-sedang', 'indikasi-tinggi', 'indikasi-kurang', 'indikasi-tanpa');
   el.classList.add('mk', `indikasi-${p.level}`);
   // nama dari pengguna/OSM hanya lewat setAttribute/textContent, tidak pernah lewat innerHTML
   el.setAttribute('aria-label', `${p.nama}: ${p.label}`);
   el.replaceChildren();
   const bulat = document.createElement('span');
   bulat.className = 'mk-bulat';
-  bulat.textContent = 'P';
+  bulat.textContent = p.level === 'tanpa' ? '✓' : 'P';
   el.append(bulat);
   el.onclick = (e) => { e.stopPropagation(); onPilihRef.current?.({ id: p.id }); };
 }

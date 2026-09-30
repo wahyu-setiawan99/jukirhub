@@ -330,6 +330,8 @@ a { color: var(--aksen); }
 .indikasi-sedang { --warna-indikasi: var(--indikasi-sedang); --latar-indikasi: var(--indikasi-sedang-latar); --teks-indikasi: var(--indikasi-sedang-teks); }
 .indikasi-tinggi { --warna-indikasi: var(--indikasi-tinggi); --latar-indikasi: var(--indikasi-tinggi-latar); --teks-indikasi: var(--indikasi-tinggi-teks); }
 .indikasi-kurang { --warna-indikasi: var(--indikasi-kurang); --latar-indikasi: var(--indikasi-kurang-latar); --teks-indikasi: var(--indikasi-kurang-teks); }
+/* Tanpa jukir: hijau seperti "rendah", tapi penanda berlubang dengan centang supaya tidak terbaca sebagai level pungli. */
+.indikasi-tanpa { --warna-indikasi: var(--indikasi-rendah); --latar-indikasi: var(--indikasi-rendah-latar); --teks-indikasi: var(--indikasi-rendah-teks); }
 
 .legenda { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .legenda li { display: grid; grid-template-columns: auto 1fr; align-items: start; column-gap: 10px; line-height: 1.45; }
@@ -707,6 +709,11 @@ a { color: var(--aksen); }
   background: var(--pudar-latar);
   border: 2px dashed var(--indikasi-kurang);
   color: var(--pudar-teks);
+}
+.mk.indikasi-tanpa .mk-bulat {
+  background: var(--permukaan);
+  border: 3px solid var(--indikasi-rendah);
+  color: var(--indikasi-rendah-teks);
 }
 .mk.terpilih .mk-bulat { outline: 3px solid var(--aksen); outline-offset: 2px; }
 .mk-klaster {

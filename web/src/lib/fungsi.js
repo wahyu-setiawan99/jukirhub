@@ -40,9 +40,11 @@ export function susunLaporan({ tempat, isian, posisi, perangkat }) {
       lng: tempat.lng,
       sumber: tempat.sumber ?? 'pin'
     } };
+  const adaJukir = isian.adaJukir !== false;
   return {
     perangkat,
     ...t,
+    ada_jukir: adaJukir,
     kendaraan: isian.kendaraan,
     bantu_datang: isian.bantuDatang,
     bantu_pergi: isian.bantuPergi,
