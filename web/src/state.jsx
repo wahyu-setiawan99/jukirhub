@@ -42,7 +42,8 @@ export function useApp() {
 // saat app dibuka, saat tab kembali terlihat / sinyal kembali (paling cepat tiap 60 detik), dan setelah melapor.
 // Data terakhir disimpan di perangkat (lib/offline.js) supaya langsung tampil dan tetap ada saat sinyal putus.
 
-const KONFIGURASI = konfigurasiData(import.meta.env);
+// Dipakai juga untuk memanggil Edge Function (components/LaporLayar.jsx).
+export const KONFIGURASI = konfigurasiData(import.meta.env);
 const JEDA_MIN_REFRESH_MS = 60_000;
 
 function useTempat() {

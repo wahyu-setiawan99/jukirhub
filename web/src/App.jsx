@@ -17,6 +17,7 @@ import { LegendaIndikasi } from './components/Legenda.jsx';
 // lalu dipramuat saat perangkat senggang agar tetap tersedia offline (lib/koneksi.js).
 const Daftar = lazy(muatBagian.daftar);
 const Info = lazy(muatBagian.info);
+const LaporLayar = lazy(muatBagian.lapor);
 
 // Pustaka peta (MapLibre + worker + CSS) jauh lebih besar dari sisa app: dimuat terpisah saat tab Peta dibuka.
 const muatKomponenPeta = () => lazy(muatModulPeta);
@@ -223,6 +224,7 @@ function HalamanPeta() {
   const [pilihanMentah, setPilihanMentah] = useState(null);
   const [fokus, setFokus] = useState(null);
   const [petunjuk, setPetunjuk] = useState(false);
+  const [laporTempat, setLaporTempat] = useState(null);
   // Di koneksi sangat lambat peta ditanya dulu, kecuali datang untuk melihat satu tempat.
   const [muatPeta, setMuatPeta] = useState(
     () => petaDiizinkanSesiIni || !koneksiLambat() || lokasi.state?.fokusTempat != null
@@ -247,6 +249,13 @@ function HalamanPeta() {
     setFokus({ lat: p.lat, lng: p.lng, kunci: Date.now() });
   }, [pilih]);
   const tutup = useCallback(() => setPilihanMentah(null), []);
+  const tutupLapor = useCallback(() => setLaporTempat(null), []);
+  // Laporan terkirim: ambil ringkasan terbaru, lalu tampilkan tempat itu (penanda baru / warna berubah).
+  const selesaiLapor = useCallback(async (titik) => {
+    setLaporTempat(null);
+    await muatUlang();
+    if (titik?.id != null) setPilihanMentah({ id: titik.id });
+  }, [muatUlang]);
 
   // Datang dari Daftar/Beranda ({ fokusTempat }) atau tombol "Laporkan parkir" ({ pilihTempat }).
   // Tangani sekali, lalu bersihkan state agar tombol Kembali tidak memicu ulang.
@@ -311,7 +320,14 @@ function HalamanPeta() {
         </div>
       )}
 
-      <LembarTempat tempat={pilihan} onTutup={tutup} />
+      <LembarTempat tempat={laporTempat ? null : pilihan} onTutup={tutup} onLapor={setLaporTempat} />
+      {laporTempat && (
+        <BatasGalatMuat>
+          <Suspense fallback={<div className="lapor" role="status"><p className="redup lapor-memuat">Membuka form lapor…</p></div>}>
+            <LaporLayar tempat={laporTempat} onTutup={tutupLapor} onSelesai={selesaiLapor} />
+          </Suspense>
+        </BatasGalatMuat>
+      )}
     </>
   );
 }

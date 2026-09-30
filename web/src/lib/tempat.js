@@ -4,14 +4,9 @@
 
 import { BATAS, LEVEL_PUNGLI } from '../../../supabase/functions/_shared/konstanta.js';
 import { formatRupiah } from '../../../supabase/functions/_shared/format.js';
+import { jarakM, namaMirip, normalisasiNama } from '../../../supabase/functions/_shared/geo.js';
 
-export function jarakM(a, b) {
-  const R = 6371000, rad = Math.PI / 180;
-  const dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
-  const h = Math.sin(dLat / 2) ** 2
-          + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
+export { jarakM, namaMirip };
 
 const angka = (x) => (x == null || x === '' ? null : Number(x));
 
@@ -82,15 +77,6 @@ export function teksBintang(ringkasan) {
   return `${String(Math.round(r * 10) / 10).replace('.', ',')} (${ringkasan.jumlah})`;
 }
 
-const normalisasi = (s) => String(s ?? '').toLocaleLowerCase('id-ID')
-  .normalize('NFKD').replace(/\p{M}/gu, '').replace(/[^a-z0-9]+/g, ' ').trim();
-
-// Nama mirip: salah satu memuat yang lain (mis. "Indomaret" vs "Indomaret Jl. Perintis").
-export function namaMirip(a, b) {
-  const x = normalisasi(a), y = normalisasi(b);
-  return !!x && !!y && (x.includes(y) || y.includes(x));
-}
-
 // Tempat yang diketuk di peta / hasil cari / pin → tempat terlapor yang sama bila ada (AGENTS.md bagian 5):
 // osm_ref sama, atau dalam radius 30 m dengan nama mirip (pin tanpa nama: yang terdekat dalam radius).
 export function cocokkanTempat(pilihan, daftar) {
@@ -111,11 +97,11 @@ export function cocokkanTempat(pilihan, daftar) {
 
 // Pencarian di tempat yang sudah dilaporkan (lokal, instan, tanpa jaringan).
 export function cariLokal(daftar, kueri, maks = 5) {
-  const k = normalisasi(kueri);
+  const k = normalisasiNama(kueri);
   if (k.length < 2) return [];
   const kata = k.split(' ');
   return daftar
-    .map(t => ({ t, n: normalisasi(t.nama) }))
+    .map(t => ({ t, n: normalisasiNama(t.nama) }))
     .filter(({ n }) => kata.every(w => n.includes(w)))
     .sort((a, b) => (b.n.startsWith(k) - a.n.startsWith(k)) || a.n.length - b.n.length)
     .slice(0, maks)

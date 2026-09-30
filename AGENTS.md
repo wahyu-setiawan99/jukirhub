@@ -477,6 +477,9 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA); mulai M4 `periksa-komentar` (tiap 5 menit, hanya bila ada yang menunggu); mulai M5 `berita` (tiap 3 jam).
 - Pemilik menerima kabar Telegram untuk setiap tempat baru dan laporan (yang berpola GPS palsu diberi tanda) —
   menyusul setelah alur 1.2 jalan.
+- **Jangan mengecek situs langsung dengan loop cepat** (mis. `curl` tiap 10 detik): 29 Sept 2026 hal itu memicu
+  **Vercel Security Checkpoint** (403 `x-vercel-mitigated: challenge`) untuk jaringan pemilik, termasuk browser pane.
+  Tunggu ±2 menit setelah push, lalu cek sekali; jangan pernah mencoba melewati tantangan anti-bot.
 - **Cek setelah push:** tunggu deploy selesai; `/`, `/peta`, `/daftar`, `/info` menjawab 200; buka di 375×812,
   360×640, dan desktop, tema gelap dan terang; console bersih; laporkan ke pemilik.
 
@@ -490,7 +493,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 |---|---|
 | **M0 Fondasi** | Kerangka `web/` meniru Adami, tema, Poppins, service worker, SEO dasar, migrasi awal, tes. *Selesai (lihat status).* |
 | **M1 Peta & pilih tempat** | Peta MapLibre + penanda tempat terlapor + gugus, ketuk tempat di peta dasar, cari (lokal + Nominatim), tekan lama untuk pin, lembar tempat (baca dari view publik), Daftar *Selesai 29 Sept (lihat status).* |
-| **M2 Laporkan parkir** | Form 1 layar (1.2 poin 3), Edge Function `lapor` (gerbang 250 m, batas, GPS palsu, buat tempat baru), `skor-pungli.js` + ringkasan, penanda berubah warna setelah lapor |
+| **M2 Laporkan parkir** | Form 1 layar (1.2 poin 3), Edge Function `lapor` (gerbang 250 m, batas, GPS palsu, buat tempat baru), `skor-pungli.js` + ringkasan, penanda berubah warna setelah lapor *Selesai 30 Sept (lihat status).* |
 | **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan |
 | **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) |
 | **M5 Berita parkir** | Edge Function `berita` (RSS + AI deteksi lokasi + Nominatim), "Berita parkir di sekitar sini" di lembar tempat (bagian 1.3.2) |
@@ -499,7 +502,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 wilayah + CSV, halaman statis per tempat, rincian kerja jukir, atribut resmi, tag sikap, foto, notifikasi, bot
 Telegram warga, koin pelapor, hak jawab pemilik tempat, lencana "Resmi terverifikasi Dishub", akun pemerintah.
 
-**Status (29 Sept 2026): M0 dan M1 selesai.** Situs tayang di https://jukirhub.vercel.app (cek setelah push M0: semua
+**Status (30 Sept 2026): M0, M1, dan M2 selesai.** Situs tayang di https://jukirhub.vercel.app (cek setelah push M0: semua
 halaman 200, canonical & sitemap benar, tampilan HP benar).
 
 - **M0:** kerangka `.app` meniru Adami, 4 tab, tema, Poppins, service worker, SEO statis `/`, `/peta`, `/daftar`,
@@ -512,10 +515,22 @@ halaman 200, canonical & sitemap benar, tampilan HP benar).
 - Tes 45 lolos (`tema`, `karakter-tak-terlihat`, `konstanta-db`, `format`, `seo`, `tempat`, `cari-data`, `lokasi`).
 - Dicek di server dev dengan data uji di snapshot `localStorage` (dihapus lagi): 375×812, 360×640, 1280×800, tema gelap &
   terang, tanpa scroll horizontal, tombol ≥ 44 px (zoom peta juga), lembar & pencarian berfungsi, console bersih.
-- **Menunggu pemilik (sebelum data sungguhan tampil):**
-  1. Terapkan migrasi ke proyek `dcjnufascffooyotwqki` (`npx supabase link` + `npx supabase db push`, dijalankan
-     pemilik). Setelah itu migrasi **tidak boleh lagi ditulis ulang**; perubahan skema = file migrasi baru.
-  2. Isi `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` di Vercel (lalu Redeploy) dan di `web/.env.local` untuk dev.
+- **M2:** form satu layar `components/LaporLayar.jsx` (dari tombol "Laporkan parkir" di lembar tempat; lokasi diambil
+  saat dibuka, peringatan bila > 250 m, pesan validasi sama dengan server), Edge Function `lapor` = `lapor/proses.js`
+  (JS murni, dites dengan database tiruan) + `lapor/index.ts` (pembungkus Deno). Logika bersama: `_shared/lapor.js`
+  (validasi & nama tempat), `_shared/skor-pungli.js` (skor, level, alasan, ringkasan), `_shared/geo.js` (tempat sama),
+  `_shared/deteksi-gps.js` (dari Adami). Migrasi `20260930000001_fungsi_lapor.sql` (`titik_detail`, `buat_titik`).
+  Tarif resmi belum dibandingkan (belum ada tarif yang diperiksa pemilik, kota tempat belum diisi).
+- Pemilik sudah (30 Sept): `db push` kedua migrasi pertama, rahasia `REPORTER_SALT`/`IP_SALT`/`ALLOWED_ORIGINS`,
+  deploy `lapor`, env Supabase di Vercel & `web/.env.local`. Web dev membaca view cloud (200). **Migrasi yang sudah
+  di-push tidak boleh ditulis ulang lagi**; perubahan skema = file migrasi baru.
+- Uji PGlite kini meniru hak bawaan Supabase (`alter default privileges … to anon, authenticated, service_role`);
+  tanpa itu uji "anon ditolak" lolos terlalu mudah.
+- Form dicek di server dev dengan GPS & fungsi `lapor` DITIRU di browser (tidak ada laporan uji ke produksi):
+  375×812, 360×640, 1280×800, tema terang, tanpa overflow, tombol ≥ 44 px, tombol kirim selalu terlihat.
+- Tes: 68 lolos.
+- Dicek 30 Sept: kedua migrasi sudah ada di cloud (`rpc/titik_detail` ada, anon ditolak 42501).
+- **Setelah M2 tayang, pemilik perlu:** satu laporan sungguhan dari HP di lokasi parkir untuk uji ujung-ke-ujung.
 
 ---
 

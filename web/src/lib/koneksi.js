@@ -12,7 +12,8 @@ export const muatModulPeta = () => import('../components/Peta.jsx');
 
 export const muatBagian = {
   daftar: () => import('../pages/Daftar.jsx'),
-  info: () => import('../pages/Info.jsx')
+  info: () => import('../pages/Info.jsx'),
+  lapor: () => import('../components/LaporLayar.jsx')
 };
 
 function saatSenggang(jalankan, cadanganMs) {

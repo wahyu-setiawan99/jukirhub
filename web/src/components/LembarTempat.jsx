@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useApp } from '../state.jsx';
 import { formatJarak, jarakM } from '../lib/util.js';
 import { kalimatBantu, kodeLevel, labelLevel, teksBintang, teksTarif } from '../lib/tempat.js';
@@ -7,17 +7,15 @@ import { Ikon } from './Ikon.jsx';
 
 // Lembar tempat di tab Peta (AGENTS.md 1.2 poin 2): setengah layar supaya peta tetap terlihat.
 // `tempat` = tempat terlapor ({ id, …, ringkasan }) atau tempat yang baru diketuk/dicari/dipin ({ nama, lat, lng }).
-export default function LembarTempat({ tempat, onTutup }) {
+export default function LembarTempat({ tempat, onTutup, onLapor }) {
   const { posisi, kendaraan } = useApp();
   const wadah = useRef(null);
   const judul = useRef(null);
-  const [infoLapor, setInfoLapor] = useState(false);
   const kunci = tempat ? `${tempat.id ?? ''}|${tempat.lat}|${tempat.lng}` : null;
 
   // Tempat lain dipilih: mulai dari atas, fokus ke nama tempat.
   useEffect(() => {
     if (!kunci) return;
-    setInfoLapor(false);
     if (wadah.current) wadah.current.scrollTop = 0;
     judul.current?.focus({ preventScroll: true });
   }, [kunci]);
@@ -57,16 +55,11 @@ export default function LembarTempat({ tempat, onTutup }) {
 
       {/* Aksi tepat di bawah nama (pola lembar SPBU Adami): tetap terlihat tanpa gulir di HP 360×640. */}
       <div className="aksi-lembar">
-        <button type="button" className="tombol-aksi utama" onClick={() => setInfoLapor(true)}>
+        <button type="button" className="tombol-aksi utama" onClick={() => onLapor(tempat)}>
           Laporkan parkir
         </button>
         <a className="tombol-aksi" href={urlArah} target="_blank" rel="noopener noreferrer">Petunjuk arah</a>
       </div>
-      {infoLapor && (
-        <p className="kotak-info" role="status">
-          Form lapor sedang disiapkan dan segera tersedia. Lapor nanti hanya bisa dari dekat tempat ini (±250 m).
-        </p>
-      )}
 
       {terlapor ? (
         <div className="ringkas-tempat">
