@@ -388,3 +388,7 @@ deno_version = 2
 # menolak kunci publishable format baru.
 [functions.lapor]
 verify_jwt = false
+
+# Webhook Telegram tidak mengirim JWT; keaslian diperiksa lewat header x-telegram-bot-api-secret-token.
+[functions.telegram]
+verify_jwt = false

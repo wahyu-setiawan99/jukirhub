@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test \"tests/**/*.test.js\"",
-    "ikon": "node scripts/buat-ikon.js"
+    "ikon": "node scripts/buat-ikon.js",
+    "bot:setup": "node scripts/setup-telegram.js"
   },
   "devDependencies": {
     "sharp": "^0.35.4"

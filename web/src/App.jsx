@@ -8,6 +8,7 @@ import { HALAMAN, SITUS } from './lib/konten-beranda.js';
 import { svgLogoInline } from './lib/logo.js';
 import { useTema } from './lib/tema.js';
 import { cocokkanTempat } from './lib/tempat.js';
+import { PROFIL_LOKASI } from './lib/lokasi.js';
 import { Ikon } from './components/Ikon.jsx';
 import CariTempat from './components/CariTempat.jsx';
 import LembarTempat from './components/LembarTempat.jsx';
@@ -250,6 +251,23 @@ function HalamanPeta() {
   }, [pilih]);
   const tutup = useCallback(() => setPilihanMentah(null), []);
   const tutupLapor = useCallback(() => setLaporTempat(null), []);
+  // "Tidak ada di peta? Laporkan di lokasi saya": pin di posisi GPS pengguna (melapor memang wajib dari lokasi),
+  // nama dari kolom cari. Tempat terlapor ≤ 30 m dengan nama mirip dipakai ulang. Galat lokasi tampil di peta.
+  const [mencariLokasiLapor, setMencariLokasiLapor] = useState(false);
+  const laporDiLokasi = useCallback(async (nama = '') => {
+    setMencariLokasiLapor(true);
+    try {
+      const p = await mintaPosisi(PROFIL_LOKASI.lapor);
+      const pin = { nama, lat: p.lat, lng: p.lng, osm_ref: null, sumber: 'pin' };
+      const sama = nama ? cocokkanTempat(pin, daftar) : null;
+      setPetunjuk(false);
+      setPilihanMentah(sama ? { id: sama.id } : pin);
+      setFokus({ lat: p.lat, lng: p.lng, kunci: Date.now() });
+      setLaporTempat(sama ?? pin);
+    } catch { /* pesan lokasi tampil di peta */ } finally {
+      setMencariLokasiLapor(false);
+    }
+  }, [mintaPosisi, daftar]);
   // Laporan terkirim: ambil ringkasan terbaru, lalu tampilkan tempat itu (penanda baru / warna berubah).
   const selesaiLapor = useCallback(async (titik) => {
     setLaporTempat(null);
@@ -298,7 +316,7 @@ function HalamanPeta() {
         </div>
       )}
 
-      <CariTempat onPilih={pilihDanFokus} />
+      <CariTempat onPilih={pilihDanFokus} onLaporDiLokasi={laporDiLokasi} />
 
       {!pilihan && (
         <div className="info-peta">
@@ -313,6 +331,10 @@ function HalamanPeta() {
               {daftar.length ? `${daftar.length} tempat sudah dilaporkan` : 'Belum ada tempat yang dilaporkan'}
             </span>
           )}
+          <button type="button" className="tautan tautan-kiri" onClick={() => laporDiLokasi('')} disabled={mencariLokasiLapor}>
+            {mencariLokasiLapor ? 'Mencari lokasi Anda…' : 'Tempat tidak ada di peta? Laporkan di lokasi saya'}
+          </button>
+          <span className="kecil redup">atau tekan lama di peta</span>
           <details className="legenda-peta">
             <summary>Arti warna</summary>
             <LegendaIndikasi />

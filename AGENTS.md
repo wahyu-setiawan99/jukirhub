@@ -94,6 +94,10 @@ Peta ──► pilih tempat (ketuk di peta / cari nama) ──► lembar tempat 
   setiap huruf, sesuai aturan Nominatim), dibatasi kotak Makassar Raya, maks. 5 hasil, atribusi OSM. **Tidak memakai
   Google Places** (berbayar, perlu kartu kredit, dan ketentuannya melarang menyimpan datanya).
 - **Tekan lama di peta** untuk tempat tanpa nama di peta (mis. pinggir jalan): pin + isi nama singkat (≤ 60 huruf).
+- **"Tidak ada di peta? Laporkan di lokasi saya"** (hasil cari & panel peta): pin di posisi GPS pengguna, nama dari
+  kolom cari (bisa diubah di form), langsung membuka form. Untuk tempat yang belum ada di OpenStreetMap (mis. cafe
+  baru). **Tidak menerima link Google Maps** (keputusan 30 Sept: membuka link = akses otomatis & menyalin data Google,
+  bagian 5; lokasi pelapor tetap wajib).
 - Tombol bilah bawah **"Laporkan parkir"** di tab lain membuka Peta di lokasi pengguna dengan petunjuk
   "Ketuk tempat Anda parkir".
 
@@ -277,8 +281,11 @@ radius **30 m** dengan nama mirip; bila tidak, membuat tempat baru.
 **Kolom `titik_parkir` (versi sederhana):** `id`, `nama`, `osm_ref` (opsional), `lat`, `lng` (`geom`), `kota`
 (opsional), `status` (`aktif`, `disembunyikan`), `dibekukan`, `dibuat_oleh` (hash), `dibuat`.
 
-Tempat **disembunyikan, bukan dihapus**, jadi riwayat laporan tetap aman. Pemilik dikabari tiap tempat baru dan bisa
-menyembunyikannya lewat `npm run moderasi` (mis. parkir mall/bergedung yang di luar cakupan).
+Tempat **disembunyikan, bukan dihapus**, jadi riwayat laporan tetap aman. **Pemilik dikabari lewat Telegram tiap tempat
+baru** (nama, asal nama: diketik warga / peta / cari, tautan OpenStreetMap) dengan tombol **Sembunyikan** (bisa dibatalkan
+"Tampilkan lagi"). Tidak ada halaman moderasi: tempat yang tidak disembunyikan pemilik dianggap sah (keputusan 30 Sept).
+Kode: `_shared/kabar-pemilik.js` (pesan & tombol), `_shared/telegram.ts`, `lapor` (kabar di latar setelah tempat dibuat),
+Edge Function `telegram` = `telegram/proses.js` + `index.ts` (secret webhook + hanya chat pemilik). Pesan tanpa data pelapor.
 
 Nama tempat dan peta dari **OpenStreetMap** (ODbL, atribusi wajib). **Jangan menyalin data dari Google Maps**
 (dilarang ketentuan Google), termasuk nama tempat, foto, dan ulasan.
@@ -472,7 +479,12 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **Environment Vercel** (diisi pemilik): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (kunci anon **atau** publishable `sb_publishable_…`; hanya dikirim di header `apikey`), opsional `VITE_SITE_URL`. Tanpa keduanya app tetap jalan dengan data kosong. Untuk dev: `web/.env.local` (di-gitignore).
 - **Edge Function** (dideploy pemilik): `npx supabase functions deploy <nama>`.
 - **Secret Edge Function** (lewat `npm run cloud:secrets`, dijalankan pemilik): `ALLOWED_ORIGINS`, `URL_WEB`,
-  `REPORTER_SALT`, `IP_SALT`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_CHAT_ID`, `PEMANTAUAN_SECRET`, mulai M4 `GEMINI_API_KEY` (dipasang pemilik sendiri).
+  `REPORTER_SALT`, `IP_SALT`, `PEMANTAUAN_SECRET`, mulai M4 `GEMINI_API_KEY` (dipasang pemilik sendiri).
+- **Bot Telegram pemilik:** `npm run bot:setup` (dijalankan pemilik; `scripts/setup-telegram.js`) memasang
+  `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`, `URL_WEB` dan webhook ke fungsi `telegram`.
+  Tanpa itu kabar tempat baru diam saja (no-op), laporan tetap jalan.
+- **Cek tipe Edge Function** tanpa memasang Deno: salin `supabase/functions` ke folder sementara berisi
+  `deno.json` `{ "nodeModulesDir": "auto" }`, lalu `npx --yes deno@2 check functions/<nama>/index.ts`.
 - **Migrasi:** file baru di `supabase/migrations/` (`YYYYMMDDNNNNNN_nama.sql`), lalu `npx supabase db push`.
 - **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA); mulai M4 `periksa-komentar` (tiap 5 menit, hanya bila ada yang menunggu); mulai M5 `berita` (tiap 3 jam).
 - Pemilik menerima kabar Telegram untuk setiap tempat baru dan laporan (yang berpola GPS palsu diberi tanda) —
@@ -566,6 +578,12 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   - Keputusan teknis Claude saat M1 (boleh ditinjau pemilik): **supabase-js tidak dipakai** (web hanya membaca view
     lewat `fetch` REST; lebih ringan), lapisan nama tempat sendiri di atas peta, **bilah "Laporkan parkir" disembunyikan
     di tab Peta** (tombolnya ada di lembar tempat), tombol aksi lembar dipindah ke atas ringkasan.
+- **30 Sept 2026:**
+  - M2 tayang; repo sempat tersambung ke dua proyek Vercel, duplikat `jukirhub-aywb` dihapus pemilik.
+  - Pemilik: tempat yang tidak ada di peta harus bisa dilaporkan (cafe-nya sendiri). Usul link Google Maps ditolak
+    (bagian 5); diganti tombol **"Laporkan di lokasi saya"** (bagian 1.2 poin 1).
+  - Pemilik: nama tempat baru cukup **dikabarkan** ke pemilik; selama tidak dihapus berarti sah, tanpa halaman
+    moderasi → Telegram + tombol Sembunyikan (bagian 5).
 
 **Belum diputuskan (tanyakan pemilik sebelum dikerjakan):**
 

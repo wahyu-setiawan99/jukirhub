@@ -60,7 +60,9 @@ export function validasiLaporan(body) {
     const pesanNama = periksaNamaTempat(t.nama);
     if (pesanNama) return galat('nama_tempat', pesanNama);
     if (t.osm_ref != null && !REF_OSM.test(String(t.osm_ref))) return galat('tempat', 'Tempat tidak valid.');
-    tempat = { nama: String(t.nama).trim(), osm_ref: t.osm_ref ?? null, lat: t.lat, lng: t.lng };
+    // sumber hanya informasi untuk kabar ke pemilik (bukan untuk keamanan): pin = nama diketik warga.
+    const sumber = ['pin', 'peta', 'cari'].includes(t.sumber) ? t.sumber : 'pin';
+    tempat = { nama: String(t.nama).trim(), osm_ref: t.osm_ref ?? null, lat: t.lat, lng: t.lng, sumber };
   }
 
   return {

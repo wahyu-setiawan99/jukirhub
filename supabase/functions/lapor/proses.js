@@ -30,10 +30,10 @@ const sukses = (titik) => ({ status: 200, body: { ok: true, pesan: PESAN_SUKSES,
  *   simpanLaporan(baris: Record<string, unknown>): Promise<void>,
  *   laporanTitik(titikId: number, sejakHari: number): Promise<Array<Record<string, unknown>>>,
  *   simpanRingkasan(titikId: number, ringkasan: Record<string, unknown>): Promise<void>
- * } }} p
+ * }, kabar?: { tempatBaru(t: { id: number, nama: string, sumber: string, lat: number, lng: number }): void } }} p
  * @returns {Promise<{ status: number, body: Record<string, unknown> }>}
  */
-export async function prosesLapor({ body, ip, garam, db, sekarang = Date.now() }) {
+export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.now() }) {
   const v = validasiLaporan(body);
   if (!v.ok) return tolak(v.kode === 'lokasi' ? 422 : 400, v.kode, v.pesan);
   const d = v.data;
@@ -96,6 +96,8 @@ export async function prosesLapor({ body, ip, garam, db, sekarang = Date.now() }
       nama: d.tempat.nama, osm_ref: d.tempat.osm_ref, lat: d.tempat.lat, lng: d.tempat.lng, dibuat_oleh: reporterKey
     });
     titik = { id, nama: d.tempat.nama };
+    // Kabar ke pemilik (Telegram) dengan tombol Sembunyikan; tidak boleh menahan / menggagalkan laporan.
+    try { kabar?.tempatBaru({ id, nama: d.tempat.nama, sumber: d.tempat.sumber, lat: d.tempat.lat, lng: d.tempat.lng }); } catch { /* abaikan */ }
   }
 
   await db.simpanLaporan({

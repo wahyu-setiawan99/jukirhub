@@ -9,7 +9,7 @@ const cariNominatim = buatPencari((...a) => fetch(...a));
 
 // Kolom cari di atas peta (AGENTS.md 1.2 poin 1): tempat terlapor dicari langsung saat mengetik (lokal),
 // tempat lain di Nominatim OpenStreetMap hanya saat menekan Cari.
-export default function CariTempat({ onPilih }) {
+export default function CariTempat({ onPilih, onLaporDiLokasi }) {
   const { daftar } = useApp();
   const [kueri, setKueri] = useState('');
   const [terbuka, setTerbuka] = useState(false);
@@ -100,11 +100,17 @@ export default function CariTempat({ onPilih }) {
               </ul>
             </>
           ) : (
-            <p className="redup pesan-hasil">Tidak ditemukan di Makassar Raya. Coba nama lain, atau tekan lama di peta.</p>
+            <p className="redup pesan-hasil">Tidak ditemukan di peta Makassar Raya.</p>
           ))}
           {!osmBerlaku && osm.status !== 'mencari' && kueri.trim().length >= 3 && (
             <p className="redup pesan-hasil">Tekan Cari untuk mencari tempat lain di peta.</p>
           )}
+          {/* Tempat yang belum ada di peta (mis. cafe baru): pin di posisi GPS pengguna, nama dari kolom cari. */}
+          <button type="button" className="tombol-lokasi-saya"
+            onClick={() => { setTerbuka(false); input.current?.blur(); onLaporDiLokasi(kueri.trim()); }}>
+            <strong>Tidak ada di peta? Laporkan di lokasi saya</strong>
+            <span className="redup">{kueri.trim() ? `"${kueri.trim()}" di posisi Anda sekarang` : 'Memakai posisi Anda sekarang'}</span>
+          </button>
           <p className="kecil redup atribusi-cari">Pencarian: Nominatim © kontributor OpenStreetMap</p>
         </div>
       )}

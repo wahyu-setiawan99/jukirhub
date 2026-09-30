@@ -32,8 +32,14 @@ export async function panggilFungsi(fetchFn, konfigurasi, nama, body) {
 export function susunLaporan({ tempat, isian, posisi, perangkat }) {
   const t = tempat.id != null
     ? { titik_id: tempat.id }
-    // Nama yang diketik hanya untuk pin tanpa nama; tempat dari peta / cari memakai namanya sendiri.
-    : { tempat: { nama: String(tempat.nama || isian.namaTempat || '').trim(), osm_ref: tempat.osm_ref ?? null, lat: tempat.lat, lng: tempat.lng } };
+    // Pin (tekan lama / "Laporkan di lokasi saya"): nama yang diketik di form. Tempat dari peta / cari: namanya sendiri.
+    : { tempat: {
+      nama: String((tempat.sumber === 'pin' ? isian.namaTempat : tempat.nama || isian.namaTempat) ?? '').trim(),
+      osm_ref: tempat.osm_ref ?? null,
+      lat: tempat.lat,
+      lng: tempat.lng,
+      sumber: tempat.sumber ?? 'pin'
+    } };
   return {
     perangkat,
     ...t,

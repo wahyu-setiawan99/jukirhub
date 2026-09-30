@@ -18,10 +18,13 @@ test('susunLaporan: tempat terlapor → titik_id; body lolos validasi server', (
 
 test('susunLaporan: tempat baru dari cari (osm_ref) dan pin (nama diketik)', () => {
   const cari = susunLaporan({ tempat: { nama: 'Pasar Terong', osm_ref: 'way/7', lat: -5.13, lng: 119.42 }, isian, posisi, perangkat: 'perangkat-uji-1' });
-  assert.deepEqual(cari.tempat, { nama: 'Pasar Terong', osm_ref: 'way/7', lat: -5.13, lng: 119.42 });
-  const pin = susunLaporan({ tempat: { nama: '', lat: -5.15, lng: 119.42 }, isian: { ...isian, namaTempat: '  Pinggir Jl. Veteran ' }, posisi, perangkat: 'perangkat-uji-1' });
+  assert.deepEqual(cari.tempat, { nama: 'Pasar Terong', osm_ref: 'way/7', lat: -5.13, lng: 119.42, sumber: 'pin' });
+  const pin = susunLaporan({ tempat: { nama: 'Nama dari kolom cari', lat: -5.15, lng: 119.42, sumber: 'pin' }, isian: { ...isian, namaTempat: '  Pinggir Jl. Veteran ' }, posisi, perangkat: 'perangkat-uji-1' });
   assert.equal(pin.tempat.nama, 'Pinggir Jl. Veteran');
   assert.equal(pin.tempat.osm_ref, null);
+  assert.equal(pin.tempat.sumber, 'pin');
+  const dariCari = susunLaporan({ tempat: { nama: 'Pasar Terong', osm_ref: 'way/7', lat: -5.13, lng: 119.42, sumber: 'cari' }, isian, posisi, perangkat: 'perangkat-uji-1' });
+  assert.deepEqual([dariCari.tempat.nama, dariCari.tempat.sumber], ['Pasar Terong', 'cari']);
   assert.equal(validasiLaporan(pin).ok, true);
 });
 

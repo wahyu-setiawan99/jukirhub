@@ -3,6 +3,8 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { prosesLapor } from './proses.js';
+import { diLatar, kabariPemilik } from '../_shared/telegram.ts';
+import { pesanTempatBaru, tombolUntuk } from '../_shared/kabar-pemilik.js';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -12,6 +14,7 @@ const supabase = createClient(
 
 const REPORTER_SALT = Deno.env.get('REPORTER_SALT');
 const IP_SALT = Deno.env.get('IP_SALT');
+const URL_WEB = Deno.env.get('URL_WEB') ?? 'https://jukirhub.vercel.app';
 const ALLOWED_ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') ?? '*').split(',').map(s => s.trim()).filter(Boolean);
 
 function corsHeaders(req: Request): Record<string, string> {
@@ -86,6 +89,13 @@ const db = {
   }
 };
 
+// Tempat baru → kabar ke pemilik dengan tombol Sembunyikan (fungsi telegram menangani tombolnya).
+const kabar = {
+  tempatBaru(t: { id: number; nama: string; sumber: string; lat: number; lng: number }) {
+    diLatar(kabariPemilik(pesanTempatBaru(t, URL_WEB), tombolUntuk('aktif', t.id)));
+  }
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(req) });
   if (req.method !== 'POST') return balas(req, 405, { ok: false, kode: 'metode', pesan: 'Gunakan POST.' });
@@ -100,7 +110,7 @@ Deno.serve(async (req) => {
     return balas(req, 400, { ok: false, kode: 'format', pesan: 'Format laporan tidak valid.' });
   }
   try {
-    const hasil = await prosesLapor({ body, ip: ipClient(req), garam: { reporter: REPORTER_SALT, ip: IP_SALT }, db });
+    const hasil = await prosesLapor({ body, ip: ipClient(req), garam: { reporter: REPORTER_SALT, ip: IP_SALT }, db, kabar });
     return balas(req, hasil.status, hasil.body);
   } catch (err) {
     console.error('[lapor]', err);

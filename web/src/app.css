@@ -548,6 +548,24 @@ a { color: var(--aksen); }
 .kepala-hasil { padding: 6px 8px 2px; color: var(--redup); font-size: 0.8rem; font-weight: 600; }
 .pesan-hasil { padding: 8px; font-size: 0.875rem; line-height: 1.45; }
 .atribusi-cari { padding: 4px 8px 2px; }
+/* "Tidak ada di peta? Laporkan di lokasi saya" (tempat yang belum ada di OpenStreetMap) */
+.tombol-lokasi-saya {
+  display: grid;
+  gap: 1px;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px dashed var(--aksen);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--aksen);
+  text-align: left;
+  cursor: pointer;
+}
+.tombol-lokasi-saya:hover { background: var(--lembut); }
+.tautan-kiri { justify-self: start; padding: 0; text-align: left; line-height: 1.35; }
+.tautan-kiri:disabled { opacity: 0.6; cursor: progress; }
 
 /* Pesan di bawah kolom cari: lokasi / petunjuk memilih tempat */
 .catatan-lokasi {
@@ -634,6 +652,10 @@ a { color: var(--aksen); }
   z-index: 2;
 }
 .info-peta .ringkas-peta { color: var(--teks-isi); }
+/* HP sempit: atribusi peta terlipat dua baris (±44 px); panel & tombol lokasi naik supaya atribusi tetap terlihat. */
+@media (max-width: 400px) {
+  .info-peta, .tombol-lokasi { bottom: 58px; }
+}
 .info-peta .galat { color: var(--merah-teks); }
 .legenda-peta summary {
   display: flex;

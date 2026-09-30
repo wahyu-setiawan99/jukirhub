@@ -20,11 +20,12 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
     bayarLain: false,
     pungli: new Set(),
     bintang: 0,
-    namaTempat: ''
+    // Pin: nama bisa sudah terisi dari kolom cari ("Laporkan di lokasi saya"), tetap bisa diubah.
+    namaTempat: tempat.sumber === 'pin' ? (tempat.nama ?? '') : ''
   });
   const [kirim, setKirim] = useState({ status: 'diam', pesan: null, hasil: null });   // diam | mengirim | galat | sukses
   const judul = useRef(null);
-  const perluNama = tempat.id == null && !tempat.nama;
+  const perluNama = tempat.id == null && (tempat.sumber === 'pin' || !tempat.nama);
 
   const ambilLokasi = () => {
     setLokasi(l => ({ ...l, status: 'mencari', kode: null }));
@@ -88,7 +89,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
     );
   }
 
-  const nama = tempat.nama || 'Tempat tanpa nama';
+  const nama = perluNama ? 'Tempat baru di lokasi yang Anda tandai' : tempat.nama;
 
   return (
     <div className="lapor" role="dialog" aria-modal="true" aria-labelledby="judul-lapor">
@@ -116,7 +117,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
 
         {perluNama && (
           <label className="blok">
-            <span className="tanya">Nama tempat</span>
+            <span className="tanya">Nama tempat <span className="redup">(tempat ini belum ada di peta)</span></span>
             <input type="text" className="isian-teks" value={isian.namaTempat} maxLength={BATAS.panjangNamaTempatMaks}
               onChange={e => ubah('namaTempat', e.target.value)} placeholder="Mis. Pinggir Jl. Veteran depan warung coto" />
           </label>
