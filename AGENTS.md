@@ -588,6 +588,8 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   - M2 tayang; repo sempat tersambung ke dua proyek Vercel, duplikat `jukirhub-aywb` dihapus pemilik.
   - Pemilik: tempat yang tidak ada di peta harus bisa dilaporkan (cafe-nya sendiri). Usul link Google Maps ditolak
     (bagian 5); diganti tombol **"Laporkan di lokasi saya"** (bagian 1.2 poin 1).
+  - Pemilik tidak mau membuka Vercel untuk tiap rilis → pipeline `git push` + `npm run cek:tayang` (bagian 9). Skrip
+    menemukan "Auto-assign Custom Production Domains" nonaktif; pemilik mengaktifkannya 30 Sept.
   - Pemilik: nama tempat baru cukup **dikabarkan** ke pemilik; selama tidak dihapus berarti sah, tanpa halaman
     moderasi → Telegram + tombol Sembunyikan (bagian 5).
 
