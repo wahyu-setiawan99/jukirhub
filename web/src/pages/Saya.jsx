@@ -11,6 +11,7 @@ import { waktuRelatif } from '../lib/riwayat.js';
 import { formatRupiah } from '../lib/util.js';
 import { SITUS } from '../lib/konten-beranda.js';
 import { Ikon } from '../components/Ikon.jsx';
+import TautanSitus from '../components/TautanSitus.jsx';
 
 // Tab "Saya" (keputusan pemilik 1 Okt 2026, pola Adami): koin, lencana, peringkat 30 hari per kabupaten, laporan
 // terakhir dari HP ini, dan cara dapat koin. Tanpa akun: data milik perangkat ini saja, jadi tidak diindeks mesin
@@ -55,11 +56,11 @@ export default function Saya() {
       {status === 'siap' && !saya && (
         <section className="kartu">
           <h2>Belum ada koin</h2>
+          {/* Tanpa tombol sendiri: tombol "Laporkan parkir" sudah ada di bilah bawah (satu tombol per layar). */}
           <p>
-            Laporkan parkir saat Anda berada di tempat parkir. Setiap laporan memberi koin, ditambah bonus saat Anda
-            pelapor pertama di tempat itu atau melapor beberapa hari berturut-turut.
+            Saat berada di tempat parkir, tekan <strong>Laporkan parkir</strong> di bawah. Setiap laporan memberi koin,
+            ditambah bonus saat Anda pelapor pertama di tempat itu atau melapor beberapa hari berturut-turut.
           </p>
-          <Link className="tombol-utama" to="/peta" state={{ pilihTempat: true }}>Laporkan parkir</Link>
         </section>
       )}
 
@@ -137,6 +138,7 @@ export default function Saya() {
 
       <CaraDapatKoin />
 
+      <TautanSitus />
       <p className="disclaimer">Koin belum bisa ditukar dengan uang atau hadiah; hanya untuk lencana dan peringkat.</p>
     </div>
   );

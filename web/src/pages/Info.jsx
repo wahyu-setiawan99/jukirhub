@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom';
 import { CATATAN_KAKI, HALAMAN } from '../lib/konten-beranda.js';
 import { DaftarIndikasi, LegendaIndikasi } from '../components/Legenda.jsx';
+import TautanSitus from '../components/TautanSitus.jsx';
 
 // Halaman info: cara pakai, arti tanda, privasi, disclaimer. Nada tidak alarmis, bukan tuduhan.
 export default function Info() {
@@ -52,9 +54,11 @@ export default function Info() {
             Tanpa pelacak iklan (tidak ada Meta Pixel atau sejenisnya). Bila Anda datang dari iklan, hanya nama
             kampanyenya yang ikut tersimpan di laporan, untuk menghitung iklan mana yang berguna.
           </li>
+          <li>Rincian lengkap ada di <Link to="/privasi">Kebijakan Privasi</Link>.</li>
         </ul>
       </section>
 
+      <TautanSitus />
       <p className="disclaimer">{CATATAN_KAKI}</p>
     </div>
   );

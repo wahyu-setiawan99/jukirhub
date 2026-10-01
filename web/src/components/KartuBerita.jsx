@@ -5,6 +5,7 @@ import { PROVINSI, dataProvinsi, kabupatenDiProvinsi } from '@shared/wilayah.js'
 import { KONFIGURASI, useApp } from '../state.jsx';
 import { KOLOM_BERITA, ambilView } from '../lib/data.js';
 import { daerahManual, pilihDaerahManual } from '../lib/daerah.js';
+import { setelahGambarPertama } from '../lib/koneksi.js';
 import { Ikon } from './Ikon.jsx';
 
 const FORMAT_TANGGAL = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', timeZone: 'Asia/Makassar' });
@@ -18,13 +19,13 @@ export function useBerita() {
   const [manual, setManual] = useState(() => daerahManual());
 
   useEffect(() => {
-    if (!KONFIGURASI) return;
-    ambilView(fetch, KONFIGURASI, 'berita_publik', KOLOM_BERITA)
+    if (!KONFIGURASI) return undefined;
+    return setelahGambarPertama(() => ambilView(fetch, KONFIGURASI, 'berita_publik', KOLOM_BERITA)
       .then(berita => setData({ status: 'siap', berita }))
       .catch(err => {
         console.warn('[berita] gagal memuat:', err.message);
         setData(d => ({ ...d, status: 'galat' }));
-      });
+      }));
   }, []);
 
   const daerah = manual ?? kabupatenSaya;

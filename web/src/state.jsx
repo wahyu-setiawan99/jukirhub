@@ -6,6 +6,7 @@ import { gabungTempat } from './lib/tempat.js';
 import { KUNCI_SNAPSHOT, bacaSnapshot, buatSnapshot } from './lib/offline.js';
 import { PROFIL_LOKASI, ambilPosisi, kodeGalatLokasi } from './lib/lokasi.js';
 import { ZONA_BAWAAN, pilihZonaManual, wilayahDariPosisi, zonaManual } from './lib/daerah.js';
+import { setelahGambarPertama } from './lib/koneksi.js';
 
 // Context app (pola Adami): tempat terlapor + ringkasannya, posisi pengguna, zona (provinsi) aktif, kendaraan
 // terpilih, status online.
@@ -90,7 +91,7 @@ function useTempat() {
     }
   }, []);
 
-  useEffect(() => { muat({ paksa: true }); }, [muat]);
+  useEffect(() => setelahGambarPertama(() => muat({ paksa: true })), [muat]);
 
   useEffect(() => {
     const saatTerlihat = () => { if (!document.hidden) muat(); };

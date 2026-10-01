@@ -3,6 +3,7 @@ import { gabungImbauan, imbauanWilayah } from '@shared/imbauan.js';
 import { dataProvinsi, kabupatenDiProvinsi, provinsiKabupaten } from '@shared/wilayah.js';
 import { KONFIGURASI, useApp } from '../state.jsx';
 import { KOLOM_IMBAUAN, ambilView } from '../lib/data.js';
+import { setelahGambarPertama } from '../lib/koneksi.js';
 import { Ikon } from './Ikon.jsx';
 
 // "Imbauan parkir" per wilayah (AGENTS.md 1.5, fase N2): kalimat netral dari angka agregat 30 hari (view
@@ -13,10 +14,10 @@ export default function Imbauan() {
   const [baris, setBaris] = useState(null);
 
   useEffect(() => {
-    if (!KONFIGURASI) return;
-    ambilView(fetch, KONFIGURASI, 'imbauan_publik', KOLOM_IMBAUAN)
+    if (!KONFIGURASI) return undefined;
+    return setelahGambarPertama(() => ambilView(fetch, KONFIGURASI, 'imbauan_publik', KOLOM_IMBAUAN)
       .then(setBaris)
-      .catch(err => console.warn('[imbauan] gagal memuat:', err.message));
+      .catch(err => console.warn('[imbauan] gagal memuat:', err.message)));
   }, []);
 
   const imbauan = useMemo(() => {

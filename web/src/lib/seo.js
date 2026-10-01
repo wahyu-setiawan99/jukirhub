@@ -4,11 +4,12 @@
 // yang bisa dibaca tanpa JavaScript. Halaman per tempat ditunda (AGENTS.md 1.2). Fungsi murni tanpa DOM supaya bisa
 // dites dengan node:test.
 
-import { CATATAN_KAKI, FAQ, HALAMAN, HERO, LANGKAH, SITUS, TENTANG, WILAYAH } from './konten-beranda.js';
+import { CATATAN_KAKI, FAQ, HALAMAN, HERO, LANGKAH, SITUS, TAUTAN_SITUS, TENTANG, WILAYAH } from './konten-beranda.js';
+import { BERLAKU_SEJAK, ISI_LEGAL } from './konten-legal.js';
 import { svgLogoInline } from './logo.js';
 
 // Halaman selain Beranda yang dibuatkan HTML statis sendiri (daftar.html, dst. — lihat cleanUrls di vercel.json).
-export const JALUR_STATIS = ['/peta', '/daftar', '/info', '/berita'];
+export const JALUR_STATIS = ['/peta', '/daftar', '/info', '/berita', '/tentang', '/privasi', '/syarat', '/kontak'];
 
 export function escHtml(teks) {
   return String(teks)
@@ -103,7 +104,10 @@ export function buatDataTerstruktur(url, jalur = '/') {
   ];
 }
 
-export function buatKepalaSeo(url, { supabaseUrl, jalur = '/' } = {}) {
+// Kode penerbit AdSense ca-pub-<16 angka> (env VITE_ADSENSE_CLIENT); selain itu diabaikan.
+export const kodeAdsenseSah = (k) => (typeof k === 'string' && /^ca-pub-\d{16}$/.test(k) ? k : null);
+
+export function buatKepalaSeo(url, { supabaseUrl, jalur = '/', adsense = null } = {}) {
   const dasar = rapikanUrl(url);
   const h = halaman(jalur);
   const kanonik = escHtml(urlHalaman(dasar, jalur));
@@ -132,6 +136,8 @@ export function buatKepalaSeo(url, { supabaseUrl, jalur = '/' } = {}) {
     `<meta name="twitter:image" content="${escHtml(dasar)}/og.png" />`,
     `<meta name="twitter:image:alt" content="${altGambar}" />`,
     `<meta name="application-name" content="${escHtml(SITUS.nama)}" />`,
+    // Verifikasi situs Google AdSense lewat meta tag: tanpa memuat skrip iklan (situs tetap cepat).
+    ...(kodeAdsenseSah(adsense) ? [`<meta name="google-adsense-account" content="${kodeAdsenseSah(adsense)}" />`] : []),
     // Sambungan ke server data dibuka lebih awal: data tampil lebih cepat di jaringan seluler.
     ...(asalData ? [`<link rel="preconnect" href="${escHtml(asalData)}" crossorigin />`] : []),
     ...buatDataTerstruktur(dasar, jalur).map(o => `<script type="application/ld+json">${jsonLdAman(o)}</script>`)
@@ -140,15 +146,41 @@ export function buatKepalaSeo(url, { supabaseUrl, jalur = '/' } = {}) {
 
 const kepalaStatis = () => {
   const e = escHtml;
-  return `<header class="atas"><a class="merek" href="/" aria-label="${e(SITUS.nama)}, ke Beranda"><span class="logo">${svgLogoInline(28)}</span><span class="nama-merek"><span>${e(SITUS.nama)}</span><span class="tagline">${e(SITUS.tagline)}</span></span></a></header>`;
+  return `<header class="atas"><a class="merek" href="/" aria-label="${e(SITUS.nama)}, ke Beranda"><span class="logo">${svgLogoInline(28)}</span><span class="nama-merek">${e(SITUS.nama)}</span></a></header>`;
 };
 
 const MENU = [['/', 'Beranda'], ['/peta', 'Peta'], ['/daftar', 'Daftar tempat'], ['/berita', 'Berita parkir'], ['/info', 'Info']];
+
+const tautanSitusStatis = () => `<nav class="tautan-situs" aria-label="Tentang situs">${TAUTAN_SITUS
+  .map(([j, label]) => `<a href="${j}">${escHtml(label)}</a>`).join('')}</nav>`;
+
+// Halaman situs (Tentang, Privasi, Syarat, Kontak): teks lengkap ikut HTML statis supaya terbaca tanpa JavaScript.
+function isiLegalStatis(jalur) {
+  const e = escHtml;
+  const h = halaman(jalur);
+  const bagian = ISI_LEGAL[jalur].bagian.map(b => `<section class="kartu"><h2>${e(b.judul)}</h2>${(b.paragraf ?? []).map(p => `<p>${e(p)}</p>`).join('')}` +
+    `${b.poin ? `<ul class="poin">${b.poin.map(p => `<li>${e(p)}</li>`).join('')}</ul>` : ''}</section>`).join('\n        ');
+  const berlaku = jalur === '/privasi' || jalur === '/syarat' ? `<p class="redup kecil">Berlaku sejak ${e(BERLAKU_SEJAK)}.</p>` : '';
+  return `<div class="statis">
+      ${kepalaStatis()}
+      <main class="halaman halaman-legal">
+        <section class="kepala-halaman">
+          <h1>${e(h.h1)}</h1>
+          <p class="redup">${e(h.intro)}</p>
+          ${berlaku}
+        </section>
+        ${bagian}
+        ${tautanSitusStatis()}
+        <p class="disclaimer">${e(CATATAN_KAKI)}</p>
+      </main>
+    </div>`;
+}
 
 // Konten statis yang bisa dibaca tanpa JavaScript. React menggantinya saat app dimuat;
 // kelas CSS sama dengan halaman React agar pergantiannya halus.
 export function buatIsiStatis(jalur = '/') {
   const e = escHtml;
+  if (ISI_LEGAL[jalur]) return isiLegalStatis(jalur);
   if (jalur !== '/') {
     const h = halaman(jalur);
     const menu = MENU.filter(([j]) => j !== jalur)
@@ -164,6 +196,7 @@ export function buatIsiStatis(jalur = '/') {
         <nav class="aksi-beranda" aria-label="Menu">
           ${menu}
         </nav>
+        ${tautanSitusStatis()}
         <p class="disclaimer">${e(CATATAN_KAKI)}</p>
       </main>
     </div>`;
@@ -201,6 +234,7 @@ export function buatIsiStatis(jalur = '/') {
             ${FAQ.butir.map(f => `<details><summary>${e(f.tanya)}</summary><p>${e(f.jawab)}</p></details>`).join('\n            ')}
           </div>
         </section>
+        ${tautanSitusStatis()}
         <p class="disclaimer">${e(CATATAN_KAKI)}</p>
       </main>
     </div>`;

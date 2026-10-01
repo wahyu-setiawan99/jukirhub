@@ -28,6 +28,16 @@ export function bacaTombol(data) {
   return { jenis: 'komentar', aksi: m[1] === 'ks' ? 'tampilkan' : 'tolak', id };
 }
 
+// Pesan formulir kontak (halaman /kontak). Email pengirim hanya bila diisi sendiri.
+export function pesanKontak({ pesan, email }) {
+  return [
+    '✉️ <b>Pesan dari halaman Kontak</b>',
+    email ? `Balas ke: ${escapeHtml(email)}` : 'Tanpa email balasan.',
+    '',
+    escapeHtml(pesan)
+  ].join('\n');
+}
+
 // Keterangan foto bukti (Edge Function foto). Tanpa identitas/koordinat pelapor.
 export function keteranganFoto({ id, nama, ada_jukir, kendaraan, bayar, pungli = [], bintang, bobot_manual = 1 }) {
   const label = Object.fromEntries(INDIKASI_PUNGLI.map(i => [i.kode, i.label]));

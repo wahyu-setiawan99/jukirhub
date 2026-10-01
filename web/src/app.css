@@ -1,3 +1,31 @@
+/* Font cadangan berukuran sama (Capsize: size-adjust & ascent/descent): saat Space Grotesk / JetBrains Mono selesai
+   dimuat, teks tidak berubah ukuran → tidak ada LCP baru & geseran tata letak (Lighthouse 1 Okt 2026).
+   Arial (Windows/Mac/iOS) dan Roboto (Android) dihitung terpisah. */
+@font-face {
+  font-family: "Space Grotesk Fallback";
+  src: local("Arial"), local("ArialMT");
+  ascent-override: 89.7072%;
+  descent-override: 26.6204%;
+  line-gap-override: 0%;
+  size-adjust: 109.6903%;
+}
+@font-face {
+  font-family: "Space Grotesk Fallback Android";
+  src: local("Roboto Regular"), local("Roboto-Regular");
+  ascent-override: 89.5106%;
+  descent-override: 26.5621%;
+  line-gap-override: 0%;
+  size-adjust: 109.9311%;
+}
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  src: local("Courier New"), local("CourierNewPSMT"), local("Roboto Mono Regular"), local("RobotoMono-Regular");
+  ascent-override: 102.0166%;
+  descent-override: 30.0049%;
+  line-gap-override: 0%;
+  size-adjust: 99.9837%;
+}
+
 :root {
   /* TEMA GELAP bawaan (tampilan "Radar", Opsi A pilihan pemilik 1 Okt 2026): latar hitam-biru, aksen cyan, angka
      monospace. Mode terang: :root[data-tema="terang"] di bawah (lib/tema.js). Warna hanya untuk makna (AGENTS.md 6.3).
@@ -47,9 +75,9 @@
   --indikasi-kurang-teks: #c3cfdf;
   --bintang: #facc15;
   /* Space Grotesk (teks) + JetBrains Mono (angka & label data), disajikan dari situs sendiri (@fontsource, main.jsx). */
-  --font-isi: "Space Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-isi: "Space Grotesk", "Space Grotesk Fallback", "Space Grotesk Fallback Android", system-ui, sans-serif;
   --font-judul: var(--font-isi);
-  --font-angka: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --font-angka: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, monospace;
   /* Kolom isi di desktop. Bilah (header, lapor, menu) tetap selebar layar; isinya sejajar kolom ini. */
   --lebar-kolom: 696px;
   --tepi-kolom: max(12px, calc((100% - var(--lebar-kolom)) / 2));
@@ -170,10 +198,6 @@ a { color: var(--aksen); }
   text-decoration: none;
 }
 .merek .logo, .merek .logo svg { display: block; }
-.nama-merek { display: grid; line-height: 1.1; }
-/* Tagline logo: huruf data kecil di bawah nama; hanya bila header cukup lebar. */
-.nama-merek .tagline { font-family: var(--font-angka); font-size: 0.8rem; font-weight: 400; color: var(--aksen); }
-@media (max-width: 479px) { .nama-merek .tagline { display: none; } }
 /* HP sangat sempit (< 360 px): tulisan "JukirHub" disembunyikan supaya pilihan kendaraan & tombol tema tetap muat. */
 @media (max-width: 359px) { .nama-merek { display: none; } }
 .atas-kanan { display: flex; align-items: center; gap: 8px; }
@@ -1164,6 +1188,31 @@ a { color: var(--aksen); }
 .daftar-berita a { color: var(--aksen); font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
 .berita .tombol-tautan { display: grid; place-items: center; text-decoration: none; }
 .daftar-berita p { line-height: 1.45; color: var(--teks-isi); }
+
+/* ------------------------------------------------ halaman situs (Tentang, Privasi, Syarat, Kontak) & tautan situs */
+
+/* Selama memuat, tempat isi dicadangkan supaya tautan situs di bawah tidak terdorong (CLS, Lighthouse 1 Okt 2026). */
+.memuat-blok { min-height: 70vh; }
+
+.halaman-legal { display: grid; align-content: start; gap: 12px; padding-bottom: 24px; }
+.halaman-legal > * { width: 100%; max-width: var(--lebar-kolom); margin-inline: auto; }
+.tautan-situs { display: flex; flex-wrap: wrap; gap: 0 16px; padding-top: 12px; border-top: 1px solid var(--garis); }
+.tautan-situs a { display: inline-flex; align-items: center; min-height: 44px; color: var(--redup); font-size: 0.875rem; }
+.tautan-situs a:hover { color: var(--aksen); }
+.form-kontak label { display: grid; gap: 4px; }
+.form-kontak textarea, .form-kontak input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--garis);
+  border-radius: 10px;
+  background: var(--latar);
+  color: var(--teks);
+  font: inherit;
+}
+.form-kontak textarea { resize: vertical; line-height: 1.5; }
+/* Kolom jebakan bot: di luar layar, bukan display:none (sebagian bot melewati kolom tersembunyi). */
+.form-kontak .jebakan { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 
 /* Judul untuk pembaca layar saja. Sengaja di akhir file: aturan lebar kolom (.info > * dst.) tidak boleh
    menimpa width 1px, kalau tidak judul ini melebar ke luar layar. */

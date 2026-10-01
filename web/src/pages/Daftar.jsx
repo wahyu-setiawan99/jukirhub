@@ -7,6 +7,7 @@ import { tempatDiZona, urutkanTempat } from '../lib/tempat.js';
 import { pesanGalatLokasi } from '../lib/lokasi.js';
 import BarisTempat from '../components/BarisTempat.jsx';
 import PilihZona from '../components/PilihZona.jsx';
+import TautanSitus from '../components/TautanSitus.jsx';
 
 // Daftar tempat yang sudah dilaporkan (AGENTS.md 6.3): terdekat dulu bila lokasi diizinkan, laporan terbaru dulu bila tidak.
 export default function Daftar() {
@@ -32,7 +33,7 @@ export default function Daftar() {
       )}
       {galatLokasi && <p className="redup">{pesanGalatLokasi(galatLokasi, navigator.userAgent)}</p>}
 
-      {statusData === 'memuat' && <p className="redup" role="status">Memuat daftar tempat…</p>}
+      {statusData === 'memuat' && <p className="redup memuat-blok" role="status">Memuat daftar tempat…</p>}
       {statusData === 'galat' && (
         <p className="kotak-galat" role="alert">
           Daftar belum bisa dimuat. <button type="button" className="tautan" onClick={muatUlang}>Coba lagi</button>
@@ -51,6 +52,7 @@ export default function Daftar() {
           </button>
         </div>
       ))}
+      <TautanSitus />
       <p className="disclaimer">{CATATAN_KAKI}</p>
     </div>
   );

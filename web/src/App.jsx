@@ -21,6 +21,7 @@ const Daftar = lazy(muatBagian.daftar);
 const Info = lazy(muatBagian.info);
 const Saya = lazy(muatBagian.saya);
 const Berita = lazy(muatBagian.berita);
+const Legal = lazy(muatBagian.legal);
 const LaporLayar = lazy(muatBagian.lapor);
 
 // Pustaka peta (MapLibre + worker + CSS) jauh lebih besar dari sisa app: dimuat terpisah saat tab Peta dibuka.
@@ -62,7 +63,7 @@ export default function App() {
       <header className="atas">
         <Link to="/" className="merek" aria-label={`${SITUS.nama}, ke Beranda`}>
           <span className="logo" dangerouslySetInnerHTML={{ __html: LOGO_HEADER }} />
-          <span className="nama-merek"><span>{SITUS.nama}</span><span className="tagline">{SITUS.tagline}</span></span>
+          <span className="nama-merek">{SITUS.nama}</span>
         </Link>
         <div className="atas-kanan">
           <PilihKendaraan />
@@ -85,6 +86,7 @@ export default function App() {
               <Route path="/info" element={<Info />} />
               <Route path="/saya" element={<Saya />} />
               <Route path="/berita" element={<Berita />} />
+              {['/tentang', '/privasi', '/syarat', '/kontak'].map(j => <Route key={j} path={j} element={<Legal />} />)}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>

@@ -1,6 +1,7 @@
 import { BATAS_BERITA } from '@shared/berita.js';
 import { CATATAN_KAKI, HALAMAN } from '../lib/konten-beranda.js';
 import PilihZona from '../components/PilihZona.jsx';
+import TautanSitus from '../components/TautanSitus.jsx';
 import { CATATAN_AI, DaftarBerita, PilihDaerahBerita, useBerita } from '../components/KartuBerita.jsx';
 
 // Halaman khusus berita parkir (/berita, masukan pemilik 1 Okt 2026): semua berita parkir di Sulawesi ≤ 30 hari,
@@ -20,7 +21,7 @@ export default function Berita() {
         <PilihDaerahBerita b={b} />
       </section>
 
-      {b.status === 'memuat' && <p className="redup" role="status">Memuat berita parkir…</p>}
+      {b.status === 'memuat' && <p className="redup memuat-blok" role="status">Memuat berita parkir…</p>}
       {b.status === 'galat' && <p className="kotak-galat" role="alert">Berita belum bisa dimuat. Periksa koneksi Anda.</p>}
       {b.status === 'siap' && (b.urut.length ? (
         <section className="kartu berita" aria-label="Daftar berita parkir">
@@ -36,6 +37,7 @@ export default function Berita() {
         </div>
       ))}
 
+      <TautanSitus />
       <p className="disclaimer">{CATATAN_AI} {CATATAN_KAKI}</p>
     </div>
   );

@@ -407,3 +407,7 @@ verify_jwt = false
 # Berita parkir (M5): dipanggil pg_cron dengan header x-berita-secret; keaslian diperiksa di dalam fungsi.
 [functions.berita]
 verify_jwt = false
+
+# Formulir kontak (persiapan AdSense): anonim, validasi & batas di dalam fungsi.
+[functions.kontak]
+verify_jwt = false

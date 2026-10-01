@@ -334,6 +334,29 @@ Wilayah yang baru dibuka tetap bisa dipakai (melapor membuat tempat baru), denga
 - **Moderasi:** satu pemilik di Telegram tidak cukup untuk nasional → moderator per pulau (chat Telegram per zona,
   tabel `moderator`), pemilik tetap pemutus akhir.
 
+### 1.6 Halaman situs & persiapan Google AdSense (dibuat 1 Okt 2026)
+
+Permintaan pemilik: siapkan halaman yang dibutuhkan untuk daftar AdSense sesuai kebijakan terbaru.
+
+- **Halaman:** `/tentang`, `/privasi` (Kebijakan Privasi), `/syarat` (Syarat Penggunaan), `/kontak`. Teks di
+  `web/src/lib/konten-legal.js` (satu sumber untuk `pages/Legal.jsx` dan HTML statis lengkap di `lib/seo.js`), masuk
+  sitemap. **Isi privasi wajib sesuai kenyataan kode**; ubah bila cara data dikelola berubah (dijaga
+  `tests/situs.test.js`: pengungkapan cookie iklan Google, tautan opt-out adssettings.google.com & aboutads.info,
+  partner-sites, retensi 7 hari, hash bersalt, Telegram, Nominatim, UU 27/2022 PDP).
+- **Tautan situs** (`components/TautanSitus.jsx`, `TAUTAN_SITUS`): Tentang · Berita parkir · Kebijakan Privasi · Syarat ·
+  Kontak, di bawah Beranda, Daftar, Berita, Info, Saya, halaman situs, dan semua HTML statis.
+- **Kontak:** formulir → Edge Function `kontak` (`kontak/proses.js`, `_shared/kontak.js`) → Telegram pengelola. Isi pesan
+  tidak disimpan; tabel `pesan_kontak` hanya hash IP + waktu untuk batas 3/jam & 10/hari (migrasi
+  `20261001000007_kontak.sql`, dihapus 30 hari). Kolom jebakan bot `situs` (bot dapat balasan sukses palsu).
+- **Verifikasi & ads.txt:** env Vercel `VITE_ADSENSE_CLIENT=ca-pub-<16 angka>` (diisi pemilik setelah daftar) →
+  meta `google-adsense-account` di semua halaman + `/ads.txt` (`google.com, pub-…, DIRECT, f08c47fec0942fa0`).
+  **Skrip iklan (adsbygoogle.js) belum dipasang**: menambah ±100–200 KB JS dan memperlambat situs. Bila disetujui:
+  muat setelah halaman selesai dimuat, hanya di halaman berisi teks (Beranda, Berita, Info, halaman situs), **tidak di
+  layar Peta, form lapor, atau dekat tombol** (aturan klik tidak sengaja). Untuk pengunjung EEA/UK/Swiss, aktifkan pesan
+  persetujuan bawaan AdSense ("Privasi & pesan"), tanpa kode tambahan.
+- **Syarat AdSense yang di luar kode (pemilik):** domain sendiri (AdSense tidak menerima subdomain `*.vercel.app`),
+  akun Google pemilik ≥ 18 tahun, isi cukup & asli (halaman berita, info, FAQ sudah ada), situs bisa diakses peninjau.
+
 ---
 
 ## 2. Struktur repo (meniru Adami)
@@ -499,8 +522,7 @@ laporan motor"). Bila tarif resmi daerah sudah diperiksa pemilik, tampil berdamp
   **"Laporkan parkir"**, membuka Peta di lokasi pengguna + petunjuk "Ketuk tempat Anda parkir") · menu bawah
   **5 tab: Beranda, Peta, Daftar, Info, Saya** (tab Data ditunda, bagian 1.2). **Di tab Peta bilah aksi tidak ditampilkan**
   (tombol "Laporkan parkir" ada di lembar tempat; dua tombol sama bertumpuk membingungkan).
-- **Header:** logo perisai heksagon + "JukirHub" + tagline **"Melaporkan juru parkir liar"** (`SITUS.tagline`;
-  tagline hanya ≥ 480 px), pilihan **Motor / Mobil** (menentukan tarif yang ditampilkan dan kendaraan di form lapor),
+- **Header:** logo perisai heksagon + "JukirHub" (tagline **tidak** di dekat logo, permintaan pemilik 1 Okt), pilihan **Motor / Mobil** (menentukan tarif yang ditampilkan dan kendaraan di form lapor),
   lalu ikon tema di kanan. **Jangan menaruh pemilih zona/provinsi di header** (masukan pemilik); letaknya di halaman
   (bagian 1.5). Di HP < 360 px tulisan "JukirHub" disembunyikan, logo tetap.
 - **Logo** (`web/src/lib/logo.js`, satu sumber untuk header, HTML statis, `npm run ikon`): perisai heksagon cyan +
@@ -585,6 +607,19 @@ Cek di HP 360 px setiap menambah teks/judul; header paling padat (logo, zona, ke
 ---
 
 ## 7. Ramah HP, kecepatan, dan SEO — wajib di setiap perubahan
+
+**Pengukuran 1 Okt 2026** (Lighthouse 12, mode HP + 4G lambat, build produksi `vite preview`): Beranda kinerja 96,
+Daftar 93, Berita 96, Info/Tentang/Privasi/Kontak 97, Saya 96; SEO 100 & aksesibilitas 100 di semua halaman publik
+(Saya sengaja noindex). Peta 65: MapLibre ±275 KB & ±1 detik CPU (TBT) — biaya pustaka peta; menunda pemuatannya
+sudah dicoba dan tidak membantu. Pelajaran (jangan diulang):
+- Pramuat bagian lain (Peta, Daftar, …) **menunggu event load + 3 detik** (`lib/koneksi.js`); pramuat yang terlalu cepat
+  membuat LCP Beranda 4 detik (unduhan 470 KB) padahal LCP nyata ±0,35 detik. Sekarang LCP 2,1 s, 170 KB.
+- Data Supabase diminta **setelah gambar pertama** (`setelahGambarPertama`).
+- Preload font **memperburuk** LCP (diuji 3×), menanam CSS di HTML tidak terukur manfaatnya → keduanya tidak dipakai.
+- Font cadangan berukuran sama (`@font-face` "… Fallback", Capsize) supaya ganti font tidak menggeser teks.
+- Saat memuat daftar/berita, `.memuat-blok` mencadangkan tinggi supaya tautan situs di bawah tidak terdorong (CLS).
+- Uji: `preview_start web-preview` lalu `npx lighthouse@12 http://localhost:4174/<halaman>` (CHROME_PATH Chrome); ulangi
+  2–3× sebelum menyimpulkan (simulasi bergantung latensi Supabase).
 
 **Ramah HP:** rancang untuk HP dulu; uji di 375×812 **dan** 360×640, lalu desktop ±1280 px. Tidak boleh ada scroll
 horizontal; kontras cukup; aksi penting (Lapor, Detail, Petunjuk arah) terlihat tanpa scroll; hormati
@@ -756,6 +791,9 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   - Pemilik: JukirHub untuk **seluruh Indonesia**, dizonasi per pulau/provinsi supaya bisa mengimbau masyarakat per
     daerah → rencana bagian 1.5. Pemilik juga minta 2 opsi tampilan yang lebih "tech pro" dan logo lebih ikonik dengan
     tagline "Melaporkan juru parkir liar" (mockup dibuat).
+  - Revisi pemilik: tagline dihapus dari dekat logo (header); Poppins sudah tidak dipakai & tidak terpasang; satu
+    tombol "Laporkan parkir" per layar (kartu "Belum ada koin" di tab Saya tidak punya tombol sendiri); halaman situs
+    untuk AdSense (1.6); kinerja diukur ulang (7).
   - Revisi pemilik setelah tayang: berita **tidak** dikirim ke Telegram (cukup di web, halaman `/berita`), pemilih
     provinsi **dikeluarkan dari header** (mengganggu), ukuran huruf dirapikan ke satu skala (6.3).
   - Pemilik memilih **tampilan Opsi A "Radar"** (bagian 6.3; menggantikan aturan "tampilan & font meniru Adami",
@@ -773,6 +811,8 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
 - Poin skor pungli di 6.2 masih usulan awal; kalibrasi setelah ada data.
 - Komentar hanya lewat laporan (rekomendasi Claude, 1.3.1) atau juga boleh tanpa melapor (butuh batas & moderasi
   tambahan).
+- **Domain sendiri** (wajib untuk AdSense, 1.6): usulan `jukirhub.id` atau `jukirhub.com`. Setelah domain dipasang:
+  `VITE_SITE_URL`, `npm run qr` ulang, poster, iklan.
 - Rencana nasional (1.5): kapan N3 (kota besar Jawa–Bali), moderator per zona, dan apakah imbauan manual boleh dari
   mitra (Dishub / komunitas).
 - Tagline logo "Melaporkan juru parkir liar" dipakai sesuai pilihan pemilik. Catatan Claude tetap berlaku: kata "liar"

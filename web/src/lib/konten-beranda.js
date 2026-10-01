@@ -161,8 +161,50 @@ export const HALAMAN = {
       'singkat dan diurutkan dari daerah Anda.',
     h1: 'Berita parkir di Sulawesi',
     intro: 'Berita soal juru parkir dan parkir dari media di Sulawesi, 30 hari terakhir. Daerah Anda tampil paling atas.'
+  },
+  // Halaman situs (persiapan Google AdSense): isi di lib/konten-legal.js.
+  '/tentang': {
+    nama: 'Tentang',
+    judul: 'Tentang JukirHub: Laporan Warga soal Juru Parkir',
+    deskripsi: 'Apa itu JukirHub, prinsip kami (indikasi bukan tuduhan, tanpa identitas), wilayah yang dicakup, dan dari ' +
+      'mana data parkir, peta, serta berita berasal.',
+    h1: 'Tentang JukirHub',
+    intro: 'Aplikasi web gratis untuk laporan warga soal juru parkir di luar gedung.'
+  },
+  '/privasi': {
+    nama: 'Kebijakan Privasi',
+    judul: 'Kebijakan Privasi · JukirHub',
+    deskripsi: 'Data apa saja yang dikumpulkan JukirHub, untuk apa, berapa lama disimpan, layanan pihak ketiga, cookie ' +
+      'iklan, dan hak Anda atas data pribadi.',
+    h1: 'Kebijakan Privasi',
+    intro: 'Cara JukirHub mengumpulkan, memakai, dan melindungi data Anda.'
+  },
+  '/syarat': {
+    nama: 'Syarat Penggunaan',
+    judul: 'Syarat Penggunaan · JukirHub',
+    deskripsi: 'Aturan memakai JukirHub: sifat informasi laporan warga, kewajiban saat melapor, moderasi isi, koin tanpa ' +
+      'nilai uang, dan batas tanggung jawab.',
+    h1: 'Syarat Penggunaan',
+    intro: 'Aturan sederhana supaya laporan tetap jujur dan adil bagi semua.'
+  },
+  '/kontak': {
+    nama: 'Kontak',
+    judul: 'Kontak Pengelola JukirHub',
+    deskripsi: 'Hubungi pengelola JukirHub untuk keberatan atas tempat atau komentar, permintaan penghapusan data, ' +
+      'laporan masalah, saran, atau kerja sama.',
+    h1: 'Kontak',
+    intro: 'Kirim pesan langsung ke pengelola JukirHub. Tanpa akun.'
   }
 };
+
+// Tautan situs di bagian bawah halaman berisi teks (components/TautanSitus.jsx & HTML statis).
+export const TAUTAN_SITUS = [
+  ['/tentang', 'Tentang'],
+  ['/berita', 'Berita parkir'],
+  ['/privasi', 'Kebijakan Privasi'],
+  ['/syarat', 'Syarat Penggunaan'],
+  ['/kontak', 'Kontak']
+];
 
 function gabungDaftar(arr) {
   return arr.length < 2 ? arr.join('') : `${arr.slice(0, -1).join(', ')}, dan ${arr[arr.length - 1]}`;

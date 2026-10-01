@@ -10,6 +10,7 @@ import BarisTempat from '../components/BarisTempat.jsx';
 import KartuBerita from '../components/KartuBerita.jsx';
 import Imbauan from '../components/Imbauan.jsx';
 import PilihZona from '../components/PilihZona.jsx';
+import TautanSitus from '../components/TautanSitus.jsx';
 
 const JUMLAH_SOROTAN = 3;
 
@@ -107,6 +108,7 @@ function KontenBeranda() {
         </div>
       </section>
 
+      <TautanSitus />
       <p className="disclaimer">{CATATAN_KAKI}</p>
     </>
   );
