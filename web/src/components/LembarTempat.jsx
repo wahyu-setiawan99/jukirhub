@@ -59,7 +59,7 @@ export default function LembarTempat({ tempat, onTutup, onLapor }) {
       <div className="lembar-kepala">
         <div>
           <h2 id="lembar-judul" ref={judul} tabIndex={-1}>{nama}</h2>
-          <p className="label-data">
+          <p className="redup">
             {[tempat.alamat || tempat.kota, jarak ? `${jarak} dari Anda` : null].filter(Boolean).join(' · ') ||
               (tempat.sumber === 'pin' ? 'Titik yang Anda tandai di peta' : 'Dari peta OpenStreetMap')}
           </p>

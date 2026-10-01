@@ -194,13 +194,16 @@ lokasi) **diganti** karena lebih rumit dan rawan salah cocok. Pola feed berita A
    sumber**). Tidak relevan tetap dicatat supaya tidak dinilai ulang. Tanpa kunci / jatah habis → dicoba lagi nanti.
 3. **Kabupaten** yang disebut di judul/cuplikan dicatat (`_shared/kabupaten.js`: 24 kabupaten/kota Sulsel + alias ibu
    kota, mis. Sengkang → Wajo, Watansoppeng → Soppeng; "Bone Bolango" bukan Bone).
-4. **Tampil di Beranda** (`components/Berita.jsx`): kartu "Berita parkir · <daerah>", 3 berita + "Tampilkan semua";
+4. **Tampil di web saja**: kartu ringkas di Beranda (`components/KartuBerita.jsx`, 3 berita + tombol "Semua berita
+   parkir") dan **halaman khusus `/berita`** (`pages/Berita.jsx`, HTML statis + sitemap, semua berita ≤ 30 hari, pilihan
+   zona & daerah);
    berita daerah pengguna dulu, lalu Sulsel lainnya (`urutkanBerita`). **Daerah pengguna** (`web/src/lib/daerah.js`):
    pilihan manual (disimpan di HP), atau otomatis dari posisi yang **sudah diizinkan** (tidak meminta izin sendiri) lewat
    Nominatim reverse zoom 8 dengan koordinat dibulatkan ±1 km, disimpan 7 hari per sel. Kartu tidak tampil bila belum
    ada berita. Label: "Ringkasan dibuat otomatis oleh AI dari judul berita dan bisa keliru".
-- **Pemilik dikabari** tiap berita yang tampil (pesan 📰 Telegram) dengan tombol **🙈 Sembunyikan / ↩️ Tampilkan lagi**
-  (`jh:bs:<id>` / `jh:bt:<id>`). Tidak ada skrip CLI moderasi berita.
+- **Berita tidak dikirim ke Telegram** (keputusan pemilik 1 Okt 2026: cukup di web). Penyaringan sepenuhnya oleh kata
+  kunci + AI + validasi ringkasan; bila perlu menyembunyikan satu berita: `update berita set disembunyikan = true` lewat
+  SQL editor Supabase (pemilik).
 - **Hak cipta:** hanya judul, nama media, tanggal, ringkasan buatan AI, dan tautan `noopener noreferrer nofollow`; isi,
   cuplikan, dan gambar artikel tidak disimpan. Berita tidak memengaruhi skor pungli.
 - **Data** (migrasi `20261001000005_berita.sql`): tabel `berita` (`url` unik, `sumber_id`, `sumber`, `judul`,
@@ -256,7 +259,9 @@ fase setelah pemilik memilih fase (tabel di bawah). **Pemilik memilih mulai dari
   **belum** dipakai: kab/kota tempat & pengguna dari Nominatim reverse (`wilayahDariAlamat`, provinsi dari kode ISO),
   tempat tanpa kab/kota → perkiraan kotak provinsi (`provinsiDariKoordinat`). Pindah ke poligon sebelum N3.
 - **Zona aktif** (`state.jsx` → `useZona`, `lib/daerah.js`): pilihan manual (select di header, disimpan di HP) ??
-  provinsi dari posisi yang sudah diizinkan ?? Sulawesi Selatan. Dipakai: pusat peta (terbang ke ibu kota saat zona
+  provinsi dari posisi yang sudah diizinkan ?? Sulawesi Selatan. **Pemilihnya di dalam halaman, bukan di header**
+  (masukan pemilik: mengganggu): `components/PilihZona.jsx` di Beranda (di bawah status), panel kiri bawah Peta
+  (nama singkat), Daftar, dan halaman Berita. Dipakai: pusat peta (terbang ke ibu kota saat zona
   diganti; peta bisa digeser se-Sulawesi), kotak pencarian Nominatim (`kotakZona`), Beranda & Daftar
   (`tempatDiZona`), urutan berita, imbauan, dan optgroup peringkat koin.
 - **Berita:** + ANTARA Sulut, Gorontalo, Sulteng, Sultra (dicek 1 Okt); Sulbar belum punya feed ANTARA (tercakup
@@ -495,9 +500,9 @@ laporan motor"). Bila tarif resmi daerah sudah diperiksa pemilik, tampil berdamp
   **5 tab: Beranda, Peta, Daftar, Info, Saya** (tab Data ditunda, bagian 1.2). **Di tab Peta bilah aksi tidak ditampilkan**
   (tombol "Laporkan parkir" ada di lembar tempat; dua tombol sama bertumpuk membingungkan).
 - **Header:** logo perisai heksagon + "JukirHub" + tagline **"Melaporkan juru parkir liar"** (`SITUS.tagline`;
-  tagline hanya ≥ 480 px), **pilihan zona provinsi** (bagian 1.5), pilihan **Motor / Mobil** (menentukan tarif yang
-  ditampilkan dan kendaraan di form lapor), lalu ikon tema di kanan. Di HP < 440 px tulisan "JukirHub" disembunyikan
-  (logo tetap; nama & tagline tampil di Beranda).
+  tagline hanya ≥ 480 px), pilihan **Motor / Mobil** (menentukan tarif yang ditampilkan dan kendaraan di form lapor),
+  lalu ikon tema di kanan. **Jangan menaruh pemilih zona/provinsi di header** (masukan pemilik); letaknya di halaman
+  (bagian 1.5). Di HP < 360 px tulisan "JukirHub" disembunyikan, logo tetap.
 - **Logo** (`web/src/lib/logo.js`, satu sumber untuk header, HTML statis, `npm run ikon`): perisai heksagon cyan +
   "P" + titik sinyal kuning. Ikon HP/favicon: kotak gelap `#060a13`. `og.png`: latar gelap ber-grid + tagline.
 - **Peta:** MapLibre dimuat belakangan, peta dasar OpenFreeMap `dark` / `positron` mengikuti tema (cadangan tile OSM),
@@ -558,21 +563,23 @@ Manifest: `background_color` `#060a13`, `theme_color` `#0b1324`.
   `--font-isi: "Space Grotesk", …`, `--font-angka: "JetBrains Mono", …`.
 - Ukuran dasar **15 px di HP**, **16 px di layar ≥ 760 px** (`:root { font-size }`, semua rem ikut).
 - Ketebalan **600** untuk judul, `strong`, tombol, label menu; angka monospace 400/500.
+- **Monospace hanya untuk angka & tanda pendek** (koin, indeks, gugus, tagline, label "eyebrow"). Teks keterangan
+  biasa ("Tanpa jukir", sumber berita, meta tempat) memakai Space Grotesk `.redup` (masukan pemilik: ukuran huruf
+  tidak pas, 1 Okt 2026).
 - Skala:
 
-| Elemen | Ukuran |
+| Elemen | Ukuran (rem; 1rem = 15 px HP / 16 px desktop) |
 |---|---|
-| Judul pembuka Beranda | `clamp(1.45rem, 5.4vw, 2rem)` |
-| Judul halaman (h1) di HP | ±19–22 px (`1.25rem`–`1.45rem`) |
-| Judul seksi Beranda (h2) | `1.2rem` |
-| Merek di header, judul lembar | `1.1rem` |
-| Judul kartu (h2 / h3) | `1.05rem` / `0.95rem` |
-| Teks isi | `1rem` |
-| Teks redup, banner | `0.875rem` |
-| Catatan kecil, disclaimer | `0.8rem` |
-| Label menu bawah | `0.75rem` |
-| Minimum mutlak | ±12 px |
+| Judul pembuka Beranda | `clamp(1.65rem, 6.4vw, 2.25rem)` |
+| Judul halaman (h1) | `1.5rem` |
+| Judul seksi Beranda (h2) | `1.25rem` |
+| Merek di header | `1.1rem` |
+| Judul kartu & lembar (h2) | `1.0625rem` |
+| Teks isi, judul kecil (h3), tombol | `1rem` |
+| Teks redup, meta, label, lencana | `0.875rem` |
+| Keterangan, label menu bawah, label data monospace | `0.8rem` (12 px, **minimum mutlak**) |
 
+Hanya ukuran di tabel ini; jangan menambah ukuran "nanggung" (0,85 / 0,9 / 0,95 rem).
 Cek di HP 360 px setiap menambah teks/judul; header paling padat (logo, zona, kendaraan, tema).
 
 ---
@@ -749,6 +756,8 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   - Pemilik: JukirHub untuk **seluruh Indonesia**, dizonasi per pulau/provinsi supaya bisa mengimbau masyarakat per
     daerah → rencana bagian 1.5. Pemilik juga minta 2 opsi tampilan yang lebih "tech pro" dan logo lebih ikonik dengan
     tagline "Melaporkan juru parkir liar" (mockup dibuat).
+  - Revisi pemilik setelah tayang: berita **tidak** dikirim ke Telegram (cukup di web, halaman `/berita`), pemilih
+    provinsi **dikeluarkan dari header** (mengganggu), ukuran huruf dirapikan ke satu skala (6.3).
   - Pemilik memilih **tampilan Opsi A "Radar"** (bagian 6.3; menggantikan aturan "tampilan & font meniru Adami",
     pola kode tetap meniru Adami), **logo C perisai heksagon** dengan tagline "Melaporkan juru parkir liar", dan
     **zonasi mulai fase N2 pulau Sulawesi** (bagian 1.5).

@@ -7,8 +7,9 @@ import { dataProvinsi } from '@shared/wilayah.js';
 import { tempatDiZona, urutkanTempat } from '../lib/tempat.js';
 import { pramuatPetaSaatSenggang } from '../lib/koneksi.js';
 import BarisTempat from '../components/BarisTempat.jsx';
-import Berita from '../components/Berita.jsx';
+import KartuBerita from '../components/KartuBerita.jsx';
 import Imbauan from '../components/Imbauan.jsx';
+import PilihZona from '../components/PilihZona.jsx';
 
 const JUMLAH_SOROTAN = 3;
 
@@ -37,6 +38,7 @@ export default function Beranda() {
             ? `${daftar.length} tempat parkir sudah dilaporkan warga di ${namaZona}`
             : `Belum ada tempat parkir yang dilaporkan di ${namaZona}.`)}
         </p>
+        <PilihZona />
       </section>
 
       <section className="kartu-beranda" aria-labelledby="judul-sorotan">
@@ -63,7 +65,7 @@ export default function Beranda() {
 
       <Imbauan />
 
-      <Berita />
+      <KartuBerita />
 
       <KontenBeranda />
     </div>

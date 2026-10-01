@@ -35,7 +35,7 @@ export default function Imbauan() {
       <ul className="poin">
         {imbauan.kalimat.map(k => <li key={k}>{k}</li>)}
       </ul>
-      <p className="label-data">dari {imbauan.laporan} laporan warga · bukan tuduhan kepada siapa pun</p>
+      <p className="redup kecil">Dari {imbauan.laporan} laporan warga, bukan tuduhan kepada siapa pun.</p>
     </section>
   );
 }

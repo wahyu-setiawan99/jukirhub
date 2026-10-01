@@ -5,7 +5,7 @@
 //   2. Gemini menilai relevansi + menulis ringkasan dari judul & cuplikan saja (jawaban divalidasi), maks. 60 panggilan
 //      per hari. Berita tidak relevan tetap dicatat supaya tidak dinilai ulang. AI gagal / jatah habis → dicoba lagi nanti.
 //   3. Kab/kota & provinsi Sulawesi yang disebut di judul/cuplikan dicatat (untuk berita per daerah di web).
-//   4. Pemilik dikabari tiap berita yang tampil, dengan tombol Sembunyikan.
+// Berita TIDAK dikirim ke Telegram pemilik (keputusan pemilik 1 Okt 2026): cukup tampil di web (Beranda & /berita).
 
 import { BATAS_BERITA, SUMBER_BERITA, bacaRss, kabupatenDisebut, provinsiBerita, relevanAwal, urlSah } from '../_shared/berita.js';
 
@@ -15,10 +15,9 @@ import { BATAS_BERITA, SUMBER_BERITA, bacaRss, kabupatenDisebut, provinsiBerita,
  *   ai: null | ((batch: Array<Record<string, any>>) => Promise<Array<{ relevan: boolean, ringkasan: string | null }>>),
  *   db: { sudahAda(urls: string[]): Promise<Set<string>>, ambilJatahAi(batas: number): Promise<boolean>,
  *     simpan(baris: Array<Record<string, unknown>>): Promise<Array<{ id: number, judul: string, sumber: string,
- *       relevan: boolean, ringkasan: string | null, kabupaten: string[], url: string }>> },
- *   kabar?: { beritaBaru(b: Record<string, unknown>): Promise<void> | void } }} p
+ *       relevan: boolean, ringkasan: string | null, kabupaten: string[], url: string }>> } }} p
  */
-export async function prosesBerita({ ambilFeed, ai, db, kabar, sekarang = Date.now() }) {
+export async function prosesBerita({ ambilFeed, ai, db, sekarang = Date.now() }) {
   if (!ai) return { ok: true, dilewati: 'GEMINI_API_KEY belum dipasang' };
   const batasLama = sekarang - BATAS_BERITA.hariTampil * 86_400_000;
 
@@ -62,9 +61,6 @@ export async function prosesBerita({ ambilFeed, ai, db, kabar, sekarang = Date.n
     }))));
   }
 
-  const tampil = disimpan.filter(d => d.relevan);
-  for (const b of tampil) {
-    try { await kabar?.beritaBaru(b); } catch { /* kabar gagal tidak menggagalkan */ }
-  }
-  return { ok: true, sumber, kandidat: perUrl.size, baru: baru.length, disimpan: disimpan.length, relevan: tampil.length, galat_ai: galatAi };
+  const relevan = disimpan.filter(d => d.relevan).length;
+  return { ok: true, sumber, kandidat: perUrl.size, baru: baru.length, disimpan: disimpan.length, relevan, galat_ai: galatAi };
 }

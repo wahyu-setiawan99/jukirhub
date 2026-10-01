@@ -14,7 +14,7 @@ export default function BarisTempat({ t }) {
         <span className={`titik-warna besar indikasi-${kodeLevel(t.ringkasan)}`} aria-hidden="true" />
         <span className="baris-teks">
           <strong>{t.nama}</strong>
-          <span className="label-data">
+          <span className="redup">
             {[labelLevel(t.ringkasan).replace(/ \(.*\)$/, ''), tarif?.replace(/ \(.*\)$/, ''), t.jarak != null ? formatJarak(t.jarak) : null]
               .filter(Boolean).join(' · ')}
           </span>

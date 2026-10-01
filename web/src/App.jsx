@@ -1,7 +1,6 @@
 import { Component, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { KENDARAAN, LABEL_KENDARAAN } from '@shared/konstanta.js';
-import { PROVINSI } from '@shared/wilayah.js';
 import { useApp } from './state.jsx';
 import Beranda from './pages/Beranda.jsx';
 import { koneksiLambat, muatBagian, muatModulPeta, pramuatBagianSaatSenggang } from './lib/koneksi.js';
@@ -12,6 +11,7 @@ import { cocokkanTempat } from './lib/tempat.js';
 import { PROFIL_LOKASI } from './lib/lokasi.js';
 import { Ikon } from './components/Ikon.jsx';
 import CariTempat from './components/CariTempat.jsx';
+import PilihZona from './components/PilihZona.jsx';
 import LembarTempat from './components/LembarTempat.jsx';
 import { LegendaIndikasi } from './components/Legenda.jsx';
 
@@ -20,6 +20,7 @@ import { LegendaIndikasi } from './components/Legenda.jsx';
 const Daftar = lazy(muatBagian.daftar);
 const Info = lazy(muatBagian.info);
 const Saya = lazy(muatBagian.saya);
+const Berita = lazy(muatBagian.berita);
 const LaporLayar = lazy(muatBagian.lapor);
 
 // Pustaka peta (MapLibre + worker + CSS) jauh lebih besar dari sisa app: dimuat terpisah saat tab Peta dibuka.
@@ -64,7 +65,6 @@ export default function App() {
           <span className="nama-merek"><span>{SITUS.nama}</span><span className="tagline">{SITUS.tagline}</span></span>
         </Link>
         <div className="atas-kanan">
-          <PilihZona />
           <PilihKendaraan />
           <TombolTema />
         </div>
@@ -84,6 +84,7 @@ export default function App() {
               <Route path="/daftar" element={<Daftar />} />
               <Route path="/info" element={<Info />} />
               <Route path="/saya" element={<Saya />} />
+              <Route path="/berita" element={<Berita />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
@@ -135,22 +136,6 @@ function TombolTema() {
       onClick={() => pasangTema(keTerang ? 'terang' : 'gelap')}>
       <Ikon nama={keTerang ? 'matahari' : 'bulan'} ukuran={20} />
     </button>
-  );
-}
-
-// Zona aktif (provinsi, AGENTS.md 1.5): otomatis dari lokasi, bisa diganti. Menentukan pusat peta, batas pencarian,
-// daftar tempat, berita, dan imbauan. Select bawaan HP supaya mudah dipakai & terbaca pembaca layar.
-function PilihZona() {
-  const { zona, zonaManual, zonaOtomatis, pilihZona } = useApp();
-  return (
-    <label className="pilih-zona">
-      <span className="judul-tersembunyi">Zona provinsi</span>
-      <span className="sinyal" aria-hidden="true" />
-      <select value={zona} onChange={e => pilihZona(e.target.value === 'otomatis' ? null : e.target.value)}>
-        {PROVINSI.map(p => <option key={p.kode} value={p.kode}>{p.singkat}</option>)}
-        {zonaManual && <option value="otomatis">{zonaOtomatis ? 'Otomatis dari lokasi' : 'Otomatis'}</option>}
-      </select>
-    </label>
   );
 }
 
@@ -382,6 +367,7 @@ function HalamanPeta() {
 
       {!pilihan && (
         <InfoPeta>
+          <PilihZona ringkas />
           {statusData === 'memuat' && <span>Memuat data…</span>}
           {statusData === 'galat' && (
             <span className="galat">

@@ -8,7 +8,7 @@ import { CATATAN_KAKI, FAQ, HALAMAN, HERO, LANGKAH, SITUS, TENTANG, WILAYAH } fr
 import { svgLogoInline } from './logo.js';
 
 // Halaman selain Beranda yang dibuatkan HTML statis sendiri (daftar.html, dst. — lihat cleanUrls di vercel.json).
-export const JALUR_STATIS = ['/peta', '/daftar', '/info'];
+export const JALUR_STATIS = ['/peta', '/daftar', '/info', '/berita'];
 
 export function escHtml(teks) {
   return String(teks)
@@ -143,7 +143,7 @@ const kepalaStatis = () => {
   return `<header class="atas"><a class="merek" href="/" aria-label="${e(SITUS.nama)}, ke Beranda"><span class="logo">${svgLogoInline(28)}</span><span class="nama-merek"><span>${e(SITUS.nama)}</span><span class="tagline">${e(SITUS.tagline)}</span></span></a></header>`;
 };
 
-const MENU = [['/', 'Beranda'], ['/peta', 'Peta'], ['/daftar', 'Daftar tempat'], ['/info', 'Info']];
+const MENU = [['/', 'Beranda'], ['/peta', 'Peta'], ['/daftar', 'Daftar tempat'], ['/berita', 'Berita parkir'], ['/info', 'Info']];
 
 // Konten statis yang bisa dibaca tanpa JavaScript. React menggantinya saat app dimuat;
 // kelas CSS sama dengan halaman React agar pergantiannya halus.

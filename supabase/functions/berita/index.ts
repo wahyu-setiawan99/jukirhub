@@ -6,8 +6,6 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { prosesBerita } from './proses.js';
 import { samaAman } from '../telegram/proses.js';
 import { MODEL_BAWAAN, SKEMA_BERITA, USER_AGENT, bacaJawabanBerita, promptBerita } from '../_shared/berita.js';
-import { pesanBeritaBaru, tombolBerita } from '../_shared/kabar-pemilik.js';
-import { kabariPemilik } from '../_shared/telegram.ts';
 
 const SECRET = Deno.env.get('BERITA_SECRET');
 const KUNCI_AI = Deno.env.get('GEMINI_API_KEY');
@@ -72,15 +70,11 @@ const db = {
   }
 };
 
-const kabar = {
-  beritaBaru: (b: { id: number }) => kabariPemilik(pesanBeritaBaru(b as never), tombolBerita(false, b.id))
-};
-
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return json(405, { galat: 'metode tidak diizinkan' });
   if (!SECRET || !samaAman(req.headers.get('x-berita-secret') ?? '', SECRET)) return json(401, { galat: 'tidak diizinkan' });
   try {
-    return json(200, await prosesBerita({ ambilFeed, ai: KUNCI_AI ? nilaiDenganGemini : null, db, kabar }));
+    return json(200, await prosesBerita({ ambilFeed, ai: KUNCI_AI ? nilaiDenganGemini : null, db }));
   } catch (err) {
     console.error('[berita]', err);
     return json(500, { galat: String((err as Error)?.message ?? err) });

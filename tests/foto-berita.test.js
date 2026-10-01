@@ -11,7 +11,7 @@ import {
   bacaJawabanBerita, bacaRss, relevanAwal, urlSah, urutkanBerita, validasiRingkasan
 } from '../supabase/functions/_shared/berita.js';
 import { prosesBerita } from '../supabase/functions/berita/proses.js';
-import { bacaTombol, keteranganFoto, pesanBeritaBaru } from '../supabase/functions/_shared/kabar-pemilik.js';
+import { bacaTombol, keteranganFoto } from '../supabase/functions/_shared/kabar-pemilik.js';
 import { prosesTelegram } from '../supabase/functions/telegram/proses.js';
 import { daerahDariPosisi, daerahManual, pilihDaerahManual } from '../web/src/lib/daerah.js';
 
@@ -150,7 +150,7 @@ test('berita: ringkasan AI dengan angka karangan atau tautan ditolak', () => {
   assert.deepEqual(bacaJawabanBerita([{ no: 1, relevan: false, ringkasan: '' }], [b]), [{ relevan: false, ringkasan: null }]);
 });
 
-test('berita: alur fungsi (feed → AI → simpan → kabar pemilik); tanpa kunci AI dilewati; jatah habis berhenti', async () => {
+test('berita: alur fungsi (feed → AI → simpan, tanpa Telegram); tanpa kunci AI dilewati; jatah habis berhenti', async () => {
   const sekarang = Date.parse('2026-10-01T03:00:00Z');
   const feed = {
     'https://www.detik.com/sulsel/rss': RSS(ITEM({ judul: 'Jukir liar di Watansoppeng ditertibkan', url: 'https://www.detik.com/sulsel/1' }) +
@@ -166,13 +166,11 @@ test('berita: alur fungsi (feed → AI → simpan → kabar pemilik); tanpa kunc
   };
   const ai = async (batch) => batch.map(b => (/jukir/i.test(b.judul)
     ? { relevan: true, ringkasan: 'Petugas menertibkan juru parkir liar di Watansoppeng.' } : { relevan: false, ringkasan: null }));
-  const kabar = [];
   const h = await prosesBerita({ ambilFeed: async (url) => { if (!feed[url]) throw new Error('HTTP 404'); return feed[url]; },
-    ai, db, kabar: { beritaBaru: (b) => kabar.push(b) }, sekarang });
+    ai, db, sekarang });
   assert.equal(h.kandidat, 2, 'berita > 30 hari & tanpa kata parkir dibuang');
   assert.equal(h.relevan, 1);
   assert.deepEqual(tersimpan.find(b => b.relevan).kabupaten, ['Soppeng']);
-  assert.equal(kabar.length, 1);
   assert.ok(h.sumber.some(s => s.galat), 'sumber gagal dicatat, yang lain jalan');
   assert.equal((await prosesBerita({ ambilFeed: async () => '', ai: null, db })).dilewati, 'GEMINI_API_KEY belum dipasang');
   const habis = await prosesBerita({ ambilFeed: async (u) => feed[u] ?? '', ai, db: { ...db, async ambilJatahAi() { return false; } }, sekarang });
@@ -189,18 +187,7 @@ test('berita di web: daerah pengguna dulu, lalu terbaru', () => {
   assert.deepEqual(urutkanBerita(b, null).map(x => x.id), [1, 3, 2]);
 });
 
-test('telegram: tombol berita Sembunyikan / Tampilkan lagi hanya untuk pemilik', async () => {
-  assert.deepEqual(bacaTombol('jh:bs:12'), { jenis: 'berita', aksi: 'sembunyikan', id: 12 });
-  assert.match(pesanBeritaBaru({ id: 3, sumber: 'FAJAR', judul: '<b>x</b>', ringkasan: 'r', url: 'https://fajar.co.id/1', kabupaten: ['Bone'] }),
-    /· Bone\n<b>&lt;b&gt;x&lt;\/b&gt;<\/b>/);
-  const status = new Map([[12, false]]);
-  const panggilan = [];
-  const db = { async ubahStatusBerita(id, s) { status.set(id, s); return { judul: 'x' }; } };
-  const tg = { async jawabTombol(id, t) { panggilan.push(t); }, async ubahPesan(c, m, teks, tombol) { panggilan.push(tombol.inline_keyboard[0][0].callback_data); }, async kirim() {} };
-  const tekan = (data, dari = 7) => ({ callback_query: { id: 'c', from: { id: dari }, data, message: { message_id: 1, chat: { id: 7 }, text: '📰 Berita' } } });
-  await prosesTelegram({ update: tekan('jh:bs:12', 99), rahasiaHeader: 'r', rahasia: 'r', chatPemilik: '7', db, tg });
-  assert.equal(status.get(12), false, 'bukan pemilik');
-  await prosesTelegram({ update: tekan('jh:bs:12'), rahasiaHeader: 'r', rahasia: 'r', chatPemilik: '7', db, tg });
-  assert.equal(status.get(12), true);
-  assert.ok(panggilan.includes('jh:bt:12'));
+test('telegram: tombol berita lama (jh:bs/bt) tidak dikenali lagi', () => {
+  assert.equal(bacaTombol('jh:bs:12'), null);
+  assert.deepEqual(bacaTombol('jh:ks:3'), { jenis: 'komentar', aksi: 'tampilkan', id: 3 });
 });

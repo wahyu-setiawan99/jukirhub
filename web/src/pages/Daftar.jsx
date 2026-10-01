@@ -6,6 +6,7 @@ import { dataProvinsi } from '@shared/wilayah.js';
 import { tempatDiZona, urutkanTempat } from '../lib/tempat.js';
 import { pesanGalatLokasi } from '../lib/lokasi.js';
 import BarisTempat from '../components/BarisTempat.jsx';
+import PilihZona from '../components/PilihZona.jsx';
 
 // Daftar tempat yang sudah dilaporkan (AGENTS.md 6.3): terdekat dulu bila lokasi diizinkan, laporan terbaru dulu bila tidak.
 export default function Daftar() {
@@ -20,7 +21,7 @@ export default function Daftar() {
       <section className="kepala-halaman">
         <h1>{h.h1}</h1>
         <p className="redup">{h.intro}</p>
-        <p className="label-data">zona: {dataProvinsi(zona)?.nama} · {daftar.length} tempat</p>
+        <PilihZona />
       </section>
 
       {!posisi && izinLokasi !== 'ditolak' && daftar.length > 1 && (

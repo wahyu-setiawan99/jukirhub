@@ -119,10 +119,12 @@ h1, h2, h3, strong, b, th, legend { font-weight: 600; }
 a { color: var(--aksen); }
 :focus-visible { outline: 3px solid var(--fokus); outline-offset: 2px; }
 
+/* Skala huruf (AGENTS.md 6.3): keterangan 0.8rem (12 px) · kecil 0.875rem · isi 1rem · judul kartu 1.0625rem ·
+   judul seksi 1.25rem · judul halaman 1.5rem · judul Beranda clamp(1.65rem, 6.4vw, 2.25rem). Tidak ada teks < 12 px. */
 .redup { color: var(--redup); font-size: 0.875rem; }
 .angka { font-family: var(--font-angka); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 /* Label data kecil bergaya terminal (mis. "live", meta tempat). */
-.label-data { font-family: var(--font-angka); font-size: 0.75rem; color: var(--redup); letter-spacing: 0.02em; }
+.label-data { font-family: var(--font-angka); font-size: 0.8rem; color: var(--redup); letter-spacing: 0; }
 .kecil { font-size: 0.8rem; }
 
 /* ------------------------------------------------ kerangka */
@@ -170,32 +172,10 @@ a { color: var(--aksen); }
 .merek .logo, .merek .logo svg { display: block; }
 .nama-merek { display: grid; line-height: 1.1; }
 /* Tagline logo: huruf data kecil di bawah nama; hanya bila header cukup lebar. */
-.nama-merek .tagline { font-family: var(--font-angka); font-size: 0.62rem; font-weight: 400; letter-spacing: 0.02em; color: var(--aksen); }
+.nama-merek .tagline { font-family: var(--font-angka); font-size: 0.8rem; font-weight: 400; color: var(--aksen); }
 @media (max-width: 479px) { .nama-merek .tagline { display: none; } }
-/* HP (< 440 px): header memuat logo, zona, kendaraan, dan tema; tulisan "JukirHub" cukup di Beranda. */
-@media (max-width: 439px) { .nama-merek { display: none; } }
-.pilih-zona {
-  position: relative;
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  border: 1px solid var(--garis);
-  border-radius: 10px;
-  background: var(--latar);
-}
-.pilih-zona .sinyal { position: absolute; left: 9px; pointer-events: none; background: var(--aksen); }
-.pilih-zona select {
-  min-height: 42px;
-  max-width: 110px;
-  padding: 0 8px 0 22px;
-  border: 0;
-  background: transparent;
-  color: var(--teks);
-  font-family: var(--font-angka);
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-.pilih-zona select option { background: var(--permukaan); color: var(--teks); }
+/* HP sangat sempit (< 360 px): tulisan "JukirHub" disembunyikan supaya pilihan kendaraan & tombol tema tetap muat. */
+@media (max-width: 359px) { .nama-merek { display: none; } }
 .atas-kanan { display: flex; align-items: center; gap: 8px; }
 .tombol-tema {
   flex: none;
@@ -236,8 +216,7 @@ a { color: var(--aksen); }
 .pilih-kendaraan button.aktif { background: var(--utama); color: var(--utama-teks); }
 /* HP ≤ 400 px: header memuat logo + nama, pilihan kendaraan, dan tombol tema; tombol sedikit dirampingkan. */
 @media (max-width: 400px) {
-  .pilih-kendaraan button { min-width: 58px; padding: 0 9px; font-size: 0.9rem; }
-  .atas-kanan { gap: 6px; }
+  .pilih-kendaraan button { min-width: 66px; padding: 0 11px; font-size: 0.875rem; }
 }
 
 .isi { position: relative; min-height: 0; overflow: hidden; }
@@ -281,7 +260,7 @@ a { color: var(--aksen); }
   min-height: 44px;
   color: var(--redup);
   text-decoration: none;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -351,7 +330,7 @@ a { color: var(--aksen); }
   border-radius: 999px;
   background: var(--latar-indikasi);
   color: var(--teks-indikasi);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.3;
 }
@@ -376,7 +355,7 @@ a { color: var(--aksen); }
 
 /* ------------------------------------------------ halaman daftar, info */
 
-.daftar, .info, .halaman-saya { display: grid; align-content: start; gap: 12px; padding-bottom: 24px; }
+.daftar, .info, .halaman-saya, .halaman-berita { display: grid; align-content: start; gap: 12px; padding-bottom: 24px; }
 .kartu {
   display: grid;
   gap: 8px;
@@ -385,12 +364,12 @@ a { color: var(--aksen); }
   background: var(--permukaan);
   border: 1px solid var(--garis);
 }
-.kartu h2 { font-size: 1.05rem; }
-.kartu h3 { margin: 6px 0 0; font-size: 0.95rem; }
+.kartu h2 { font-size: 1.0625rem; }
+.kartu h3 { margin: 6px 0 0; font-size: 1rem; }
 .kartu p { line-height: 1.45; }
 .langkah, .poin { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.45; }
 .kepala-halaman { display: grid; gap: 6px; padding-top: 4px; }
-.kepala-halaman h1 { font-size: 1.3rem; line-height: 1.25; letter-spacing: -0.01em; }
+.kepala-halaman h1 { font-size: 1.5rem; line-height: 1.2; letter-spacing: -0.015em; }
 .kepala-halaman p { line-height: 1.5; }
 
 /* pengganti peta: belum dimuat / sedang disiapkan */
@@ -411,13 +390,13 @@ a { color: var(--aksen); }
 /* ------------------------------------------------ beranda */
 
 .beranda { display: grid; align-content: start; gap: 20px; padding-bottom: 32px; }
-.beranda > *, .daftar > *, .info > *, .halaman-saya > * { width: 100%; max-width: var(--lebar-kolom); margin-inline: auto; }
+.beranda > *, .daftar > *, .info > *, .halaman-saya > *, .halaman-berita > * { width: 100%; max-width: var(--lebar-kolom); margin-inline: auto; }
 .beranda h1 {
   font-family: var(--font-judul);
-  font-size: clamp(1.45rem, 5.4vw, 2rem);
+  font-size: clamp(1.65rem, 6.4vw, 2.25rem);
   font-weight: 600;
-  line-height: 1.18;
-  letter-spacing: -0.015em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 .beranda-pembuka { display: grid; gap: 8px; padding-top: 8px; }
 .eyebrow {
@@ -429,7 +408,7 @@ a { color: var(--aksen); }
   border: 1px solid var(--garis);
   border-radius: 8px;
   font-family: var(--font-angka);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--aksen);
 }
 .sinyal { width: 7px; height: 7px; border-radius: 50%; background: var(--logo-sinyal); }
@@ -439,7 +418,7 @@ a { color: var(--aksen); }
   align-items: center;
   gap: 4px;
   min-height: 44px;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--redup);
 }
 
@@ -452,12 +431,12 @@ a { color: var(--aksen); }
   background: var(--permukaan);
 }
 .kepala-seksi { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.kepala-seksi h2 { font-size: 1rem; }
+.kepala-seksi h2 { font-size: 1.0625rem; }
 .aksi-beranda { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .aksi-beranda .tombol-sekunder { display: grid; place-items: center; text-decoration: none; }
 
 .seksi-beranda { display: grid; gap: 10px; padding-top: 20px; border-top: 1px solid var(--garis); }
-.seksi-beranda h2 { font-family: var(--font-judul); font-size: 1.2rem; font-weight: 600; letter-spacing: -0.01em; }
+.seksi-beranda h2 { font-family: var(--font-judul); font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
 .seksi-beranda p { line-height: 1.65; color: var(--teks-isi); }
 
 .langkah-beranda { list-style: none; counter-reset: langkah; margin: 0; padding: 0; display: grid; gap: 14px; }
@@ -477,7 +456,7 @@ a { color: var(--aksen); }
   height: 32px;
   border: 1px solid var(--teks);
   border-radius: 50%;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 .langkah-beranda span { color: var(--redup); }
@@ -645,7 +624,7 @@ a { color: var(--aksen); }
   box-shadow: var(--bayang);
   max-height: calc(50% - 60px);
   overflow: auto;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   line-height: 1.45;
   z-index: 2;
 }
@@ -709,7 +688,7 @@ a { color: var(--aksen); }
   border-radius: 12px;
   background: var(--permukaan);
   box-shadow: var(--bayang);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   z-index: 2;
 }
 .info-peta .ringkas-peta { color: var(--teks-isi); }
@@ -744,7 +723,7 @@ a { color: var(--aksen); }
   padding: 4px 4px 4px 12px;
   border-bottom: 1px solid var(--garis);
   background: var(--permukaan);
-  font-size: 0.95rem;
+  font-size: 1rem;
   z-index: 1;
 }
 .legenda-peta .legenda { padding-bottom: 6px; }
@@ -782,7 +761,7 @@ a { color: var(--aksen); }
   border: 2px solid var(--permukaan);
   color: var(--latar);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 .mk.indikasi-kurang .mk-bulat {
@@ -869,7 +848,7 @@ a { color: var(--aksen); }
 .indeks-pungli .ruas span.isi { background: var(--warna-indikasi); }
 .baris-ringkas { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
 .baris-ringkas dt { color: var(--redup); font-size: 0.875rem; padding-top: 1px; }
-.baris-ringkas dd { margin: 0; font-family: var(--font-angka); font-size: 0.9rem; }
+.baris-ringkas dd { margin: 0; }
 .bintang { color: var(--bintang); }
 .ajakan { font-weight: 600; }
 .aksi-lembar { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -883,7 +862,7 @@ a { color: var(--aksen); }
   border-radius: 10px;
   background: var(--permukaan);
   color: var(--teks);
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.2;
   text-align: center;
@@ -894,15 +873,15 @@ a { color: var(--aksen); }
 
 /* Riwayat laporan di lembar tempat (M4) */
 .riwayat { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--garis); }
-.riwayat h3 { margin: 0; font-size: 0.95rem; }
+.riwayat h3 { margin: 0; font-size: 1rem; }
 .daftar-riwayat { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .daftar-riwayat li { display: grid; gap: 2px; padding-bottom: 10px; border-bottom: 1px solid var(--garis); line-height: 1.45; }
 .daftar-riwayat li:last-child { border-bottom: 0; padding-bottom: 0; }
-.riwayat-kepala { font-size: 0.9rem; }
+.riwayat-kepala { font-size: 0.875rem; }
 .riwayat-rincian { font-size: 0.875rem; color: var(--teks-isi); }
-.riwayat-indikasi { font-size: 0.85rem; color: var(--kuning-teks); }
+.riwayat-indikasi { font-size: 0.875rem; color: var(--kuning-teks); }
 .riwayat-komentar { display: grid; gap: 0; margin-top: 4px; padding: 8px 10px; border-radius: 10px; background: var(--lembut); }
-.riwayat-komentar p:first-child { font-size: 0.9rem; }
+.riwayat-komentar p:first-child { font-size: 0.875rem; }
 .tautan-kecil-aduan { justify-self: start; padding: 0; min-height: 44px; font-size: 0.8rem; color: var(--redup); }
 .isian-komentar { resize: vertical; min-height: 84px; line-height: 1.45; }
 
@@ -1115,7 +1094,7 @@ a { color: var(--aksen); }
   color: var(--redup);
 }
 .daftar-lencana li strong { font-size: 0.8rem; line-height: 1.25; }
-.daftar-lencana li .kecil { font-size: 0.7rem; line-height: 1.3; }
+.daftar-lencana li .kecil { font-size: 0.8rem; line-height: 1.3; }
 .daftar-lencana li.dapat { color: var(--teks); border-color: var(--kuning-garis); }
 .daftar-lencana li.dapat svg { color: var(--kuning-teks); }
 
@@ -1144,6 +1123,21 @@ a { color: var(--aksen); }
 .daftar-saya li:last-child { border-bottom: 0; }
 .daftar-saya a, .daftar-saya li > span:first-child { font-weight: 600; overflow-wrap: anywhere; }
 
+/* Pemilih zona provinsi di dalam halaman (Beranda, Peta, Daftar, Berita): ikon + select bawaan HP. */
+.pilih-zona { display: inline-flex; align-items: center; gap: 6px; justify-self: start; min-height: 44px; color: var(--aksen); }
+.pilih-zona select {
+  min-height: 40px;
+  padding: 0 8px;
+  border: 1px solid var(--garis);
+  border-radius: 10px;
+  background: var(--permukaan);
+  color: var(--teks);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.info-peta .pilih-zona { min-height: 44px; }
+
 /* pilihan wilayah peringkat & daerah berita */
 .pilih-daerah { display: flex; align-items: center; gap: 8px; }
 .pilih-daerah select {
@@ -1162,12 +1156,13 @@ a { color: var(--aksen); }
 
 .berita, .imbauan { display: grid; gap: 10px; }
 .imbauan { border-color: var(--kuning-garis); }
-.imbauan h2 { display: flex; align-items: center; gap: 6px; font-size: 1rem; }
+.imbauan h2 { display: flex; align-items: center; gap: 6px; font-size: 1.0625rem; }
 .berita h2 { display: flex; align-items: center; gap: 6px; }
 .berita p { margin: 0; }
 .daftar-berita { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .daftar-berita li { display: grid; gap: 2px; }
 .daftar-berita a { color: var(--aksen); font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.berita .tombol-tautan { display: grid; place-items: center; text-decoration: none; }
 .daftar-berita p { line-height: 1.45; color: var(--teks-isi); }
 
 /* Judul untuk pembaca layar saja. Sengaja di akhir file: aturan lebar kolom (.info > * dst.) tidak boleh

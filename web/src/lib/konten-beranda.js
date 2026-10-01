@@ -153,6 +153,14 @@ export const HALAMAN = {
       'penanda di peta, dan cara JukirHub menjaga privasi Anda.',
     h1: 'Info dan panduan memakai JukirHub',
     intro: 'Cara melapor, arti setiap tanda, dan bagaimana data lokasi Anda dijaga.'
+  },
+  '/berita': {
+    nama: 'Berita parkir',
+    judul: 'Berita Parkir dan Juru Parkir di Sulawesi · JukirHub',
+    deskripsi: 'Berita terbaru soal juru parkir, parkir liar, dan retribusi parkir dari media di Sulawesi, dirangkum ' +
+      'singkat dan diurutkan dari daerah Anda.',
+    h1: 'Berita parkir di Sulawesi',
+    intro: 'Berita soal juru parkir dan parkir dari media di Sulawesi, 30 hari terakhir. Daerah Anda tampil paling atas.'
   }
 };
 

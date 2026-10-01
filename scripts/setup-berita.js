@@ -79,7 +79,7 @@ async function main() {
   console.log(`\nUji fungsi berita → HTTP ${res.status}`, JSON.stringify(isi));
   if (res.status !== 200) throw new Error('Uji gagal. Tunggu ±1 menit lalu jalankan ulang (secret baru mungkin belum aktif).');
   if (isi?.dilewati) throw new Error('GEMINI_API_KEY belum terpasang. Jalankan ulang dan tempel kuncinya.');
-  console.log(`\n✔ Berita parkir aktif: diambil tiap 3 jam. Berita baru yang tampil dikabarkan ke Telegram Anda (${isi?.relevan ?? 0} berita kali ini).`);
+  console.log(`\n✔ Berita parkir aktif: diambil tiap 3 jam, tampil di Beranda & halaman /berita (${isi?.relevan ?? 0} berita baru kali ini).`);
 }
 
 main().catch((err) => {
