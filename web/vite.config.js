@@ -5,7 +5,13 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 import { SITUS } from './src/lib/konten-beranda.js';
-import { JALUR_STATIS, buatIsiStatis, buatKepalaSeo, buatRobots, buatSitemap, kodeAdsenseSah } from './src/lib/seo.js';
+import {
+  JALUR_STATIS, buatDaftarTautanTempat, buatIsiStatis, buatIsiTempat, buatKepalaSeo, buatRobots, buatSitemap, khususTempat,
+  kodeAdsenseSah
+} from './src/lib/seo.js';
+import { KOLOM_RINGKASAN, KOLOM_TITIK, ambilView, konfigurasiData } from './src/lib/data.js';
+import { gabungTempat, jarakM } from './src/lib/tempat.js';
+import { jalurTempat } from './src/lib/halaman-tempat.js';
 
 // Modul skoring & konstanta hidup di supabase/functions/_shared agar ikut ter-deploy
 // ke Edge Function. Web mengimpornya lewat alias ini — satu file, tidak disalin.
@@ -26,6 +32,7 @@ function seoHalaman() {
   let url = SITUS.urlBawaan;
   let supabaseUrl = '';
   let adsense = null;
+  let konfigData = null;
   return {
     name: 'seo-halaman',
     configResolved(config) {
@@ -33,6 +40,7 @@ function seoHalaman() {
       supabaseUrl = config.env.VITE_SUPABASE_URL || '';
       // Kode penerbit AdSense (ca-pub-…), diisi pemilik di env Vercel setelah daftar AdSense. Kosong = tanpa meta & ads.txt.
       adsense = kodeAdsenseSah(config.env.VITE_ADSENSE_CLIENT);
+      konfigData = konfigurasiData(config.env);
     },
     transformIndexHtml(html) {
       if (!html.includes('<!--seo-kepala-->') || !html.includes('<!--seo-isi-->')) {
@@ -50,7 +58,7 @@ function seoHalaman() {
       this.emitFile({ type: 'asset', fileName: 'versi.json', source: `${JSON.stringify({ commit: commitSekarang(), dibangun: new Date().toISOString() })}\n` });
     },
     // index.html final (sudah berisi tag script/CSS hasil build) → salin per halaman, ganti bagian SEO-nya.
-    writeBundle(options, bundle) {
+    async writeBundle(options, bundle) {
       const index = bundle['index.html']?.source;
       if (typeof index !== 'string') return;
       const kepalaBeranda = buatKepalaSeo(url, { supabaseUrl, adsense });
@@ -64,6 +72,35 @@ function seoHalaman() {
           .replace(isiBeranda, () => buatIsiStatis(jalur));
         fs.writeFileSync(path.join(options.dir, `${jalur.slice(1)}.html`), html);
       }
+
+      // Halaman per tempat (/tempat/<slug>-<id>): data dari view publik Supabase saat build. Gagal / tanpa env → dilewati
+      // (halaman tetap bisa dibuka lewat React). Data baru tampil di HTML statis pada build berikutnya.
+      let tempat = [];
+      if (konfigData) {
+        try {
+          const [titik, ringkasan] = await Promise.all([
+            ambilView(fetch, konfigData, 'titik_publik', KOLOM_TITIK),
+            ambilView(fetch, konfigData, 'ringkasan_titik_publik', KOLOM_RINGKASAN)
+          ]);
+          tempat = gabungTempat(titik, ringkasan).filter(t => t.ringkasan.jumlah > 0);
+        } catch (err) {
+          console.warn('[seo] halaman tempat dilewati:', err.message);
+        }
+      }
+      fs.mkdirSync(path.join(options.dir, 'tempat'), { recursive: true });
+      for (const t of tempat) {
+        const jalur = jalurTempat(t);
+        const sekitar = tempat.filter(x => x.id !== t.id).map(x => ({ ...x, jarak: jarakM(t, x) })).sort((a, b) => a.jarak - b.jarak).slice(0, 5);
+        const html = index
+          .replace(kepalaBeranda, () => buatKepalaSeo(url, { supabaseUrl, jalur, adsense, khusus: khususTempat(t) }))
+          .replace(isiBeranda, () => buatIsiTempat(t, sekitar));
+        fs.writeFileSync(path.join(options.dir, `${jalur.slice(1)}.html`), html);
+      }
+      // /daftar statis memuat tautan ke semua tempat; sitemap memuat tempat yang layak diindeks.
+      const fileDaftar = path.join(options.dir, 'daftar.html');
+      fs.writeFileSync(fileDaftar, fs.readFileSync(fileDaftar, 'utf8').replace('<p class="disclaimer">', () => `${buatDaftarTautanTempat(tempat)}\n        <p class="disclaimer">`));
+      fs.writeFileSync(path.join(options.dir, 'sitemap.xml'), buatSitemap(url, new Date(), undefined, tempat));
+      if (tempat.length) console.log(`[seo] ${tempat.length} halaman tempat dibuat`);
     }
   };
 }

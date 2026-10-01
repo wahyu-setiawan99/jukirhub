@@ -16,6 +16,7 @@ export const muatBagian = {
   saya: () => import('../pages/Saya.jsx'),
   berita: () => import('../pages/Berita.jsx'),
   legal: () => import('../pages/Legal.jsx'),
+  tempat: () => import('../pages/Tempat.jsx'),
   lapor: () => import('../components/LaporLayar.jsx')
 };
 

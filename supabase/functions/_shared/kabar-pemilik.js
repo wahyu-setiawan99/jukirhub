@@ -4,6 +4,7 @@
 // ESM murni (Node & Deno), dites dengan node:test. Pesan tidak memuat identitas, IP, atau koordinat PELAPOR.
 
 import { INDIKASI_PUNGLI } from './konstanta.js';
+import { KATEGORI_KOMENTAR } from './periksa-komentar.js';
 
 export const LABEL_SUMBER = {
   pin: 'nama diketik warga (tempat tidak ada di peta)',
@@ -82,13 +83,19 @@ export function pesanTempatBaru({ id, nama, sumber, lat, lng }, urlWeb = '') {
   ].join('\n');
 }
 
-export function pesanKomentarBaru({ id, isi, namaTempat }) {
+// `kategori` = hasil pemeriksaan AI (_shared/periksa-komentar.js) atau null; `tampil` = sudah tampil otomatis (AI: layak).
+export function pesanKomentarBaru({ id, isi, namaTempat }, { kategori = null, tampil = false } = {}) {
+  const ai = tampil
+    ? '✅ <b>Tampil otomatis</b> (diperiksa AI: layak). Tekan Sembunyikan bila keliru.'
+    : kategori
+      ? `🤖 AI: <b>${escapeHtml(KATEGORI_KOMENTAR[kategori] ?? kategori)}</b>. Tampil hanya bila Anda tekan Tampilkan.`
+      : 'Tampil hanya bila Anda tekan Tampilkan. Tolak bila menyebut nama/ciri orang, menuduh orang tertentu, kasar, atau spam.';
   return [
     `💬 <b>Komentar baru</b> di <b>${escapeHtml(namaTempat)}</b> (komentar ${id})`,
     '',
     `«${escapeHtml(isi)}»`,
     '',
-    'Tampil hanya bila Anda tekan Tampilkan. Tolak bila menyebut nama/ciri orang, menuduh orang tertentu, kasar, atau spam.'
+    ai
   ].join('\n');
 }
 

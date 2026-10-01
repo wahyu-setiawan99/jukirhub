@@ -77,7 +77,8 @@ export const ISI_LEGAL = {
         poin: [
           'Isi laporan: tempat, jawaban (membantu / tidak, bayar berapa, indikasi pungli), bintang, kendaraan, waktu, dan ' +
           'komentar opsional. Ditampilkan sebagai ringkasan per tempat dan riwayat tanpa nama pelapor; waktu di riwayat ' +
-          'dibulatkan ke jam. Komentar baru tampil setelah diperiksa pengelola.',
+          'dibulatkan ke jam. Komentar baru diperiksa otomatis oleh AI; yang dinilai layak langsung tampil, sisanya ' +
+          'menunggu pemeriksaan pengelola.',
           'Lokasi saat melapor (koordinat & akurasi GPS): untuk memastikan laporan dikirim dari dekat tempat parkir dan ' +
           'mendeteksi lokasi palsu. Tidak ditampilkan dan dihapus setelah 7 hari.',
           'Kunci perangkat acak: dibuat di browser Anda dan disimpan di server hanya dalam bentuk hash bersalt (tidak bisa ' +
@@ -129,7 +130,8 @@ export const ISI_LEGAL = {
           'Vercel: hosting situs.',
           'OpenStreetMap Nominatim dan OpenFreeMap: pencarian tempat dan peta. Layanan ini melihat alamat IP Anda saat ' +
           'peta dimuat.',
-          'Google Gemini: membuat ringkasan judul berita. Tidak ada data pengguna yang dikirim.',
+          'Google Gemini: membuat ringkasan judul berita dan memeriksa isi komentar (hanya teks komentar dan nama tempat, ' +
+          'tanpa data pelapor).',
           'Telegram: pengelola menerima foto bukti, komentar untuk diperiksa, dan pesan kontak.',
           'Google AdSense (bila iklan aktif): menayangkan iklan, lihat bagian di atas.',
           'Google Maps: hanya bila Anda menekan "Petunjuk arah".'

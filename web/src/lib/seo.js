@@ -6,6 +6,7 @@
 
 import { CATATAN_KAKI, FAQ, HALAMAN, HERO, LANGKAH, SITUS, TAUTAN_SITUS, TENTANG, WILAYAH } from './konten-beranda.js';
 import { BERLAKU_SEJAK, ISI_LEGAL } from './konten-legal.js';
+import { barisRingkasTempat, deskripsiTempat, jalurTempat, judulTempat, layakIndeks } from './halaman-tempat.js';
 import { svgLogoInline } from './logo.js';
 
 // Halaman selain Beranda yang dibuatkan HTML statis sendiri (daftar.html, dst. — lihat cleanUrls di vercel.json).
@@ -40,10 +41,10 @@ function asalHttps(url) {
   }
 }
 
-export function buatDataTerstruktur(url, jalur = '/') {
+export function buatDataTerstruktur(url, jalur = '/', khusus = null) {
   const dasar = rapikanUrl(url);
   if (jalur !== '/') {
-    const h = halaman(jalur);
+    const h = khusus ?? halaman(jalur);
     return [
       {
         '@context': 'https://schema.org',
@@ -107,9 +108,10 @@ export function buatDataTerstruktur(url, jalur = '/') {
 // Kode penerbit AdSense ca-pub-<16 angka> (env VITE_ADSENSE_CLIENT); selain itu diabaikan.
 export const kodeAdsenseSah = (k) => (typeof k === 'string' && /^ca-pub-\d{16}$/.test(k) ? k : null);
 
-export function buatKepalaSeo(url, { supabaseUrl, jalur = '/', adsense = null } = {}) {
+// `khusus` = { nama, judul, deskripsi, indeks } untuk halaman dinamis (mis. /tempat/…), menggantikan HALAMAN[jalur].
+export function buatKepalaSeo(url, { supabaseUrl, jalur = '/', adsense = null, khusus = null } = {}) {
   const dasar = rapikanUrl(url);
-  const h = halaman(jalur);
+  const h = khusus ?? halaman(jalur);
   const kanonik = escHtml(urlHalaman(dasar, jalur));
   const asalData = asalHttps(supabaseUrl);
   const altGambar = escHtml(`${SITUS.nama}: info juru parkir dari laporan warga`);
@@ -118,7 +120,7 @@ export function buatKepalaSeo(url, { supabaseUrl, jalur = '/', adsense = null } 
   return [
     `<title>${t}</title>`,
     `<meta name="description" content="${d}" />`,
-    `<meta name="robots" content="index, follow, max-image-preview:large" />`,
+    `<meta name="robots" content="${khusus && !khusus.indeks ? 'noindex, follow' : 'index, follow, max-image-preview:large'}" />`,
     `<link rel="canonical" href="${kanonik}" />`,
     `<meta property="og:type" content="website" />`,
     `<meta property="og:site_name" content="${escHtml(SITUS.nama)}" />`,
@@ -140,7 +142,7 @@ export function buatKepalaSeo(url, { supabaseUrl, jalur = '/', adsense = null } 
     ...(kodeAdsenseSah(adsense) ? [`<meta name="google-adsense-account" content="${kodeAdsenseSah(adsense)}" />`] : []),
     // Sambungan ke server data dibuka lebih awal: data tampil lebih cepat di jaringan seluler.
     ...(asalData ? [`<link rel="preconnect" href="${escHtml(asalData)}" crossorigin />`] : []),
-    ...buatDataTerstruktur(dasar, jalur).map(o => `<script type="application/ld+json">${jsonLdAman(o)}</script>`)
+    ...buatDataTerstruktur(dasar, jalur, khusus).map(o => `<script type="application/ld+json">${jsonLdAman(o)}</script>`)
   ].join('\n    ');
 }
 
@@ -239,18 +241,57 @@ export function buatIsiStatis(jalur = '/') {
     </div>`;
 }
 
+// ------------------------------------------------------------------ halaman per tempat (/tempat/<slug>-<id>)
+
+export const khususTempat = (t) => ({ nama: t.nama, judul: judulTempat(t), deskripsi: deskripsiTempat(t), indeks: layakIndeks(t) });
+
+export function buatIsiTempat(t, sekitar = []) {
+  const e = escHtml;
+  const baris = barisRingkasTempat(t).map(([k, v]) => `<dt>${e(k)}</dt><dd>${e(v)}</dd>`).join('');
+  const lain = sekitar.length
+    ? `<section class="kartu"><h2>Tempat parkir lain di sekitar</h2><ul class="daftar-sekitar">${sekitar
+      .map(x => `<li><a href="${jalurTempat(x)}">${e(x.nama)}</a></li>`).join('')}</ul></section>`
+    : '';
+  return `<div class="statis">
+      ${kepalaStatis()}
+      <main class="halaman halaman-tempat">
+        <section class="kepala-halaman">
+          <h1>Parkir di ${e(t.nama)}</h1>
+          <p class="redup">${e([t.kota, `${t.ringkasan.jumlah} laporan warga`].filter(Boolean).join(' · '))}</p>
+        </section>
+        <section class="kartu"><p>${e(deskripsiTempat(t))}</p><dl class="baris-ringkas">${baris}</dl></section>
+        ${lain}
+        <nav class="aksi-beranda" aria-label="Menu"><a class="tombol-sekunder" href="/peta">Peta</a><a class="tombol-sekunder" href="/daftar">Daftar tempat</a></nav>
+        ${tautanSitusStatis()}
+        <p class="disclaimer">Laporan warga, belum diverifikasi pihak berwenang. Indikasi bukan tuduhan. ${e(CATATAN_KAKI)}</p>
+      </main>
+    </div>`;
+}
+
+// Tautan ke semua halaman tempat, ditanam di HTML statis /daftar (jalur bagi mesin pencari).
+export function buatDaftarTautanTempat(tempat) {
+  if (!tempat.length) return '';
+  return `<section class="kartu"><h2>Tempat yang sudah dilaporkan</h2><ul class="daftar-sekitar">${tempat
+    .map(t => `<li><a href="${jalurTempat(t)}">${escHtml(t.nama)}</a></li>`).join('')}</ul></section>`;
+}
+
 export function buatRobots(url) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${rapikanUrl(url)}/sitemap.xml\n`;
 }
 
 const PRIORITAS = { '/': '1.0', '/peta': '0.8', '/daftar': '0.8', '/info': '0.6' };
 
-export function buatSitemap(url, tanggal = new Date(), jalur = ['/', ...JALUR_STATIS]) {
+// `tempat` = tempat terlapor; hanya yang layak diindeks (≥ 3 laporan) masuk sitemap, lastmod = laporan terakhir.
+export function buatSitemap(url, tanggal = new Date(), jalur = ['/', ...JALUR_STATIS], tempat = []) {
   const dasar = escHtml(rapikanUrl(url));
   const lastmod = tanggal.toISOString().slice(0, 10);
   const baris = jalur.map(j =>
     `  <url><loc>${urlHalaman(dasar, j)}</loc><lastmod>${lastmod}</lastmod><changefreq>${j === '/' ? 'daily' : 'weekly'}</changefreq><priority>${PRIORITAS[j] ?? '0.5'}</priority></url>`
   );
+  for (const t of tempat.filter(layakIndeks)) {
+    const ubah = t.ringkasan.terakhir ? String(t.ringkasan.terakhir).slice(0, 10) : lastmod;
+    baris.push(`  <url><loc>${dasar}${escHtml(jalurTempat(t))}</loc><lastmod>${ubah}</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>`);
+  }
   return '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
     baris.join('\n') + '\n' +

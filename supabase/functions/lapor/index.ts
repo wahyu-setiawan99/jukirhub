@@ -4,7 +4,10 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { prosesLapor } from './proses.js';
 import { diLatar, kabariPemilik } from '../_shared/telegram.ts';
-import { pesanKomentarBaru, pesanTempatBaru, tombolKomentar, tombolUntuk } from '../_shared/kabar-pemilik.js';
+import { pesanTempatBaru, tombolUntuk } from '../_shared/kabar-pemilik.js';
+import { moderasiKomentarBaru } from '../_shared/moderasi-komentar.js';
+import { SKEMA_KOMENTAR, bacaJawabanKomentar, promptKomentar } from '../_shared/periksa-komentar.js';
+import { KUNCI_GEMINI, panggilGemini } from '../_shared/gemini.ts';
 import { kabupatenDariAlamat, urlKabupatenNominatim } from '../_shared/wilayah.js';
 
 const supabase = createClient(
@@ -134,13 +137,34 @@ const geo = {
   }
 };
 
+// Pemeriksaan komentar oleh AI (AGENTS.md 1.3.1): jatah harian terpisah dari berita.
+async function periksaKomentarAi(isi: string, namaTempat: string) {
+  const { sistem, pengguna } = promptKomentar(isi, namaTempat);
+  return bacaJawabanKomentar(await panggilGemini({ sistem, pengguna, skema: SKEMA_KOMENTAR, maksToken: 64, batasMs: 10_000 }));
+}
+
+const dbModerasi = {
+  async ambilJatahAi(jenis: string, batas: number) {
+    return Boolean(periksa(await supabase.rpc('ambil_jatah_ai_jenis', { p_jenis: jenis, p_batas: batas })));
+  },
+  // Hanya yang masih 'menunggu' (bila pemilik sudah memutuskan lebih dulu, keputusan pemilik yang berlaku).
+  async tampilkanOtomatis(id: number) {
+    const baris = periksa(await supabase.from('komentar').update({ status: 'tampil', alasan: 'ai' })
+      .eq('id', id).eq('status', 'menunggu').select('id')) as unknown[] | null;
+    return (baris ?? []).length > 0;
+  }
+};
+
+const tgPemilik = { kirim: (teks: string, tombol: unknown) => kabariPemilik(teks, tombol) };
+
 // Tempat baru → kabar ke pemilik dengan tombol Sembunyikan (fungsi telegram menangani tombolnya).
 const kabar = {
   tempatBaru(t: { id: number; nama: string; sumber: string; lat: number; lng: number }) {
     diLatar(kabariPemilik(pesanTempatBaru(t, URL_WEB), tombolUntuk('aktif', t.id)));
   },
+  // Komentar baru: diperiksa AI dulu (layak → tampil otomatis), lalu pemilik dikabari. Di latar: tidak menahan balasan.
   komentarBaru(k: { id: number; isi: string; namaTempat: string }) {
-    diLatar(kabariPemilik(pesanKomentarBaru(k), tombolKomentar('menunggu', k.id)));
+    diLatar(moderasiKomentarBaru({ komentar: k, ai: KUNCI_GEMINI ? periksaKomentarAi : null, db: dbModerasi, tg: tgPemilik }));
   }
 };
 

@@ -1181,6 +1181,15 @@ a { color: var(--aksen); }
 /* Selama memuat, tempat isi dicadangkan supaya tautan situs di bawah tidak terdorong (CLS, Lighthouse 1 Okt 2026). */
 .memuat-blok { min-height: 70vh; }
 
+.halaman-tempat { display: grid; align-content: start; gap: 12px; padding-bottom: 24px; }
+.halaman-tempat > * { width: 100%; max-width: var(--lebar-kolom); margin-inline: auto; }
+.halaman-tempat .riwayat { border-top: 0; padding-top: 0; }
+.daftar-sekitar { list-style: none; margin: 0; padding: 0; display: grid; }
+.daftar-sekitar li { display: flex; align-items: center; flex-wrap: wrap; min-height: 44px; border-bottom: 1px solid var(--garis); }
+.daftar-sekitar li:last-child { border-bottom: 0; }
+.daftar-sekitar a { color: var(--aksen); font-weight: 600; }
+.jarak-sekitar::before { content: '·'; margin-inline: 6px; }
+
 .halaman-legal { display: grid; align-content: start; gap: 12px; padding-bottom: 24px; }
 .halaman-legal > * { width: 100%; max-width: var(--lebar-kolom); margin-inline: auto; }
 .tautan-situs { display: flex; flex-wrap: wrap; gap: 0 16px; padding-top: 12px; border-top: 1px solid var(--garis); }
