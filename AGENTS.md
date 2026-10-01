@@ -27,11 +27,11 @@ Terakhir diperbarui: 1 Okt 2026.
 - Migrasi s/d `20261001000007_kontak.sql` sudah di-`db push`. Fungsi `lapor kontribusi foto berita telegram kontak aduan`
   sudah di-deploy. Berita aktif (`npm run berita:setup`), tidak dikirim ke Telegram.
 
-**Dibuat 1 Okt (sore), sudah di-commit, BELUM tayang** (pilihan pemilik setelah review AGENTS.md):
+**Dibuat 1 Okt (sore); web sudah tayang (`afc275c`), sisi Supabase menunggu pemilik** (pilihan pemilik setelah review AGENTS.md):
 - Halaman per tempat `/tempat/<nama>-<id>` (bagian 1.7), pemeriksaan komentar oleh AI (1.3.1), ringkasan harian
   Telegram 21:00 WITA (bagian 9). Kebijakan Privasi ikut diperbarui (komentar diperiksa Gemini).
-- Langkah tayang (urut): `npx supabase db push` (migrasi `20261001000008_pemantauan_ai.sql`) →
-  `npx supabase functions deploy lapor berita pemantauan` → `git push` → `npm run cek:tayang`. Tanpa secret baru:
+- Sisa langkah (urut): `npx supabase db push` (migrasi `20261001000008_pemantauan_ai.sql`) →
+  `npx supabase functions deploy lapor berita pemantauan`. Tanpa secret baru:
   `pemantauan` memakai `BERITA_SECRET` & Vault berita, AI komentar memakai `GEMINI_API_KEY` yang sudah ada.
 
 **Domain (selesai 1 Okt):** registrar DomaiNesia, nameserver sudah diganti ke `ns1/ns2.vercel-dns.com` (DNS kini dikelola
