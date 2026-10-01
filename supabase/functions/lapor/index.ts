@@ -15,7 +15,7 @@ const supabase = createClient(
 
 const REPORTER_SALT = Deno.env.get('REPORTER_SALT');
 const IP_SALT = Deno.env.get('IP_SALT');
-const URL_WEB = Deno.env.get('URL_WEB') ?? 'https://jukirhub.vercel.app';
+const URL_WEB = Deno.env.get('URL_WEB') ?? 'https://jukirhub.site';
 const ALLOWED_ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') ?? '*').split(',').map(s => s.trim()).filter(Boolean);
 
 function corsHeaders(req: Request): Record<string, string> {

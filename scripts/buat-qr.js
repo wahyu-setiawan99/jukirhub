@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import QRCode from 'qrcode';
 
-const URL_APP = 'https://jukirhub.vercel.app/peta';
+const URL_APP = 'https://jukirhub.site/peta';
 const FOLDER = 'docs/peluncuran';
 
 fs.mkdirSync(FOLDER, { recursive: true });

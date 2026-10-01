@@ -46,7 +46,7 @@ data memuat disclaimer itu.
 
 | | |
 |---|---|
-| Web | https://jukirhub.vercel.app (Vercel, deploy otomatis dari `main`; domain sendiri belum, bagian 11) |
+| Web | **https://jukirhub.site** (domain utama sejak 1 Okt 2026; Vercel, deploy otomatis dari `main`). `jukirhub.vercel.app` & `www.jukirhub.site` dialihkan permanen (308) lewat `redirects` di `vercel.json` |
 | Backend | Supabase, proyek khusus JukirHub, ref `dcjnufascffooyotwqki` (https://dcjnufascffooyotwqki.supabase.co) |
 | Repo | https://github.com/wahyu-setiawan99/jukirhub (cabang `main`) |
 | Rujukan | repo Adami di `../Adami App` (baca saja) |
@@ -794,6 +794,9 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   - Pemilik: JukirHub untuk **seluruh Indonesia**, dizonasi per pulau/provinsi supaya bisa mengimbau masyarakat per
     daerah → rencana bagian 1.5. Pemilik juga minta 2 opsi tampilan yang lebih "tech pro" dan logo lebih ikonik dengan
     tagline "Melaporkan juru parkir liar" (mockup dibuat).
+  - **Domain `jukirhub.site`** (pemilik, 1 Okt 2026): semua URL di kode/dokumen diganti, QR dibuat ulang, redirect
+    permanen dari alamat lama. Pemilik: tambah domain di Vercel + DNS, `ALLOWED_ORIGINS` & `URL_WEB` di Supabase, Search
+    Console & AdSense memakai domain ini.
   - Revisi pemilik: tagline dihapus dari dekat logo (header); Poppins sudah tidak dipakai & tidak terpasang; satu
     tombol "Laporkan parkir" per layar (kartu "Belum ada koin" di tab Saya tidak punya tombol sendiri); halaman situs
     untuk AdSense (1.6); kinerja diukur ulang (7).
@@ -814,8 +817,6 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
 - Poin skor pungli di 6.2 masih usulan awal; kalibrasi setelah ada data.
 - Komentar hanya lewat laporan (rekomendasi Claude, 1.3.1) atau juga boleh tanpa melapor (butuh batas & moderasi
   tambahan).
-- **Domain sendiri** (wajib untuk AdSense, 1.6): usulan `jukirhub.id` atau `jukirhub.com`. Setelah domain dipasang:
-  `VITE_SITE_URL`, `npm run qr` ulang, poster, iklan.
 - Rencana nasional (1.5): kapan N3 (kota besar Jawa–Bali), moderator per zona, dan apakah imbauan manual boleh dari
   mitra (Dishub / komunitas).
 - Tagline logo "Melaporkan juru parkir liar" dipakai sesuai pilihan pemilik. Catatan Claude tetap berlaku: kata "liar"

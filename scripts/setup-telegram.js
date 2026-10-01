@@ -15,7 +15,7 @@ import os from 'node:os';
 import path from 'node:path';
 import readline from 'node:readline/promises';
 
-const URL_WEB = 'https://jukirhub.vercel.app';
+const URL_WEB = 'https://jukirhub.site';
 
 async function telegram(token, metode, body) {
   const res = await fetch(`https://api.telegram.org/bot${token}/${metode}`, {

@@ -35,7 +35,7 @@ rumah belum bisa langsung melapor**. Konsekuensinya untuk iklan:
 
 - [ ] **Migrasi kampanye + deploy `lapor` sudah dijalankan pemilik** (lihat bagian "Langkah pemilik" di pesan rilis).
 - [ ] **Halaman Facebook "JukirHub"**: kategori *Situs web* atau *Layanan komunitas*; foto profil = logo
-      (`web/public/ikon-512.png`), sampul = poster halaman 1; tombol aksi "Kunjungi situs" → https://jukirhub.vercel.app.
+      (`web/public/ikon-512.png`), sampul = poster halaman 1; tombol aksi "Kunjungi situs" → https://jukirhub.site.
       Isi 3–5 postingan organik dulu sebelum beriklan (Halaman kosong terlihat mencurigakan dan iklan sering ditahan).
 - [ ] **Akun Instagram bisnis** dihubungkan ke Halaman (Meta Business Suite → Pengaturan → Akun Instagram).
 - [ ] **Akun iklan** di Meta Business Suite, mata uang IDR, zona waktu Asia/Makassar, metode bayar diisi **oleh
@@ -78,7 +78,7 @@ isu sosial (verifikasi identitas + label "Dibayar oleh"), prosesnya beberapa har
 | Audiens | Advantage+ audience, tanpa minat tambahan (biarkan Meta mencari) |
 | Penempatan | Advantage+ (FB Feed, FB Reels, IG Reels, IG Stories, FB Stories). Matikan Audience Network |
 | Iklan | 4 iklan dalam 1 set: V1, V2, V3 (video) + G1 (gambar). Nama iklan = kode di tabel 3 |
-| Tautan | `https://jukirhub.vercel.app/peta` |
+| Tautan | `https://jukirhub.site/peta` |
 | Parameter URL | `utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_content={{ad.name}}` |
 | Nama kampanye | `mks-uji-okt` (huruf kecil, strip, tanpa spasi; muncul apa adanya di `npm run kampanye`) |
 | Tombol | **Pelajari selengkapnya** |
@@ -120,7 +120,7 @@ Hitung biaya per pelapor (bagian 5), putuskan lanjut / ganti materi / berhenti. 
 ## 3. Materi iklan
 
 Semua video: **9:16, 1080×1920, 15–30 detik**, teks di layar sepanjang video, logo JukirHub kecil di pojok, detik
-terakhir = rekaman layar app + `jukirhub.vercel.app`. Rekam di HP sendiri; potong & beri teks dengan CapCut
+terakhir = rekaman layar app + `jukirhub.site`. Rekam di HP sendiri; potong & beri teks dengan CapCut
 (fitur teks otomatis, lalu periksa ejaannya). Musik: pakai pustaka musik bebas lisensi bawaan Meta/CapCut, **bukan**
 lagu populer (iklan bisa diturunkan karena hak cipta).
 
@@ -135,7 +135,7 @@ pernah dilaporkan.
 | 3–8 | rekaman layar: buka JukirHub → peta → ketuk minimarket | "Sekarang bisa dicek dulu." |
 | 8–15 | lembar tempat: membantu saat pergi (4 dari 5), tarif yang dibayar, bintang | "Laporan warga: membantu atau tidak, bayar berapa, rating." |
 | 15–22 | tombol Laporkan parkir → form terisi cepat → sukses | "Habis parkir? Lapor 20 detik. Tanpa akun." |
-| 22–27 | logo + alamat | **"JukirHub. Cek dulu sebelum parkir."** jukirhub.vercel.app |
+| 22–27 | logo + alamat | **"JukirHub. Cek dulu sebelum parkir."** jukirhub.site |
 
 Teks utama iklan:
 > Parkir di depan toko, jukirnya membantu atau tidak? Bayar berapa biasanya? Sekarang bisa dicek dari laporan
@@ -189,9 +189,9 @@ Gunakan huruf kecil, tanpa spasi. Semua mengarah ke `/peta`.
 
 | Tempat | Tautan |
 |---|---|
-| Bio Instagram | `https://jukirhub.vercel.app/peta?utm_source=instagram&utm_medium=bio&utm_campaign=organik` |
-| Bio TikTok | `https://jukirhub.vercel.app/peta?utm_source=tiktok&utm_medium=bio&utm_campaign=organik` |
-| Postingan Halaman FB | `https://jukirhub.vercel.app/peta?utm_source=facebook&utm_medium=organik&utm_campaign=halaman` |
+| Bio Instagram | `https://jukirhub.site/peta?utm_source=instagram&utm_medium=bio&utm_campaign=organik` |
+| Bio TikTok | `https://jukirhub.site/peta?utm_source=tiktok&utm_medium=bio&utm_campaign=organik` |
+| Postingan Halaman FB | `https://jukirhub.site/peta?utm_source=facebook&utm_medium=organik&utm_campaign=halaman` |
 | Grup FB warga | `…?utm_source=facebook&utm_medium=grup&utm_campaign=<nama-grup-singkat>` |
 | WhatsApp | `…?utm_source=whatsapp&utm_campaign=<grup-singkat>` |
 

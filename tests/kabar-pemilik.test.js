@@ -5,7 +5,7 @@ import { prosesTelegram, samaAman } from '../supabase/functions/telegram/proses.
 import { prosesLapor } from '../supabase/functions/lapor/proses.js';
 
 test('pesan tempat baru: nama di-escape, asal nama, tautan OpenStreetMap; tanpa data pelapor', () => {
-  const p = pesanTempatBaru({ id: 12, nama: 'Cafe <Kopi> & Teh', sumber: 'pin', lat: -5.14, lng: 119.43 }, 'https://jukirhub.vercel.app');
+  const p = pesanTempatBaru({ id: 12, nama: 'Cafe <Kopi> & Teh', sumber: 'pin', lat: -5.14, lng: 119.43 }, 'https://jukirhub.site');
   assert.match(p, /Cafe &lt;Kopi&gt; &amp; Teh/);
   assert.match(p, /nama diketik warga/);
   assert.match(p, /openstreetmap\.org\/\?mlat=-5\.14&amp;mlon=119\.43/, '& di href di-escape untuk HTML Telegram');

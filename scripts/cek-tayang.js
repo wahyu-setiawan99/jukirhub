@@ -1,4 +1,4 @@
-// Pastikan commit terakhir di `main` sudah TAYANG di jukirhub.vercel.app (AGENTS.md bagian 9).
+// Pastikan commit terakhir di `main` sudah TAYANG di jukirhub.site (AGENTS.md bagian 9).
 //
 //   git push && npm run cek:tayang
 //
@@ -9,7 +9,7 @@
 import { execSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
-const SITUS = 'https://jukirhub.vercel.app';
+const SITUS = 'https://jukirhub.site';
 const REPO = 'wahyu-setiawan99/jukirhub';
 const JEDA_MS = 30_000;
 const MAKS_MS = 10 * 60_000;

@@ -36,7 +36,7 @@ export const BATAS_BERITA = {
 };
 
 export const MODEL_BAWAAN = 'gemini-3.5-flash-lite';
-export const USER_AGENT = 'Mozilla/5.0 (compatible; JukirHubBot/1.0; +https://jukirhub.vercel.app)';
+export const USER_AGENT = 'Mozilla/5.0 (compatible; JukirHubBot/1.0; +https://jukirhub.site)';
 
 // ------------------------------------------------------------------ baca RSS
 

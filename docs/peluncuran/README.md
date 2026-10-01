@@ -9,7 +9,7 @@ Materi di folder ini:
   aktifkan "Grafik latar"). Halaman 1 ajakan melapor; halaman 2 "Parkir di sini gratis, tanpa jukir" untuk usaha.
 - [iklan.md](iklan.md): rencana iklan Facebook (utama), Instagram, TikTok: struktur kampanye, naskah video, UTM,
   jadwal 4 minggu, balasan komentar. Hasil per iklan: `npm run kampanye`.
-- `qr-jukirhub.svg` (cetak) / `.png` (chat) → https://jukirhub.vercel.app/peta (buat ulang: `npm run qr`)
+- `qr-jukirhub.svg` (cetak) / `.png` (chat) → https://jukirhub.site/peta (buat ulang: `npm run qr`)
 
 ---
 
@@ -27,7 +27,7 @@ Peta kosong atau fitur rusak di hari pertama membuat orang langsung pergi.
       peta tidak kosong. Hanya laporan sungguhan; jangan membuat laporan palsu.
 - [ ] **Tarif resmi (opsional):** bila ingin JukirHub membandingkan dengan Perda, isi tarif retribusi parkir tepi
       jalan Makassar beserta nomor Perda-nya (AGENTS.md bagian 5).
-- [ ] **Domain (opsional):** tetap `jukirhub.vercel.app` atau domain sendiri. Bila domain berubah: `npm run qr` ulang
+- [x] **Domain:** `jukirhub.site` (1 Okt 2026). Bila domain berubah lagi: `npm run qr` ulang
       dan cetak ulang poster.
 
 ## 2. Urutan penyebaran (usulan)

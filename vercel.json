@@ -5,6 +5,30 @@
   "buildCommand": "npm run build --prefix web",
   "outputDirectory": "web/dist",
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/:jalur*",
+      "has": [
+        {
+          "type": "host",
+          "value": "jukirhub.vercel.app"
+        }
+      ],
+      "destination": "https://jukirhub.site/:jalur*",
+      "permanent": true
+    },
+    {
+      "source": "/:jalur*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.jukirhub.site"
+        }
+      ],
+      "destination": "https://jukirhub.site/:jalur*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/((?!assets/|sw\\.js|manifest\\.webmanifest|ikon|og\\.png|robots\\.txt|sitemap\\.xml|versi\\.json|ads\\.txt).*)",

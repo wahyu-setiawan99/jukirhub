@@ -9,7 +9,7 @@ export const SITUS = {
   // Tagline logo (keputusan pemilik 1 Okt 2026). Satu sumber: header, Beranda, og.png.
   tagline: 'Melaporkan juru parkir liar',
   // Domain belum diputuskan (AGENTS.md bagian 11). Bisa ditimpa env VITE_SITE_URL.
-  urlBawaan: 'https://jukirhub.vercel.app',
+  urlBawaan: 'https://jukirhub.site',
   judul: 'JukirHub: Info Juru Parkir, Tarif, dan Indikasi Pungli dari Warga',
   // Deskripsi ±150 karakter: lebih panjang dari ±160 dipotong Google di hasil pencarian.
   deskripsi:

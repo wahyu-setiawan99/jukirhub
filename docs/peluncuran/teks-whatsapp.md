@@ -16,7 +16,7 @@ Halo semua 👋
 Ada aplikasi gratis untuk berbagi info *juru parkir di sekitar kita*: jukirnya membantu atau tidak, biasanya bayar
 berapa, dapat karcis atau tidak. Namanya *JukirHub*.
 
-👉 https://jukirhub.vercel.app/peta
+👉 https://jukirhub.site/peta
 
 Cara pakai:
 1. Buka tautan, izinkan lokasi
@@ -37,7 +37,7 @@ Rekan-rekan driver 🛵
 Tiap hari kita parkir di depan toko, minimarket, warung. Yuk catat pengalaman parkirnya di *JukirHub*: jukir membantu
 atau tidak, bayar berapa, ada karcis atau tidak.
 
-👉 https://jukirhub.vercel.app/peta
+👉 https://jukirhub.site/peta
 
 Buka → ketuk tempatnya di peta → jawab singkat → kirim. Gratis, tanpa daftar.
 Makin banyak yang lapor, makin jelas mana tempat yang jukirnya membantu dan mana yang sering tanpa karcis.
@@ -51,7 +51,7 @@ Catatan: cukup laporkan, tidak usah berdebat dengan jukir di lokasi 🙏
 Halo [nama pemilik usaha] 👋
 
 Kalau parkir di tempat Anda gratis / tidak ada jukir, pengunjung bisa tahu lewat *JukirHub*:
-👉 https://jukirhub.vercel.app/peta
+👉 https://jukirhub.site/peta
 
 1. Saat di tempat Anda, buka tautan dan izinkan lokasi
 2. Cari nama usaha Anda. Belum ada di peta? Tekan *Laporkan di lokasi saya*
