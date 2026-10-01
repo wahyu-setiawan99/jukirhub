@@ -6,13 +6,15 @@
 
 export const SITUS = {
   nama: 'JukirHub',
+  // Tagline logo (keputusan pemilik 1 Okt 2026). Satu sumber: header, Beranda, og.png.
+  tagline: 'Melaporkan juru parkir liar',
   // Domain belum diputuskan (AGENTS.md bagian 11). Bisa ditimpa env VITE_SITE_URL.
   urlBawaan: 'https://jukirhub.vercel.app',
   judul: 'JukirHub: Info Juru Parkir, Tarif, dan Indikasi Pungli dari Warga',
   // Deskripsi ±150 karakter: lebih panjang dari ±160 dipotong Google di hasil pencarian.
   deskripsi:
     'Cek apakah jukir membantu, tarif parkir, dan indikasi pungli di depan toko dan pinggir jalan dari laporan ' +
-    'warga. Gratis tanpa akun, di Makassar dan sekitarnya.'
+    'warga. Gratis tanpa akun, di seluruh pulau Sulawesi.'
 };
 
 export const HERO = {
@@ -53,12 +55,15 @@ export const LANGKAH = {
   ]
 };
 
+// Fase N2 (AGENTS.md 1.5): pulau Sulawesi. Nama sama dengan PROVINSI di supabase/functions/_shared/wilayah.js
+// (file ini dimuat Node saat build, jadi daftar ditulis ulang di sini; dijaga tests/seo.test.js).
 export const WILAYAH = {
   judul: 'Wilayah yang tersedia',
-  daftar: ['Makassar', 'Gowa', 'Maros', 'Takalar'],
+  daftar: ['Sulawesi Selatan', 'Sulawesi Barat', 'Sulawesi Tengah', 'Sulawesi Tenggara', 'Gorontalo', 'Sulawesi Utara'],
   get teks() {
-    return `Saat ini JukirHub mencakup tempat parkir di ${gabungDaftar(this.daftar)} (Makassar Raya). ` +
-      'Wilayah lain menyusul setelah laporan di wilayah ini berjalan.';
+    return `Saat ini JukirHub mencakup tempat parkir di seluruh pulau Sulawesi: ${gabungDaftar(this.daftar)}. ` +
+      'Pilih zona provinsi di bagian atas aplikasi, atau biarkan terpilih otomatis dari lokasi Anda. ' +
+      'Pulau lain menyusul bertahap.';
   }
 };
 
@@ -128,7 +133,7 @@ export const HALAMAN = {
   '/peta': {
     nama: 'Peta parkir',
     judul: 'Peta Juru Parkir dan Indikasi Pungli · JukirHub',
-    deskripsi: 'Peta tempat parkir di Makassar, Gowa, Maros, dan Takalar: jukir membantu atau tidak, tarif yang ' +
+    deskripsi: 'Peta tempat parkir di Sulawesi, dari Makassar sampai Manado: jukir membantu atau tidak, tarif yang ' +
       'biasa dibayar, dan indikasi pungli dari laporan warga.',
     h1: 'Peta juru parkir dan indikasi pungli',
     intro: 'Ketuk tempat di peta atau cari namanya untuk melihat laporan parkir, atau laporkan pengalaman Anda.'
@@ -136,7 +141,7 @@ export const HALAMAN = {
   '/daftar': {
     nama: 'Daftar tempat parkir',
     judul: 'Daftar Tempat Parkir dan Tarif Juru Parkir · JukirHub',
-    deskripsi: 'Daftar tempat parkir di depan toko, minimarket, dan pinggir jalan Makassar Raya yang sudah ' +
+    deskripsi: 'Daftar tempat parkir di depan toko, minimarket, dan pinggir jalan di Sulawesi yang sudah ' +
       'dilaporkan warga, dengan tarif yang biasa dibayar dan indikasi pungli.',
     h1: 'Daftar tempat parkir',
     intro: 'Tempat yang sudah dilaporkan warga, diurutkan dari yang terdekat saat lokasi diizinkan.'

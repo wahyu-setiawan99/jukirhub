@@ -1,6 +1,7 @@
 import { Component, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { KENDARAAN, LABEL_KENDARAAN } from '@shared/konstanta.js';
+import { PROVINSI } from '@shared/wilayah.js';
 import { useApp } from './state.jsx';
 import Beranda from './pages/Beranda.jsx';
 import { koneksiLambat, muatBagian, muatModulPeta, pramuatBagianSaatSenggang } from './lib/koneksi.js';
@@ -60,9 +61,10 @@ export default function App() {
       <header className="atas">
         <Link to="/" className="merek" aria-label={`${SITUS.nama}, ke Beranda`}>
           <span className="logo" dangerouslySetInnerHTML={{ __html: LOGO_HEADER }} />
-          <span>{SITUS.nama}</span>
+          <span className="nama-merek"><span>{SITUS.nama}</span><span className="tagline">{SITUS.tagline}</span></span>
         </Link>
         <div className="atas-kanan">
+          <PilihZona />
           <PilihKendaraan />
           <TombolTema />
         </div>
@@ -133,6 +135,22 @@ function TombolTema() {
       onClick={() => pasangTema(keTerang ? 'terang' : 'gelap')}>
       <Ikon nama={keTerang ? 'matahari' : 'bulan'} ukuran={20} />
     </button>
+  );
+}
+
+// Zona aktif (provinsi, AGENTS.md 1.5): otomatis dari lokasi, bisa diganti. Menentukan pusat peta, batas pencarian,
+// daftar tempat, berita, dan imbauan. Select bawaan HP supaya mudah dipakai & terbaca pembaca layar.
+function PilihZona() {
+  const { zona, zonaManual, zonaOtomatis, pilihZona } = useApp();
+  return (
+    <label className="pilih-zona">
+      <span className="judul-tersembunyi">Zona provinsi</span>
+      <span className="sinyal" aria-hidden="true" />
+      <select value={zona} onChange={e => pilihZona(e.target.value === 'otomatis' ? null : e.target.value)}>
+        {PROVINSI.map(p => <option key={p.kode} value={p.kode}>{p.singkat}</option>)}
+        {zonaManual && <option value="otomatis">{zonaOtomatis ? 'Otomatis dari lokasi' : 'Otomatis'}</option>}
+      </select>
+    </label>
   );
 }
 

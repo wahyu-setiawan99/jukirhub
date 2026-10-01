@@ -26,12 +26,16 @@ export async function ambilView(fetchFn, konfigurasi, view, kolom) {
 }
 
 export const KOLOM_TITIK = 'id,nama,osm_ref,kota,lat,lng';
-export const KOLOM_RINGKASAN = 'titik_id,jumlah_laporan,data_cukup,level_pungli,alasan_pungli,bantu_datang_ya,' +
-  'bantu_pergi_ya,bayar_median_motor,jumlah_motor,bayar_median_mobil,jumlah_mobil,bintang_rata,laporan_terakhir,' +
-  'jumlah_tanpa_jukir';
+// Semua kolom view ringkasan: kolom baru (mis. indeks_pungli, migrasi 20261001000006) tidak membuat web lama /
+// baru gagal memuat bila urutan migrasi & rilis web tertukar.
+export const KOLOM_RINGKASAN = '*';
 
 // Berita parkir (M5): view berita_publik (≤ 30 hari, maks. 50, terbaru dulu). Diurutkan per daerah di web.
-export const KOLOM_BERITA = 'id,sumber,judul,ringkasan,url,terbit,kabupaten';
+// Semua kolom: kolom provinsi (migrasi 20261001000006) menyusul tanpa membuat web gagal memuat.
+export const KOLOM_BERITA = '*';
+
+// Imbauan parkir per kab/kota (view imbauan_publik, 30 hari): angka agregat, ambang tampil di _shared/imbauan.js.
+export const KOLOM_IMBAUAN = '*';
 
 // Riwayat laporan satu tempat (view riwayat_publik, M4): terbaru dulu, per halaman. Ambil satu baris lebih untuk tahu
 // apakah masih ada halaman berikutnya.

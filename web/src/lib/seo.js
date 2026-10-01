@@ -140,7 +140,7 @@ export function buatKepalaSeo(url, { supabaseUrl, jalur = '/' } = {}) {
 
 const kepalaStatis = () => {
   const e = escHtml;
-  return `<header class="atas"><a class="merek" href="/" aria-label="${e(SITUS.nama)}, ke Beranda"><span class="logo">${svgLogoInline(28)}</span><span>${e(SITUS.nama)}</span></a></header>`;
+  return `<header class="atas"><a class="merek" href="/" aria-label="${e(SITUS.nama)}, ke Beranda"><span class="logo">${svgLogoInline(28)}</span><span class="nama-merek"><span>${e(SITUS.nama)}</span><span class="tagline">${e(SITUS.tagline)}</span></span></a></header>`;
 };
 
 const MENU = [['/', 'Beranda'], ['/peta', 'Peta'], ['/daftar', 'Daftar tempat'], ['/info', 'Info']];
@@ -172,6 +172,7 @@ export function buatIsiStatis(jalur = '/') {
       ${kepalaStatis()}
       <main class="halaman beranda">
         <section class="beranda-pembuka">
+          <p class="eyebrow">${e(SITUS.tagline)}</p>
           <h1>${e(HERO.judul)}</h1>
           <p class="redup">${e(HERO.sub)}</p>
           <p class="beranda-status">Memuat data tempat parkir…</p>

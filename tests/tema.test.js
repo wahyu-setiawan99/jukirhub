@@ -5,7 +5,7 @@ import fs from 'node:fs';
 // Tema gelap bawaan + mode terang (AGENTS.md 6.3). Tes teks sumber saja: lib/tema.js memakai alias @shared
 // lewat util.js yang tidak bisa dimuat Node.
 const css = fs.readFileSync('web/src/app.css', 'utf8').replace(/\r\n/g, '\n');
-const bukanWarna = new Set(['--font-isi', '--font-judul', '--lebar-kolom', '--tepi-kolom', '--tinggi-nav', '--tinggi-aksi']);
+const bukanWarna = new Set(['--font-isi', '--font-judul', '--font-angka', '--lebar-kolom', '--tepi-kolom', '--tinggi-nav', '--tinggi-aksi']);
 
 function variabelBlok(pembuka) {
   const awal = css.indexOf(pembuka);
@@ -30,17 +30,19 @@ test('warna di aturan CSS memakai variabel tema, bukan kode warna langsung', () 
   assert.deepEqual(baris, []);
 });
 
-test('warna aksen & indikasi sesuai tabel AGENTS.md 6.3', () => {
+test('warna tampilan Radar (aksen cyan) & indikasi sesuai tabel AGENTS.md 6.3', () => {
   const harap = {
-    '--utama': ['#2563eb', '#1d4ed8'],
-    '--utama-teks': ['#ffffff', '#ffffff'],
-    '--aksen': ['#60a5fa', '#1d4ed8'],
-    '--fokus': ['#93c5fd', '#1e40af'],
-    '--logo-latar': ['#2563eb', '#1d4ed8'],
+    '--latar': ['#060a13', '#f3f6fa'],
+    '--utama': ['#22d3ee', '#0e7490'],
+    '--utama-teks': ['#04222a', '#ffffff'],
+    '--aksen': ['#22d3ee', '#0e7490'],
+    '--fokus': ['#67e8f9', '#155e75'],
+    '--logo-gambar': ['#22d3ee', '#0e7490'],
+    '--logo-sinyal': ['#facc15', '#ca8a04'],
     '--indikasi-rendah': ['#2dd4bf', '#0f766e'],
     '--indikasi-sedang': ['#facc15', '#a16207'],
     '--indikasi-tinggi': ['#f87171', '#b91c1c'],
-    '--indikasi-kurang': ['#71717a', '#9ca3af']
+    '--indikasi-kurang': ['#64748b', '#9aa8bb']
   };
   for (const [v, [g, t]] of Object.entries(harap)) {
     assert.equal(gelap.get(v), g, `${v} tema gelap`);
@@ -48,13 +50,16 @@ test('warna aksen & indikasi sesuai tabel AGENTS.md 6.3', () => {
   }
 });
 
-test('font & ukuran dasar mengikuti Adami: Poppins, 15 px di HP, 16 px di layar ≥ 760 px', () => {
-  assert.match(gelap.get('--font-isi'), /^Poppins,/);
+test('font tampilan Radar: Space Grotesk + JetBrains Mono dari situs sendiri; 15 px di HP, 16 px di layar ≥ 760 px', () => {
+  assert.match(gelap.get('--font-isi'), /^"Space Grotesk",/);
+  assert.match(gelap.get('--font-angka'), /^"JetBrains Mono",/);
   assert.match(css, /:root \{[^}]*\n {2}font-size: 15px;/);
   assert.ok(css.includes('@media (min-width: 760px) { :root { font-size: 16px; } }'));
   assert.ok(css.includes('h1, h2, h3, strong, b, th, legend { font-weight: 600; }'));
   const main = fs.readFileSync('web/src/main.jsx', 'utf8');
-  for (const tebal of ['400', '600', '700']) assert.ok(main.includes(`@fontsource/poppins/latin-${tebal}.css`));
+  for (const tebal of ['400', '600']) assert.ok(main.includes(`@fontsource/space-grotesk/latin-${tebal}.css`));
+  for (const tebal of ['400', '500']) assert.ok(main.includes(`@fontsource/jetbrains-mono/latin-${tebal}.css`));
+  assert.ok(!main.includes('poppins'), 'Poppins sudah diganti');
   assert.ok(!/fonts\.googleapis/.test(fs.readFileSync('web/index.html', 'utf8')), 'jangan memuat Google Fonts');
 });
 

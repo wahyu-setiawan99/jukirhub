@@ -1,35 +1,37 @@
 :root {
-  /* TEMA GELAP bawaan; mode terang: :root[data-tema="terang"] di bawah (lib/tema.js). Netral sama dengan Adami;
-     aksen biru rambu parkir "P" + warna level indikasi pungli (AGENTS.md 6.3). Warna hanya untuk makna.
+  /* TEMA GELAP bawaan (tampilan "Radar", Opsi A pilihan pemilik 1 Okt 2026): latar hitam-biru, aksen cyan, angka
+     monospace. Mode terang: :root[data-tema="terang"] di bawah (lib/tema.js). Warna hanya untuk makna (AGENTS.md 6.3).
      Setiap variabel warna wajib ada di kedua tema (dijaga tests/tema.test.js). */
-  --latar: #0e0e10;
-  --permukaan: #18181b;
-  --teks: #f5f5f4;
-  --teks-isi: #d4d4d8;
-  --redup: #a1a1aa;
-  --garis: #2c2c31;
-  --lembut: #222226;
-  --kaca: rgba(24, 24, 27, 0.92);
-  --bayang: 0 6px 24px rgba(0, 0, 0, 0.5);
+  --latar: #060a13;
+  --permukaan: #0b1324;
+  --teks: #e6edf7;
+  --teks-isi: #c3cfdf;
+  --redup: #8496b1;
+  --garis: #1b2740;
+  --lembut: #111c30;
+  --kaca: rgba(11, 19, 36, 0.92);
+  --bayang: 0 6px 24px rgba(0, 0, 0, 0.55);
+  --grid: rgba(34, 211, 238, 0.05);
   --kuning-latar: rgba(250, 204, 21, 0.12);
   --kuning-garis: #854d0e;
   --kuning-teks: #fde68a;
   --merah-latar: rgba(239, 68, 68, 0.14);
   --merah-garis: #7f1d1d;
   --merah-teks: #fca5a5;
-  --pudar-latar: #27272a;
-  --pudar-teks: #a1a1aa;
-  --pudar-garis: #52525b;
-  --klaster-latar: #f5f5f4;
-  --klaster-teks: #0e0e10;
-  --klaster-garis: #0e0e10;
-  /* biru rambu parkir */
-  --utama: #2563eb;
-  --utama-teks: #ffffff;
-  --aksen: #60a5fa;
-  --fokus: #93c5fd;
-  --logo-latar: #2563eb;
-  --logo-gambar: #ffffff;
+  --pudar-latar: #141f33;
+  --pudar-teks: #8496b1;
+  --pudar-garis: #3b4d6b;
+  --klaster-latar: #22d3ee;
+  --klaster-teks: #04222a;
+  --klaster-garis: #060a13;
+  /* cyan radar */
+  --utama: #22d3ee;
+  --utama-teks: #04222a;
+  --aksen: #22d3ee;
+  --fokus: #67e8f9;
+  --logo-latar: #060a13;
+  --logo-gambar: #22d3ee;
+  --logo-sinyal: #facc15;
   /* level indikasi pungli: penanda (isi), latar & teks lencana */
   --indikasi-rendah: #2dd4bf;
   --indikasi-rendah-latar: rgba(45, 212, 191, 0.16);
@@ -40,14 +42,14 @@
   --indikasi-tinggi: #f87171;
   --indikasi-tinggi-latar: rgba(248, 113, 113, 0.16);
   --indikasi-tinggi-teks: #fca5a5;
-  --indikasi-kurang: #71717a;
-  --indikasi-kurang-latar: rgba(161, 161, 170, 0.16);
-  --indikasi-kurang-teks: #d4d4d8;
-  /* Bintang rating: pengecualian warna seperti di Adami. */
+  --indikasi-kurang: #64748b;
+  --indikasi-kurang-latar: rgba(132, 150, 177, 0.16);
+  --indikasi-kurang-teks: #c3cfdf;
   --bintang: #facc15;
-  /* Poppins disajikan dari situs sendiri (@fontsource/poppins, latin 400/600/700; lihat main.jsx). */
-  --font-isi: Poppins, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Space Grotesk (teks) + JetBrains Mono (angka & label data), disajikan dari situs sendiri (@fontsource, main.jsx). */
+  --font-isi: "Space Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-judul: var(--font-isi);
+  --font-angka: "JetBrains Mono", ui-monospace, Consolas, monospace;
   /* Kolom isi di desktop. Bilah (header, lapor, menu) tetap selebar layar; isinya sejajar kolom ini. */
   --lebar-kolom: 696px;
   --tepi-kolom: max(12px, calc((100% - var(--lebar-kolom)) / 2));
@@ -55,40 +57,42 @@
   --tinggi-aksi: 72px;
   color-scheme: dark;
   font-family: var(--font-isi);
-  /* Poppins tampak lebih besar dari font bawaan: dasar 15 px di HP, 16 px di layar lebar (semua rem ikut). */
+  /* Dasar 15 px di HP, 16 px di layar lebar (semua rem ikut). */
   font-size: 15px;
   color: var(--teks);
   background: var(--latar);
 }
 
 :root[data-tema="terang"] {
-  --latar: #f7f7f5;
+  --latar: #f3f6fa;
   --permukaan: #ffffff;
-  --teks: #111111;
-  --teks-isi: #33332f;
-  --redup: #5f5f5b;
-  --garis: #e3e3df;
-  --lembut: #f1f1ee;
+  --teks: #0b1324;
+  --teks-isi: #26344a;
+  --redup: #52637d;
+  --garis: #d6dfeb;
+  --lembut: #eaf0f7;
   --kaca: rgba(255, 255, 255, 0.94);
-  --bayang: 0 6px 24px rgba(0, 0, 0, 0.14);
+  --bayang: 0 6px 24px rgba(11, 19, 36, 0.12);
+  --grid: rgba(14, 116, 144, 0.06);
   --kuning-latar: #fffbeb;
   --kuning-garis: #fcd34d;
   --kuning-teks: #78350f;
   --merah-latar: #fef2f2;
   --merah-garis: #fca5a5;
   --merah-teks: #991b1b;
-  --pudar-latar: #eceeed;
-  --pudar-teks: #7a817e;
-  --pudar-garis: #9ca3af;
-  --klaster-latar: #334155;
+  --pudar-latar: #e8edf3;
+  --pudar-teks: #6b7a90;
+  --pudar-garis: #9aa8bb;
+  --klaster-latar: #0e7490;
   --klaster-teks: #ffffff;
   --klaster-garis: #ffffff;
-  --utama: #1d4ed8;
+  --utama: #0e7490;
   --utama-teks: #ffffff;
-  --aksen: #1d4ed8;
-  --fokus: #1e40af;
-  --logo-latar: #1d4ed8;
-  --logo-gambar: #ffffff;
+  --aksen: #0e7490;
+  --fokus: #155e75;
+  --logo-latar: #ffffff;
+  --logo-gambar: #0e7490;
+  --logo-sinyal: #ca8a04;
   --indikasi-rendah: #0f766e;
   --indikasi-rendah-latar: #e3f5f1;
   --indikasi-rendah-teks: #0b6e61;
@@ -98,9 +102,9 @@
   --indikasi-tinggi: #b91c1c;
   --indikasi-tinggi-latar: #fdeaea;
   --indikasi-tinggi-teks: #9f1d1d;
-  --indikasi-kurang: #9ca3af;
-  --indikasi-kurang-latar: #eceef1;
-  --indikasi-kurang-teks: #374151;
+  --indikasi-kurang: #9aa8bb;
+  --indikasi-kurang-latar: #e8edf3;
+  --indikasi-kurang-teks: #26344a;
   --bintang: #b27b00;
   color-scheme: light;
 }
@@ -109,13 +113,16 @@
 html, body, #root { height: 100%; margin: 0; }
 button { font: inherit; color: inherit; }
 h1, h2, p { margin: 0; }
-/* Poppins 700 terasa berat, apalagi di tema gelap: tebal standar 600. */
+/* Space Grotesk: judul & tebal 600, teks 400; angka data memakai .angka (monospace, lebar angka sama). */
 h1, h2, h3, strong, b, th, legend { font-weight: 600; }
 @media (min-width: 760px) { :root { font-size: 16px; } }
 a { color: var(--aksen); }
 :focus-visible { outline: 3px solid var(--fokus); outline-offset: 2px; }
 
 .redup { color: var(--redup); font-size: 0.875rem; }
+.angka { font-family: var(--font-angka); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+/* Label data kecil bergaya terminal (mis. "live", meta tempat). */
+.label-data { font-family: var(--font-angka); font-size: 0.75rem; color: var(--redup); letter-spacing: 0.02em; }
 .kecil { font-size: 0.8rem; }
 
 /* ------------------------------------------------ kerangka */
@@ -161,8 +168,34 @@ a { color: var(--aksen); }
   text-decoration: none;
 }
 .merek .logo, .merek .logo svg { display: block; }
-/* HP sangat sempit (< 360 px): tulisan "JukirHub" disembunyikan supaya pilihan kendaraan & tombol tema tetap muat. */
-@media (max-width: 359px) { .merek > span:not(.logo) { display: none; } }
+.nama-merek { display: grid; line-height: 1.1; }
+/* Tagline logo: huruf data kecil di bawah nama; hanya bila header cukup lebar. */
+.nama-merek .tagline { font-family: var(--font-angka); font-size: 0.62rem; font-weight: 400; letter-spacing: 0.02em; color: var(--aksen); }
+@media (max-width: 479px) { .nama-merek .tagline { display: none; } }
+/* HP (< 440 px): header memuat logo, zona, kendaraan, dan tema; tulisan "JukirHub" cukup di Beranda. */
+@media (max-width: 439px) { .nama-merek { display: none; } }
+.pilih-zona {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  border: 1px solid var(--garis);
+  border-radius: 10px;
+  background: var(--latar);
+}
+.pilih-zona .sinyal { position: absolute; left: 9px; pointer-events: none; background: var(--aksen); }
+.pilih-zona select {
+  min-height: 42px;
+  max-width: 110px;
+  padding: 0 8px 0 22px;
+  border: 0;
+  background: transparent;
+  color: var(--teks);
+  font-family: var(--font-angka);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.pilih-zona select option { background: var(--permukaan); color: var(--teks); }
 .atas-kanan { display: flex; align-items: center; gap: 8px; }
 .tombol-tema {
   flex: none;
@@ -171,21 +204,22 @@ a { color: var(--aksen); }
   width: 44px;
   height: 44px;
   border: 1px solid var(--garis);
-  border-radius: 12px;
+  border-radius: 10px;
   background: transparent;
   color: var(--teks);
   cursor: pointer;
 }
 .tombol-tema:hover { background: var(--lembut); }
 /* Logo ikut tema lewat CSS (lib/logo.js tetap satu sumber gambar untuk ikon & favicon). */
-.merek .logo rect { fill: var(--logo-latar); }
-.merek .logo path { fill: var(--logo-gambar); }
+.merek .logo .logo-garis { stroke: var(--logo-gambar); }
+.merek .logo .logo-isi { fill: var(--logo-gambar); }
+.merek .logo .logo-sinyal { fill: var(--logo-sinyal); stroke: var(--latar); }
 
 .pilih-kendaraan {
   display: flex;
   background: var(--latar);
   border: 1px solid var(--garis);
-  border-radius: 999px;
+  border-radius: 10px;
   padding: 2px;
 }
 .pilih-kendaraan button {
@@ -193,7 +227,7 @@ a { color: var(--aksen); }
   min-width: 80px;
   padding: 0 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 8px;
   background: transparent;
   color: var(--redup);
   font-weight: 600;
@@ -202,7 +236,8 @@ a { color: var(--aksen); }
 .pilih-kendaraan button.aktif { background: var(--utama); color: var(--utama-teks); }
 /* HP ≤ 400 px: header memuat logo + nama, pilihan kendaraan, dan tombol tema; tombol sedikit dirampingkan. */
 @media (max-width: 400px) {
-  .pilih-kendaraan button { min-width: 66px; padding: 0 11px; font-size: 0.94rem; }
+  .pilih-kendaraan button { min-width: 58px; padding: 0 9px; font-size: 0.9rem; }
+  .atas-kanan { gap: 6px; }
 }
 
 .isi { position: relative; min-height: 0; overflow: hidden; }
@@ -217,7 +252,7 @@ a { color: var(--aksen); }
   width: 100%;
   min-height: 48px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--utama);
   color: var(--utama-teks);
   font-size: 1rem;
@@ -251,7 +286,7 @@ a { color: var(--aksen); }
   line-height: 1.2;
 }
 .bawah a svg { stroke-width: 2.1; }
-.bawah a.active { color: var(--aksen); box-shadow: inset 0 3px 0 var(--aksen); }
+.bawah a.active { color: var(--aksen); box-shadow: inset 0 2px 0 var(--aksen); }
 
 /* scrollbar-gutter kedua sisi: kolom isi tetap sejajar header & menu walau ada scrollbar (desktop) */
 .halaman { padding: 16px; overflow: auto; height: 100%; scrollbar-gutter: stable both-edges; }
@@ -273,12 +308,13 @@ a { color: var(--aksen); }
 .tombol-utama, .tombol-sekunder {
   min-height: 48px;
   padding: 0 16px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
 }
 .tombol-utama { border: 0; background: var(--utama); color: var(--utama-teks); }
-.tombol-sekunder { border: 1px solid var(--aksen); background: var(--permukaan); color: var(--aksen); }
+.tombol-sekunder { border: 1px solid var(--garis); background: var(--permukaan); color: var(--teks); }
+.tombol-sekunder:hover { border-color: var(--aksen); color: var(--aksen); }
 .tombol-sekunder:disabled { opacity: 0.5; cursor: not-allowed; }
 .lebar-penuh { width: 100%; }
 
@@ -345,7 +381,7 @@ a { color: var(--aksen); }
   display: grid;
   gap: 8px;
   padding: 14px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--permukaan);
   border: 1px solid var(--garis);
 }
@@ -384,6 +420,19 @@ a { color: var(--aksen); }
   letter-spacing: -0.015em;
 }
 .beranda-pembuka { display: grid; gap: 8px; padding-top: 8px; }
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  padding: 4px 10px;
+  border: 1px solid var(--garis);
+  border-radius: 8px;
+  font-family: var(--font-angka);
+  font-size: 0.75rem;
+  color: var(--aksen);
+}
+.sinyal { width: 7px; height: 7px; border-radius: 50%; background: var(--logo-sinyal); }
 .beranda-pembuka .redup { font-size: 1rem; line-height: 1.5; }
 .beranda-status {
   display: flex;
@@ -399,7 +448,7 @@ a { color: var(--aksen); }
   gap: 10px;
   padding: 14px;
   border: 1px solid var(--garis);
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--permukaan);
 }
 .kepala-seksi { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -469,6 +518,16 @@ a { color: var(--aksen); }
 /* CSS MapLibre dimuat belakangan dan memberi .maplibregl-map position: relative.
    Selektor dua kelas memastikan aturan ini tetap menang, apa pun urutan pemuatan CSS. */
 .peta-wadah, .peta-wadah > .peta { position: absolute; inset: 0; }
+/* Grid tipis bergaya radar di atas peta (hiasan, tidak menangkap ketukan). */
+.peta-wadah::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  z-index: 1;
+}
 /* Tombol zoom minimal 44 px (AGENTS.md 7). */
 .peta-wadah .maplibregl-ctrl-group button { width: 44px; height: 44px; }
 /* Kontrol zoom turun di bawah kolom cari. */
@@ -737,6 +796,9 @@ a { color: var(--aksen); }
   color: var(--indikasi-rendah-teks);
 }
 .mk.terpilih .mk-bulat { outline: 3px solid var(--aksen); outline-offset: 2px; }
+/* Cincin radar tipis di sekitar penanda (tampilan Radar); browser lama tanpa color-mix cukup tanpa cincin. */
+.mk:not(.indikasi-kurang) .mk-bulat { box-shadow: 0 0 0 6px color-mix(in srgb, var(--warna-indikasi) 22%, transparent); }
+.mk.terpilih .mk-bulat { box-shadow: 0 0 0 10px color-mix(in srgb, var(--aksen) 22%, transparent); }
 .mk-klaster {
   width: 44px;
   height: 44px;
@@ -744,7 +806,8 @@ a { color: var(--aksen); }
   border: 3px solid var(--klaster-garis);
   background: var(--klaster-latar);
   color: var(--klaster-teks);
-  font-weight: 700;
+  font-family: var(--font-angka);
+  font-weight: 500;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   cursor: pointer;
 }
@@ -779,7 +842,8 @@ a { color: var(--aksen); }
 }
 .lembar-peta {
   max-height: 62%;
-  border-radius: 16px 16px 0 0;
+  border-top: 1px solid var(--garis);
+  border-radius: 18px 18px 0 0;
   box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
 }
 .lembar-kepala { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
@@ -798,9 +862,14 @@ a { color: var(--aksen); }
   cursor: pointer;
 }
 .ringkas-tempat { display: grid; gap: 8px; line-height: 1.45; }
+.indeks-pungli { display: grid; gap: 6px; }
+.indeks-angka { font-size: 1.8rem; line-height: 1; color: var(--teks-indikasi); }
+.indeks-pungli .ruas { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+.indeks-pungli .ruas span { height: 6px; border-radius: 1px; background: var(--garis); }
+.indeks-pungli .ruas span.isi { background: var(--warna-indikasi); }
 .baris-ringkas { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
 .baris-ringkas dt { color: var(--redup); font-size: 0.875rem; padding-top: 1px; }
-.baris-ringkas dd { margin: 0; }
+.baris-ringkas dd { margin: 0; font-family: var(--font-angka); font-size: 0.9rem; }
 .bintang { color: var(--bintang); }
 .ajakan { font-weight: 600; }
 .aksi-lembar { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -810,10 +879,10 @@ a { color: var(--aksen); }
   justify-content: center;
   min-height: 48px;
   padding: 8px;
-  border: 1px solid var(--aksen);
-  border-radius: 12px;
+  border: 1px solid var(--garis);
+  border-radius: 10px;
   background: var(--permukaan);
-  color: var(--aksen);
+  color: var(--teks);
   font-size: 0.95rem;
   font-weight: 600;
   line-height: 1.2;
@@ -1029,7 +1098,7 @@ a { color: var(--aksen); }
 .nama-samaran { margin: 0; font-size: 1.15rem; }
 .angka-saya { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0; }
 .angka-saya div { display: grid; }
-.angka-saya dd { margin: 0; font-size: 1.2rem; font-weight: 600; order: -1; }
+.angka-saya dd { margin: 0; font-family: var(--font-angka); font-size: 1.2rem; font-weight: 500; order: -1; }
 .angka-saya dt { color: var(--redup); font-size: 0.8rem; }
 .angka-koin { color: var(--kuning-teks); }
 
@@ -1091,7 +1160,9 @@ a { color: var(--aksen); }
 
 /* ------------------------------------------------ berita parkir (M5, Beranda) */
 
-.berita { display: grid; gap: 10px; }
+.berita, .imbauan { display: grid; gap: 10px; }
+.imbauan { border-color: var(--kuning-garis); }
+.imbauan h2 { display: flex; align-items: center; gap: 6px; font-size: 1rem; }
 .berita h2 { display: flex; align-items: center; gap: 6px; }
 .berita p { margin: 0; }
 .daftar-berita { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }

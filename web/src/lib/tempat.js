@@ -5,10 +5,14 @@
 import { BATAS, LEVEL_PUNGLI } from '../../../supabase/functions/_shared/konstanta.js';
 import { formatRupiah } from '../../../supabase/functions/_shared/format.js';
 import { jarakM, namaMirip, normalisasiNama } from '../../../supabase/functions/_shared/geo.js';
+import { provinsiTempat } from '../../../supabase/functions/_shared/wilayah.js';
 
 export { jarakM, namaMirip };
 
 const angka = (x) => (x == null || x === '' ? null : Number(x));
+
+// Tempat di zona (provinsi) aktif: dari kab/kota tempat, atau perkiraan koordinat bila kab/kota belum terisi.
+export const tempatDiZona = (daftar, zona) => (zona ? daftar.filter(t => provinsiTempat(t) === zona) : daftar);
 
 // Baris titik_publik + ringkasan_titik_publik → daftar tempat untuk app. Baris rusak dibuang.
 export function gabungTempat(titik, ringkasan) {
@@ -30,6 +34,8 @@ export function gabungTempat(titik, ringkasan) {
           tanpaJukir: angka(r.jumlah_tanpa_jukir) ?? 0,
           dataCukup: r.data_cukup === true,
           level: r.data_cukup === true ? (r.level_pungli ?? null) : null,
+          // Indeks pungli 0–100 (tampilan Radar); null bila data belum cukup atau view lama.
+          indeks: r.data_cukup === true ? angka(r.indeks_pungli) : null,
           alasan: r.data_cukup === true ? (r.alasan_pungli ?? null) : null,
           bantuDatangYa: angka(r.bantu_datang_ya) ?? 0,
           bantuPergiYa: angka(r.bantu_pergi_ya) ?? 0,

@@ -4,8 +4,9 @@ import { buangMetadataJpeg } from '../supabase/functions/_shared/foto.js';
 import { prosesFoto } from '../supabase/functions/foto/proses.js';
 import { sha256 } from '../supabase/functions/lapor/proses.js';
 import {
-  kabupatenDariAlamat, kabupatenDisebut, semuaKabupaten, urlKabupatenNominatim
-} from '../supabase/functions/_shared/kabupaten.js';
+  PROVINSI, kabupatenDariAlamat, kabupatenDiProvinsi, kabupatenDisebut, provinsiDariKoordinat, provinsiDisebut,
+  semuaKabupaten, urlKabupatenNominatim, wilayahDariAlamat
+} from '../supabase/functions/_shared/wilayah.js';
 import {
   bacaJawabanBerita, bacaRss, relevanAwal, urlSah, urutkanBerita, validasiRingkasan
 } from '../supabase/functions/_shared/berita.js';
@@ -74,12 +75,28 @@ test('keterangan foto: "tidak ada jukir" dan peringatan GPS mencurigakan untuk p
 
 // ------------------------------------------------ kabupaten / daerah
 
-test('kabupaten Sulsel: 24 daerah, alias ibu kota, Luwu Timur ≠ Luwu, Bone Bolango bukan Bone', () => {
-  assert.equal(semuaKabupaten().length, 24);
+test('wilayah Sulawesi: 6 provinsi, 81 kab/kota, label unik, alias ibu kota, nama mirip tidak tertukar', () => {
+  assert.equal(PROVINSI.length, 6);
+  assert.equal(semuaKabupaten().length, 81);
+  assert.equal(new Set(semuaKabupaten()).size, 81);
+  assert.deepEqual(PROVINSI.map(p => kabupatenDiProvinsi(p.kode).length), [24, 6, 13, 17, 6, 15]);
+  assert.deepEqual(kabupatenDisebut('Parkir liar di Bone Bolango'), ['Bone Bolango']);
+  assert.deepEqual(kabupatenDisebut('Jukir di Minahasa Utara dan Minahasa'), ['Minahasa Utara', 'Minahasa']);
+  assert.deepEqual(kabupatenDisebut('Retribusi parkir Kota Gorontalo'), ['Kota Gorontalo']);
+  assert.deepEqual(kabupatenDisebut('Parkir di Luwuk'), ['Banggai']);
+  assert.deepEqual(provinsiDisebut('Dishub Gorontalo tertibkan parkir'), ['gorontalo']);
+  assert.deepEqual(provinsiDisebut('Parkir di Kendari dan Manado'), ['sultra', 'sulut']);
+  assert.deepEqual(wilayahDariAlamat({ city: 'Gorontalo', 'ISO3166-2-lvl4': 'ID-GO' }), { provinsi: 'gorontalo', kabupaten: 'Kota Gorontalo' });
+  assert.deepEqual(wilayahDariAlamat({ county: 'Kabupaten Gorontalo', state: 'Gorontalo' }), { provinsi: 'gorontalo', kabupaten: 'Gorontalo' });
+  assert.deepEqual(wilayahDariAlamat({ city: 'Manado', 'ISO3166-2-lvl4': 'ID-SA' }), { provinsi: 'sulut', kabupaten: 'Manado' });
+  assert.equal(provinsiDariKoordinat({ lat: -2.68, lng: 118.89 }), 'sulbar', 'kotak Sulbar (kecil) didahulukan dari Sulsel');
+  assert.equal(provinsiDariKoordinat({ lat: -5.14, lng: 119.43 }), 'sulsel');
+  assert.equal(provinsiDariKoordinat({ lat: -6.2, lng: 106.8 }), null);
+
   assert.deepEqual(kabupatenDisebut('Jukir liar ditertibkan di Watansoppeng'), ['Soppeng']);
   assert.deepEqual(kabupatenDisebut('Parkir di Malili, Luwu Timur'), ['Luwu Timur']);
   assert.deepEqual(kabupatenDisebut('Retribusi parkir Kabupaten Luwu naik'), ['Luwu']);
-  assert.deepEqual(kabupatenDisebut('Parkir di Bone Bolango'), []);
+  assert.deepEqual(kabupatenDisebut('Parkir di Bone Bolango'), ['Bone Bolango'], 'Gorontalo, bukan Kabupaten Bone');
   assert.deepEqual(kabupatenDisebut('Sengkang dan Makassar'), ['Makassar', 'Wajo']);
   assert.equal(kabupatenDariAlamat({ county: 'Kabupaten Soppeng', state: 'Sulawesi Selatan' }), 'Soppeng');
   assert.equal(kabupatenDariAlamat({ city: 'Makassar', state: 'Sulawesi Selatan' }), 'Makassar');

@@ -7,7 +7,7 @@ import { tulisSimpan } from './util.js';
 
 export const KUNCI_TEMA = 'jukirhub_tema';
 // Warna bilah status HP (meta theme-color) = warna header (--permukaan) tiap tema.
-export const WARNA_BILAH = { gelap: '#18181b', terang: '#ffffff' };
+export const WARNA_BILAH = { gelap: '#0b1324', terang: '#ffffff' };
 const PERISTIWA = 'jukirhub-tema';
 
 export const temaAktif = () => (document.documentElement.dataset.tema === 'terang' ? 'terang' : 'gelap');

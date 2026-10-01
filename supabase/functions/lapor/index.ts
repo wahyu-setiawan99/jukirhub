@@ -5,7 +5,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { prosesLapor } from './proses.js';
 import { diLatar, kabariPemilik } from '../_shared/telegram.ts';
 import { pesanKomentarBaru, pesanTempatBaru, tombolKomentar, tombolUntuk } from '../_shared/kabar-pemilik.js';
-import { kabupatenDariAlamat, urlKabupatenNominatim } from '../_shared/kabupaten.js';
+import { kabupatenDariAlamat, urlKabupatenNominatim } from '../_shared/wilayah.js';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,

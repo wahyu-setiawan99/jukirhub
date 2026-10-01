@@ -4,10 +4,10 @@
 //      belum pernah disimpan.
 //   2. Gemini menilai relevansi + menulis ringkasan dari judul & cuplikan saja (jawaban divalidasi), maks. 60 panggilan
 //      per hari. Berita tidak relevan tetap dicatat supaya tidak dinilai ulang. AI gagal / jatah habis → dicoba lagi nanti.
-//   3. Kabupaten Sulsel yang disebut di judul/cuplikan dicatat (untuk berita per daerah di web).
+//   3. Kab/kota & provinsi Sulawesi yang disebut di judul/cuplikan dicatat (untuk berita per daerah di web).
 //   4. Pemilik dikabari tiap berita yang tampil, dengan tombol Sembunyikan.
 
-import { BATAS_BERITA, SUMBER_BERITA, bacaRss, kabupatenDisebut, relevanAwal, urlSah } from '../_shared/berita.js';
+import { BATAS_BERITA, SUMBER_BERITA, bacaRss, kabupatenDisebut, provinsiBerita, relevanAwal, urlSah } from '../_shared/berita.js';
 
 /**
  * @param {{ sekarang?: number,
@@ -28,7 +28,7 @@ export async function prosesBerita({ ambilFeed, ai, db, kabar, sekarang = Date.n
       // Jam server sumber yang maju tidak boleh membuat berita tampil "dari masa depan".
       const terbit = new Date(Math.min(Date.parse(b.terbit), sekarang)).toISOString();
       return { url: b.url, judul: b.judul.slice(0, 300), cuplikan: b.cuplikan, terbit, sumber: s.nama, sumber_id: s.id,
-        kabupaten: kabupatenDisebut(`${b.judul} ${b.cuplikan}`) };
+        kabupaten: kabupatenDisebut(`${b.judul} ${b.cuplikan}`), provinsi: provinsiBerita(`${b.judul} ${b.cuplikan}`, s) };
     })
     .filter(b => Date.parse(b.terbit) >= batasLama)));
   const sumber = SUMBER_BERITA.map((s, i) => {
@@ -58,7 +58,7 @@ export async function prosesBerita({ ambilFeed, ai, db, kabar, sekarang = Date.n
     }
     disimpan.push(...await db.simpan(batch.map((k, j) => ({
       url: k.url, sumber_id: k.sumber_id, sumber: k.sumber, judul: k.judul, terbit: k.terbit,
-      kabupaten: k.kabupaten, relevan: nilai[j].relevan, ringkasan: nilai[j].ringkasan
+      kabupaten: k.kabupaten, provinsi: k.provinsi, relevan: nilai[j].relevan, ringkasan: nilai[j].ringkasan
     }))));
   }
 

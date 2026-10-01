@@ -2,18 +2,22 @@ import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LABEL_KENDARAAN } from '@shared/konstanta.js';
 import { useApp } from '../state.jsx';
-import { CATATAN_KAKI, FAQ, HERO, LANGKAH, TENTANG, WILAYAH } from '../lib/konten-beranda.js';
-import { urutkanTempat } from '../lib/tempat.js';
+import { CATATAN_KAKI, FAQ, HERO, LANGKAH, SITUS, TENTANG, WILAYAH } from '../lib/konten-beranda.js';
+import { dataProvinsi } from '@shared/wilayah.js';
+import { tempatDiZona, urutkanTempat } from '../lib/tempat.js';
 import { pramuatPetaSaatSenggang } from '../lib/koneksi.js';
 import BarisTempat from '../components/BarisTempat.jsx';
 import Berita from '../components/Berita.jsx';
+import Imbauan from '../components/Imbauan.jsx';
 
 const JUMLAH_SOROTAN = 3;
 
 // Layar pertama: ringan (tanpa peta), tempat terlapor terdekat/terbaru + penjelasan app untuk pengunjung baru &
 // mesin pencari. Teks penjelasan juga ditanam statis saat build (lib/seo.js).
 export default function Beranda() {
-  const { kendaraan, daftar, statusData, posisi } = useApp();
+  const { kendaraan, daftar: semua, statusData, posisi, zona } = useApp();
+  const daftar = useMemo(() => tempatDiZona(semua, zona), [semua, zona]);
+  const namaZona = dataProvinsi(zona)?.nama;
   const navigate = useNavigate();
 
   useEffect(() => pramuatPetaSaatSenggang(), []);
@@ -23,14 +27,15 @@ export default function Beranda() {
   return (
     <div className="halaman beranda">
       <section className="beranda-pembuka">
+        <p className="eyebrow"><span className="sinyal" aria-hidden="true" />{SITUS.tagline}</p>
         <h1>{HERO.judul}</h1>
         <p className="redup">{HERO.sub}</p>
         <p className="beranda-status" role="status">
           {statusData === 'memuat' && 'Memuat data tempat parkir…'}
           {statusData === 'galat' && 'Data belum bisa dimuat.'}
           {statusData === 'siap' && (daftar.length
-            ? `${daftar.length} tempat parkir sudah dilaporkan warga`
-            : 'Belum ada tempat parkir yang dilaporkan.')}
+            ? `${daftar.length} tempat parkir sudah dilaporkan warga di ${namaZona}`
+            : `Belum ada tempat parkir yang dilaporkan di ${namaZona}.`)}
         </p>
       </section>
 
@@ -55,6 +60,8 @@ export default function Beranda() {
           <button type="button" className="tombol-sekunder" onClick={() => navigate('/daftar')}>Lihat daftar</button>
         </div>
       </section>
+
+      <Imbauan />
 
       <Berita />
 

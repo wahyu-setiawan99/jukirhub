@@ -1,3 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#1d4ed8"/><path d="M126 96 H256 C336 96 386 146 386 220 C386 294 336 344 256 344 H198 V416 H126 Z M198 160 V280 H252 C290 280 314 256 314 220 C314 184 290 160 252 160 Z" fill="#ffffff" fill-rule="evenodd"/>
+  <rect width="512" height="512" rx="112" fill="#060a13"/>
+  <g transform="translate(256 256) scale(0.84) translate(-256 -256)"><g transform="scale(5.12)"><polygon class="logo-garis" points="50,8 87,29 87,71 50,92 13,71 13,29" fill="none" stroke="#22d3ee" stroke-width="7" stroke-linejoin="round"/><path class="logo-isi" fill="#22d3ee" fill-rule="evenodd" d="M39 28h15c8 0 13 5 13 12s-5 12-13 12h-6v18h-9zM48 36v8h5c3 0 4.5-1.8 4.5-4s-1.5-4-4.5-4z"/><circle class="logo-sinyal" cx="80" cy="20" r="9" fill="#facc15" stroke="#060a13" stroke-width="4"/></g></g>
 </svg>

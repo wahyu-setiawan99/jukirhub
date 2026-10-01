@@ -5,8 +5,10 @@ import { KOLOM_RINGKASAN, KOLOM_TITIK, ambilView, konfigurasiData } from './lib/
 import { gabungTempat } from './lib/tempat.js';
 import { KUNCI_SNAPSHOT, bacaSnapshot, buatSnapshot } from './lib/offline.js';
 import { PROFIL_LOKASI, ambilPosisi, kodeGalatLokasi } from './lib/lokasi.js';
+import { ZONA_BAWAAN, pilihZonaManual, wilayahDariPosisi, zonaManual } from './lib/daerah.js';
 
-// Context app (pola Adami): tempat terlapor + ringkasannya, posisi pengguna, kendaraan terpilih, status online.
+// Context app (pola Adami): tempat terlapor + ringkasannya, posisi pengguna, zona (provinsi) aktif, kendaraan
+// terpilih, status online.
 
 const KUNCI_KENDARAAN = 'jukirhub_kendaraan';
 const AppContext = createContext(null);
@@ -14,6 +16,7 @@ const AppContext = createContext(null);
 export function AppProvider({ children }) {
   const tempat = useTempat();
   const posisi = usePosisi();
+  const zona = useZona(posisi.posisi);
   const [kendaraan, setKendaraanState] = useState(() => {
     const k = bacaSimpan(KUNCI_KENDARAAN, KENDARAAN[0]);
     return KENDARAAN.includes(k) ? k : KENDARAAN[0];
@@ -25,8 +28,8 @@ export function AppProvider({ children }) {
   }, []);
 
   const nilai = useMemo(
-    () => ({ ...tempat, ...posisi, kendaraan, setKendaraan }),
-    [tempat, posisi, kendaraan, setKendaraan]
+    () => ({ ...tempat, ...posisi, ...zona, kendaraan, setKendaraan }),
+    [tempat, posisi, zona, kendaraan, setKendaraan]
   );
   return <AppContext.Provider value={nilai}>{children}</AppContext.Provider>;
 }
@@ -108,6 +111,35 @@ function useTempat() {
     () => ({ daftar, statusData: status, diperbarui, offline, muatUlang }),
     [daftar, status, diperbarui, offline, muatUlang]
   );
+}
+
+// ------------------------------------------------------------------ zona aktif (AGENTS.md 1.5, fase N2)
+// zona = pilihan manual ?? provinsi dari posisi (bila izin lokasi sudah ada) ?? Sulawesi Selatan.
+// kabupatenSaya = kab/kota dari posisi (berita per daerah), null bila belum diketahui.
+
+function useZona(posisi) {
+  const [manual, setManual] = useState(() => zonaManual());
+  const [otomatis, setOtomatis] = useState({ provinsi: null, kabupaten: null });
+
+  useEffect(() => {
+    if (!posisi) return undefined;
+    let batal = false;
+    wilayahDariPosisi(fetch, posisi).then(w => { if (!batal) setOtomatis(w); });
+    return () => { batal = true; };
+  }, [posisi]);
+
+  const pilihZona = useCallback((kode) => {
+    pilihZonaManual(kode);
+    setManual(zonaManual());
+  }, []);
+
+  return useMemo(() => ({
+    zona: manual ?? otomatis.provinsi ?? ZONA_BAWAAN,
+    zonaManual: manual,
+    zonaOtomatis: otomatis.provinsi,
+    kabupatenSaya: otomatis.kabupaten,
+    pilihZona
+  }), [manual, otomatis, pilihZona]);
 }
 
 // ------------------------------------------------------------------ posisi pengguna

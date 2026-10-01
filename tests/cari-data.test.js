@@ -1,16 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { JEDA_MIN_MS, buatPencari, dalamKotak, hasilNominatim, urlNominatim } from '../web/src/lib/cari.js';
+import { JEDA_MIN_MS, buatPencari, dalamKotak, hasilNominatim, kotakZona, urlNominatim } from '../web/src/lib/cari.js';
 import { KOLOM_TITIK, ambilView, konfigurasiData, urlView } from '../web/src/lib/data.js';
 import { KUNCI_SNAPSHOT, MAKS_UMUR_SNAPSHOT_MS, bacaSnapshot, buatSnapshot } from '../web/src/lib/offline.js';
 
-test('URL Nominatim dibatasi Makassar Raya, maks. 5 hasil, bahasa Indonesia', () => {
+test('URL Nominatim dibatasi provinsi zona aktif (bawaan Sulsel), maks. 5 hasil, bahasa Indonesia', () => {
   const u = new URL(urlNominatim('  Indomaret Perintis '));
   assert.equal(u.hostname, 'nominatim.openstreetmap.org');
   assert.equal(u.searchParams.get('q'), 'Indomaret Perintis');
   assert.equal(u.searchParams.get('bounded'), '1');
   assert.equal(u.searchParams.get('limit'), '5');
-  assert.equal(u.searchParams.get('viewbox'), '119.3,-4.75,119.95,-5.65');
+  assert.equal(u.searchParams.get('viewbox'), '118.7,-1.85,122,-7.8');
+  const manado = new URL(urlNominatim('Indomaret Boulevard', kotakZona('sulut')));
+  assert.equal(manado.searchParams.get('viewbox'), '123.1,4.9,127.2,0.3');
+  assert.ok(dalamKotak({ lat: 1.49, lng: 124.84 }, kotakZona('sulut')));
+  assert.ok(!dalamKotak({ lat: 1.49, lng: 124.84 }));
 });
 
 test('hasil Nominatim: nama, alamat ringkas, osm_ref sah, di luar kotak dibuang', () => {

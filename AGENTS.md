@@ -243,6 +243,92 @@ pemilik**. Pola Adami 10.4 fase A.
   `foto_laporan` hanya mencatat batas (migrasi `20261001000004_foto.sql`, dihapus > 30 hari).
 - **Akun (username/sandi) belum dibuat.** Bila nanti diminta: ikuti catatan "Akun opsional" di Adami AGENTS.md 10.4.
 
+### 1.5 Seluruh Indonesia dengan zonasi pulau / provinsi (rencana; fase N2 pulau Sulawesi dibuat 1 Okt 2026)
+
+Keinginan pemilik 1 Okt 2026: JukirHub berlaku **di seluruh Indonesia**, tetapi **dizonasi per pulau / provinsi**
+supaya informasi (dan imbauan ke masyarakat soal aktivitas parkir) relevan per daerah. Bagian ini rencana; kerjakan per
+fase setelah pemilik memilih fase (tabel di bawah). **Pemilik memilih mulai dari N2 (pulau Sulawesi).**
+
+**Status N2 (dibuat 1 Okt 2026), cara sederhana dulu:**
+- `supabase/functions/_shared/wilayah.js`: 6 provinsi (kode pendek `sulsel`, `sulbar`, `sulteng`, `sultra`,
+  `gorontalo`, `sulut`; kode ISO, ibu kota, kotak perkiraan) + **81 kab/kota** dengan alias (pengganti
+  `kabupaten.js`). Label kab/kota unik se-Sulawesi; label Sulsel tidak berubah. Kode Kemendagri & poligon PostGIS
+  **belum** dipakai: kab/kota tempat & pengguna dari Nominatim reverse (`wilayahDariAlamat`, provinsi dari kode ISO),
+  tempat tanpa kab/kota → perkiraan kotak provinsi (`provinsiDariKoordinat`). Pindah ke poligon sebelum N3.
+- **Zona aktif** (`state.jsx` → `useZona`, `lib/daerah.js`): pilihan manual (select di header, disimpan di HP) ??
+  provinsi dari posisi yang sudah diizinkan ?? Sulawesi Selatan. Dipakai: pusat peta (terbang ke ibu kota saat zona
+  diganti; peta bisa digeser se-Sulawesi), kotak pencarian Nominatim (`kotakZona`), Beranda & Daftar
+  (`tempatDiZona`), urutan berita, imbauan, dan optgroup peringkat koin.
+- **Berita:** + ANTARA Sulut, Gorontalo, Sulteng, Sultra (dicek 1 Okt); Sulbar belum punya feed ANTARA (tercakup
+  media Sulsel). Kolom `berita.provinsi`.
+- **Imbauan otomatis** (`_shared/imbauan.js`, view `imbauan_publik`, `components/Imbauan.jsx`): ≥ 30 laporan
+  berjukir dari ≥ 10 perangkat dalam 30 hari; maks. 2 indikasi terbesar (tanpa karcis / kemahalan ≥ 25%, tanda
+  gratis / memaksa ≥ 15%) + kalimat "jukir membantu" bila ≥ 60%. Kab/kota pengguna dulu, selain itu provinsi zona.
+  Imbauan manual lewat Telegram **belum** dibuat.
+- Migrasi `20261001000006_sulawesi.sql` (juga `indeks_pungli` untuk tampilan Radar). Zona waktu: seluruh Sulawesi
+  WITA, jadi `tanggalWita` belum perlu diganti (wajib sebelum N3).
+
+**Hierarki zona** (kunci = kode wilayah Kemendagri/BPS, bukan nama, supaya nama ganda aman):
+
+| Tingkat | Jumlah | Dipakai untuk |
+|---|---|---|
+| Pulau / kepulauan | 7 (Sumatera, Jawa, Kalimantan, Sulawesi, Bali–Nusa Tenggara, Maluku, Papua) | pilihan zona di layar awal, peringkat pulau |
+| Provinsi | 38 | zona aktif (peta, daftar, berita, imbauan), halaman wilayah |
+| Kabupaten/kota | 514 | peringkat, berita per daerah, tarif resmi (Perda per kab/kota), statistik |
+
+**Data & penentuan zona**
+- Tabel `wilayah` (`kode`, `nama`, `tingkat`, `induk`, `pulau`, `zona_waktu` WIB/WITA/WIT, `bbox`, `geom` disederhanakan)
+  dari batas administrasi OpenStreetMap (admin_level 4 = provinsi, 5 = kab/kota), disederhanakan supaya kecil. Dibuat
+  skrip `npm run wilayah` (sekali, hasilnya file migrasi data).
+- **Tempat parkir:** `titik_parkir.kode_wilayah` diisi server dengan PostGIS `ST_Contains` saat tempat dibuat
+  (menggantikan Nominatim per tempat di 1.4: lebih cepat, tanpa batas 1 permintaan/detik). Data lama diisi sekali.
+- **Pengguna:** zona aktif otomatis dari lokasi (dihitung dari `bbox` di perangkat, atau RPC `wilayah_di` dengan
+  koordinat dibulatkan ±1 km; tidak disimpan) dan selalu bisa dipilih manual ("Zona: Sulawesi Selatan ▾", disimpan di HP).
+  Tanpa izin lokasi → zona terakhir, atau minta pilih pulau → provinsi saat pertama buka.
+- `_shared/kabupaten.js` (24 kab/kota Sulsel) diganti `_shared/wilayah.js` yang dibangkitkan dari data yang sama
+  (label + alias untuk mendeteksi daerah di berita).
+
+**Yang berubah per zona**
+- **Peta & daftar:** pusat awal = zona aktif; tempat dimuat per provinsi/bbox (bukan seluruh Indonesia sekaligus,
+  `titik_publik` difilter kode provinsi), snapshot offline per zona.
+- **Pencarian:** viewbox Nominatim = zona aktif (sekarang dikunci Makassar Raya di `lib/cari.js`).
+- **Peringkat koin:** kab/kota (bawaan), provinsi, pulau, nasional.
+- **Berita (1.3.2):** `SUMBER_BERITA` diberi `provinsi`; sumber tiap provinsi dicek dulu (RSS, izin bot). Jatah Gemini
+  per hari dinaikkan bertahap; berita diurutkan kab/kota pengguna → provinsi → pulau.
+- **Waktu:** "hari ini" untuk koin/seri dan tampilan jam mengikuti zona waktu wilayah (WIB/WITA/WIT), bukan WITA saja
+  (`tanggalWita` → `tanggalZona`, `tanggal_wita()` → per wilayah).
+- **Tarif resmi:** per kab/kota (Perda), diisi bertahap pemilik / relawan, sumber wajib.
+- **Imbauan parkir per zona (fitur baru):** kartu "Imbauan parkir · <wilayah>" di Beranda dan halaman wilayah.
+  1. *Otomatis dari data*, hanya bila cukup laporan (usulan: ≥ 30 laporan dari ≥ 10 perangkat dalam 30 hari) dan
+     dengan nada netral, mis. "38% laporan di Kota Makassar bulan ini: tidak diberi karcis. Minta karcis saat
+     membayar." Tidak menyebut tempat atau orang tertentu.
+  2. *Manual* oleh pemilik (nanti mitra) lewat Telegram: `/imbauan <kode wilayah> <teks>` → pratinjau → Tampilkan,
+     berlaku sampai tanggal tertentu.
+- **Halaman wilayah statis (SEO lokal):** `/wilayah/sulawesi-selatan`, `/wilayah/sulawesi-selatan/makassar` berisi
+  ringkasan agregat (jumlah tempat & laporan, indikasi terbanyak, tarif median, imbauan), masuk sitemap. Membuka jalan
+  untuk dashboard / CSV per wilayah bagi pemerintah daerah (bagian 10, ditunda).
+
+**Tahapan**
+
+| Fase | Cakupan | Syarat sebelum mulai |
+|---|---|---|
+| N1 | Sulawesi Selatan penuh (24 kab/kota) | tabel `wilayah`, pilih zona, peta & cari per zona, zona waktu |
+| N2 | Pulau Sulawesi (6 provinsi) | sumber berita provinsi dicek, imbauan otomatis |
+| N3 | Kota besar Jawa–Bali (Jakarta, Bandung, Semarang, Yogyakarta, Surabaya, Denpasar) | kapasitas & moderasi siap (di bawah), halaman wilayah |
+| N4 | Seluruh Indonesia | biaya terukur, moderator per pulau |
+
+Wilayah yang baru dibuka tetap bisa dipakai (melapor membuat tempat baru), dengan label "Baru dibuka di wilayah ini".
+
+**Kapasitas & biaya (cek sebelum N3, tanyakan pemilik sebelum berlangganan apa pun)**
+- **Supabase** free tier (500 MB database, batas panggilan Edge Function per bulan) kemungkinan tidak cukup nasional →
+  Pro ±US$25/bulan.
+- **Nominatim publik** tidak boleh dipakai berat (maks. 1 permintaan/detik, bukan untuk autocomplete) → Photon (komoot),
+  layanan berbayar (LocationIQ / MapTiler), atau instance sendiri.
+- **Peta OpenFreeMap:** gratis; cek kebijakan pemakaian volume besar.
+- **Gemini:** jatah harian naik seiring jumlah sumber berita; tetap usahakan free tier.
+- **Moderasi:** satu pemilik di Telegram tidak cukup untuk nasional → moderator per pulau (chat Telegram per zona,
+  tabel `moderator`), pemilik tetap pemutus akhir.
+
 ---
 
 ## 2. Struktur repo (meniru Adami)
@@ -402,15 +488,18 @@ laporan motor"). Bila tarif resmi daerah sudah diperiksa pemilik, tampil berdamp
 
 **Rating:** rata-rata bintang + jumlah ("★ 3,8 (5)"), tampil sejak rating pertama (pola Adami).
 
-### 6.3 Tampilan (meniru Adami)
+### 6.3 Tampilan "Radar" (Opsi A, pilihan pemilik 1 Okt 2026; kerangka tetap pola Adami)
 
 - **Kerangka** sama dengan Adami (`.app` grid): header · banner offline · isi · bilah aksi (tombol utama
   **"Laporkan parkir"**, membuka Peta di lokasi pengguna + petunjuk "Ketuk tempat Anda parkir") · menu bawah
-  **4 tab: Beranda, Peta, Daftar, Info** (tab Data ditunda, bagian 1.2). **Di tab Peta bilah aksi tidak ditampilkan**
+  **5 tab: Beranda, Peta, Daftar, Info, Saya** (tab Data ditunda, bagian 1.2). **Di tab Peta bilah aksi tidak ditampilkan**
   (tombol "Laporkan parkir" ada di lembar tempat; dua tombol sama bertumpuk membingungkan).
-- **Header:** logo + "JukirHub", pilihan **Motor / Mobil** (pengganti Pertalite/Solar di Adami; menentukan tarif yang
-  ditampilkan dan kendaraan di form lapor), lalu ikon tema di kanan. Di HP < 360 px tulisan "JukirHub"
-  disembunyikan, logo tetap.
+- **Header:** logo perisai heksagon + "JukirHub" + tagline **"Melaporkan juru parkir liar"** (`SITUS.tagline`;
+  tagline hanya ≥ 480 px), **pilihan zona provinsi** (bagian 1.5), pilihan **Motor / Mobil** (menentukan tarif yang
+  ditampilkan dan kendaraan di form lapor), lalu ikon tema di kanan. Di HP < 440 px tulisan "JukirHub" disembunyikan
+  (logo tetap; nama & tagline tampil di Beranda).
+- **Logo** (`web/src/lib/logo.js`, satu sumber untuk header, HTML statis, `npm run ikon`): perisai heksagon cyan +
+  "P" + titik sinyal kuning. Ikon HP/favicon: kotak gelap `#060a13`. `og.png`: latar gelap ber-grid + tagline.
 - **Peta:** MapLibre dimuat belakangan, peta dasar OpenFreeMap `dark` / `positron` mengikuti tema (cadangan tile OSM),
   atribusi wajib terlihat. **Kolom cari di atas peta.** Penanda hanya untuk tempat yang sudah dilaporkan (bagian 1.2
   poin 4). Tata letak lapisan lain sama dengan Adami (zoom kanan atas di bawah kolom cari, panel info + legenda kiri
@@ -425,10 +514,14 @@ laporan motor"). Bila tarif resmi daerah sudah diperiksa pemilik, tampil berdamp
 - **Lembar tempat** (setengah layar) sesuai bagian 1.2 poin 2; **tombol Laporkan parkir & Petunjuk arah tepat di bawah
   nama** (terlihat tanpa gulir di 360×640), lalu ringkasan. Halaman statis per tempat ditunda.
 - **Daftar:** tempat yang sudah dilaporkan, terdekat dulu bila lokasi diizinkan; ketuk → Peta + lembar tempat.
-- **Warna hanya untuk makna:** level indikasi, bintang rating, dan aksen biru rambu parkir. Selebihnya netral
-  hitam-putih seperti Adami. Warna tidak pernah sendirian: selalu disertai teks/ikon.
-- Tombol/tautan minimal 44 px (tombol utama 48 px), radius 12 px, kartu 14 px, lembar bawah 16 px 16 px 0 0,
-  pil 999 px. Lebar kolom isi desktop 696 px (`--lebar-kolom`), bilah tetap selebar layar.
+- **Ciri Radar:** latar hitam-biru, aksen **cyan**, grid tipis di atas peta (`.peta-wadah::after`, tidak menangkap
+  ketukan), cincin tipis di sekitar penanda, **angka & label data monospace** (`.angka`, `.label-data`), indeks
+  indikasi pungli **0–100 + bilah 10 ruas** di lembar tempat (`indeks_pungli`, hanya bila data cukup; skor > 100
+  dibatasi 100), kartu **Imbauan parkir** & **Berita parkir** di Beranda.
+- **Warna hanya untuk makna:** level indikasi, bintang rating, koin, dan aksen cyan. Selebihnya netral. Warna tidak
+  pernah sendirian: selalu disertai teks/ikon.
+- Tombol/tautan minimal 44 px (tombol utama 48 px), radius **10 px**, kartu **12 px**, lembar bawah 18 px 18 px 0 0.
+  Lebar kolom isi desktop 696 px (`--lebar-kolom`), bilah tetap selebar layar.
 
 #### Tema dan warna
 
@@ -437,36 +530,35 @@ laporan motor"). Bila tarif resmi daerah sudah diperiksa pemilik, tampil berdamp
 Adami). Semua warna lewat variabel di `:root` (gelap) dan `:root[data-tema="terang"]` di `app.css`; **variabel
 baru wajib ada di kedua tema** (`tests/tema.test.js`, salin dari Adami).
 
-Netral sama persis dengan Adami (`--latar`, `--permukaan`, `--teks`, `--teks-isi`, `--redup`, `--garis`,
-`--lembut`, `--kaca`, `--bayang`, `--kuning-*`, `--merah-*`, `--pudar-*`, `--bintang`). Yang disesuaikan untuk
-JukirHub (**biru rambu parkir "P"**, menggantikan tombol utama putih/hitam Adami):
+Nilai pasti ada di `app.css` (dua blok `:root`); yang dijaga tes (`tests/tema.test.js`):
 
 | Variabel | Gelap | Terang | Dipakai untuk |
 |---|---|---|---|
-| `--utama` | `#2563eb` | `#1d4ed8` | Tombol utama, tab aktif, pilihan Motor/Mobil aktif |
-| `--utama-teks` | `#ffffff` | `#ffffff` | Teks di atas `--utama` |
-| `--aksen` | `#60a5fa` | `#1d4ed8` | Tautan, ikon aktif, garis tab aktif |
-| `--fokus` | `#93c5fd` | `#1e40af` | Garis fokus keyboard (3 px, offset 2 px) |
-| `--logo-latar` | `#2563eb` | `#1d4ed8` | Kotak logo "P" |
-| `--logo-gambar` | `#ffffff` | `#ffffff` | Huruf "P" di logo |
-| `--klaster-latar` / `-teks` | `#f5f5f4` / `#0e0e10` | `#334155` / `#ffffff` | Angka gugus di peta (sama dengan Adami) |
+| `--latar` / `--permukaan` | `#060a13` / `#0b1324` | `#f3f6fa` / `#ffffff` | Latar halaman / header, kartu, lembar |
+| `--utama` | `#22d3ee` | `#0e7490` | Tombol utama, pilihan Motor/Mobil aktif |
+| `--utama-teks` | `#04222a` | `#ffffff` | Teks di atas `--utama` |
+| `--aksen` | `#22d3ee` | `#0e7490` | Tautan, tab aktif, label data penting |
+| `--fokus` | `#67e8f9` | `#155e75` | Garis fokus keyboard (3 px, offset 2 px) |
+| `--logo-gambar` / `--logo-sinyal` | `#22d3ee` / `#facc15` | `#0e7490` / `#ca8a04` | Logo di header |
+| `--grid` | cyan alfa 0,05 | cyan tua alfa 0,06 | Grid radar di atas peta |
+| `--klaster-latar` / `-teks` | `#22d3ee` / `#04222a` | `#0e7490` / `#ffffff` | Angka gugus di peta |
 | `--indikasi-rendah` | `#2dd4bf` | `#0f766e` | Penanda & label indikasi rendah |
 | `--indikasi-sedang` | `#facc15` | `#a16207` | Penanda & label indikasi sedang |
 | `--indikasi-tinggi` | `#f87171` | `#b91c1c` | Penanda & label indikasi tinggi |
-| `--indikasi-kurang` | `#71717a` | `#9ca3af` | Belum cukup data |
-| `--indikasi-*-latar` | alfa 0,14–0,16 dari warna di atas | `#e3f5f1` / `#fdf2d3` / `#fdeaea` / `#eceef1` | Latar lencana/sel (pola `--sel-*` Adami) |
+| `--indikasi-kurang` | `#64748b` | `#9aa8bb` | Belum cukup data |
 
-Warna bilah status HP (`meta theme-color`) = `--permukaan`: `#18181b` (gelap) / `#ffffff` (terang).
-Manifest: `background_color` `#0e0e10`, `theme_color` `#18181b`.
+Warna bilah status HP (`meta theme-color`) = `--permukaan`: `#0b1324` (gelap) / `#ffffff` (terang).
+Manifest: `background_color` `#060a13`, `theme_color` `#0b1324`.
 
-#### Font dan ukuran huruf (sama persis dengan Adami)
+#### Font dan ukuran huruf (tampilan Radar)
 
-- **Poppins untuk semua teks**, disajikan dari situs sendiri (`@fontsource/poppins`, latin **400/600/700** saja,
-  `font-display: swap`, diimpor di `main.jsx`). **Jangan memuat dari Google Fonts** dan jangan menambah font atau
-  ketebalan lain. `--font-isi: Poppins, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`.
+- **Space Grotesk** untuk teks & judul (latin **400/600**) dan **JetBrains Mono** untuk angka & label data (latin
+  **400/500**), disajikan dari situs sendiri (`@fontsource/space-grotesk`, `@fontsource/jetbrains-mono`, diimpor di
+  `main.jsx`, `font-display: swap`). **Jangan memuat dari Google Fonts.** Poppins (Adami) tidak dipakai lagi.
+  `--font-isi: "Space Grotesk", …`, `--font-angka: "JetBrains Mono", …`.
 - Ukuran dasar **15 px di HP**, **16 px di layar ≥ 760 px** (`:root { font-size }`, semua rem ikut).
-- Ketebalan standar **600** untuk judul, `strong`, tombol, label menu. **700 hanya untuk angka gugus di peta.**
-- Skala (ikuti `app.css` Adami):
+- Ketebalan **600** untuk judul, `strong`, tombol, label menu; angka monospace 400/500.
+- Skala:
 
 | Elemen | Ukuran |
 |---|---|
@@ -481,7 +573,7 @@ Manifest: `background_color` `#0e0e10`, `theme_color` `#18181b`.
 | Label menu bawah | `0.75rem` |
 | Minimum mutlak | ±12 px |
 
-Poppins tampak lebih besar dari font bawaan: cek di HP 360 px setiap menambah teks/judul.
+Cek di HP 360 px setiap menambah teks/judul; header paling padat (logo, zona, kendaraan, tema).
 
 ---
 
@@ -573,6 +665,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) *Selesai 1 Okt (moderasi lewat Telegram; AI menyusul).* |
 | **M5 Berita parkir** | Berita parkir per daerah pengguna di Beranda: RSS media Sulsel + ringkasan Gemini + kabupaten yang disebut (bagian 1.3.2) *Dibuat 1 Okt; aktif setelah pemilik menjalankan `npm run berita:setup`.* |
 | **M6 Koin & tab Saya** | Koin tanpa nilai uang, lencana, seri, peringkat per kabupaten, tab Saya, foto bukti ke Telegram pemilik (bagian 1.4) *Dibuat 1 Okt.* |
+| **M7 Nasional** | Zonasi pulau / provinsi / kab-kota, imbauan parkir per zona, halaman wilayah (bagian 1.5), per fase N1–N4 *N2 pulau Sulawesi dibuat 1 Okt (pilihan pemilik); N3–N4 rencana.* |
 
 **Ditunda (hanya bila pemilik meminta setelah M3):** estimasi pendapatan / mode amati, tab Data & dashboard per
 wilayah + CSV, halaman statis per tempat, rincian kerja jukir, atribut resmi, tag sikap, foto publik, notifikasi, bot
@@ -653,6 +746,12 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   - Koin + tab Saya + foto bukti (bagian 1.4): koin saja (tanpa poin terpisah), tanpa login, foto hanya untuk pemilik.
   - M5 berita: per daerah pengguna, seluruh Sulsel per kabupaten (bagian 1.3.2), menggantikan rencana berita per
     tempat ≤ 300 m.
+  - Pemilik: JukirHub untuk **seluruh Indonesia**, dizonasi per pulau/provinsi supaya bisa mengimbau masyarakat per
+    daerah → rencana bagian 1.5. Pemilik juga minta 2 opsi tampilan yang lebih "tech pro" dan logo lebih ikonik dengan
+    tagline "Melaporkan juru parkir liar" (mockup dibuat).
+  - Pemilik memilih **tampilan Opsi A "Radar"** (bagian 6.3; menggantikan aturan "tampilan & font meniru Adami",
+    pola kode tetap meniru Adami), **logo C perisai heksagon** dengan tagline "Melaporkan juru parkir liar", dan
+    **zonasi mulai fase N2 pulau Sulawesi** (bagian 1.5).
   - Pemasaran fokus **Facebook Ads (Meta Ads Manager), video**, plus IG & TikTok organik → `docs/peluncuran/iklan.md`.
     Tujuan iklan = pelapor; ukuran utama **biaya per pelapor** (`npm run kampanye`), tanpa Meta Pixel (rekomendasi
     Claude, pola Adami). Nada iklan: info praktis & adil, bukan kampanye anti-jukir.
@@ -665,6 +764,9 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
 - Poin skor pungli di 6.2 masih usulan awal; kalibrasi setelah ada data.
 - Komentar hanya lewat laporan (rekomendasi Claude, 1.3.1) atau juga boleh tanpa melapor (butuh batas & moderasi
   tambahan).
-- Wilayah peta & pencarian masih Makassar Raya, sedangkan berita & peringkat sudah seluruh Sulsel: perluas peta ke
-  kabupaten lain (mis. Soppeng) bila pemilik ingin warga di sana bisa mencari tempat dan melapor dengan nyaman.
+- Rencana nasional (1.5): kapan N3 (kota besar Jawa–Bali), moderator per zona, dan apakah imbauan manual boleh dari
+  mitra (Dishub / komunitas).
+- Tagline logo "Melaporkan juru parkir liar" dipakai sesuai pilihan pemilik. Catatan Claude tetap berlaku: kata "liar"
+  bernada menuduh (1.1) dan berisiko ditolak iklan Meta; bila iklan ditolak, pakai tagline netral di materi iklan
+  (mis. "Lapor parkir, jaga bersama").
 - Pemeriksaan komentar oleh AI (1.3.1) bisa memakai kunci Gemini yang sama bila pemilik menginginkan.

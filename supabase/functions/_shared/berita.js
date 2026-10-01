@@ -1,19 +1,26 @@
-// Berita parkir per daerah (M5, keputusan pemilik 1 Okt 2026): berita tentang parkir/jukir dari media Sulsel,
-// dikelompokkan per kabupaten yang disebut, ditampilkan sesuai daerah pengguna (mis. di Soppeng → berita Soppeng dulu).
+// Berita parkir per daerah (M5, keputusan pemilik 1 Okt 2026): berita tentang parkir/jukir dari media di pulau
+// Sulawesi (fase N2, AGENTS.md 1.5), dikelompokkan per kab/kota & provinsi yang disebut, ditampilkan sesuai daerah
+// pengguna (mis. di Soppeng → berita Soppeng dulu, lalu Sulsel, lalu provinsi lain).
 // Pola feed berita Adami (10.6). ESM murni: dipakai Edge Function `berita`, web (@shared), dan tes.
 //
 // Hak cipta: hanya judul, nama media, tanggal, ringkasan buatan AI (1–2 kalimat dari judul & cuplikan), dan tautan.
 // Isi artikel & cuplikan TIDAK disimpan.
 
-import { kabupatenDisebut } from './kabupaten.js';
+import { kabupatenDisebut, provinsiDisebut } from './wilayah.js';
 
-// Media Sulsel yang feed RSS-nya sudah dicek di Adami (mengizinkan akses otomatis). Sumber baru dicek dulu.
+// Feed RSS yang sudah dicek (mengizinkan akses otomatis): media Sulsel dari Adami + ANTARA tiap provinsi Sulawesi
+// (dicek 1 Okt 2026; Sulawesi Barat belum punya feed ANTARA sendiri, tercakup media Sulsel). `provinsi` = provinsi
+// liputan utama media itu (dipakai bila berita tidak menyebut daerah). Sumber baru dicek dulu.
 export const SUMBER_BERITA = [
-  { id: 'antara-sulsel', nama: 'ANTARA Sulsel', url: 'https://makassar.antaranews.com/rss/terkini.xml', domain: 'makassar.antaranews.com' },
-  { id: 'detik-sulsel', nama: 'detikSulsel', url: 'https://www.detik.com/sulsel/rss', domain: 'detik.com' },
-  { id: 'herald', nama: 'Herald.id', url: 'https://herald.id/feed/', domain: 'herald.id' },
-  { id: 'fajar', nama: 'FAJAR', url: 'https://fajar.co.id/feed/', domain: 'fajar.co.id' },
-  { id: 'terkini', nama: 'Terkini.id', url: 'https://makassar.terkini.id/feed/', domain: 'terkini.id' }
+  { id: 'antara-sulsel', nama: 'ANTARA Sulsel', url: 'https://makassar.antaranews.com/rss/terkini.xml', domain: 'makassar.antaranews.com', provinsi: 'sulsel' },
+  { id: 'detik-sulsel', nama: 'detikSulsel', url: 'https://www.detik.com/sulsel/rss', domain: 'detik.com', provinsi: 'sulsel' },
+  { id: 'herald', nama: 'Herald.id', url: 'https://herald.id/feed/', domain: 'herald.id', provinsi: 'sulsel' },
+  { id: 'fajar', nama: 'FAJAR', url: 'https://fajar.co.id/feed/', domain: 'fajar.co.id', provinsi: 'sulsel' },
+  { id: 'terkini', nama: 'Terkini.id', url: 'https://makassar.terkini.id/feed/', domain: 'terkini.id', provinsi: 'sulsel' },
+  { id: 'antara-sulut', nama: 'ANTARA Sulut', url: 'https://manado.antaranews.com/rss/terkini.xml', domain: 'manado.antaranews.com', provinsi: 'sulut' },
+  { id: 'antara-gorontalo', nama: 'ANTARA Gorontalo', url: 'https://gorontalo.antaranews.com/rss/terkini.xml', domain: 'gorontalo.antaranews.com', provinsi: 'gorontalo' },
+  { id: 'antara-sulteng', nama: 'ANTARA Sulteng', url: 'https://sulteng.antaranews.com/rss/terkini.xml', domain: 'sulteng.antaranews.com', provinsi: 'sulteng' },
+  { id: 'antara-sultra', nama: 'ANTARA Sultra', url: 'https://sultra.antaranews.com/rss/terkini.xml', domain: 'sultra.antaranews.com', provinsi: 'sultra' }
 ];
 
 export const BATAS_BERITA = {
@@ -82,16 +89,22 @@ export function urlSah(url, domain) {
 const KATA_KUNCI = /(^|[^\p{L}])(parkir|perparkiran|jukir|juru parkir|tukang parkir)(?=[^\p{L}]|$)/iu;
 export const relevanAwal = ({ judul, cuplikan = '' }) => KATA_KUNCI.test(`${judul} ${cuplikan}`);
 
-export { kabupatenDisebut };
+export { kabupatenDisebut, provinsiDisebut };
+
+// Provinsi berita: yang disebut (langsung / lewat kab-kota), atau provinsi liputan media bila tidak menyebut daerah.
+export function provinsiBerita(teks, sumber) {
+  const disebut = provinsiDisebut(teks);
+  return disebut.length ? disebut : (sumber?.provinsi ? [sumber.provinsi] : []);
+}
 
 // ------------------------------------------------------------------ AI (Gemini)
 
 export function promptBerita(daftar) {
   const sistem = [
     'Anda menyaring dan merangkum berita untuk JukirHub, aplikasi laporan warga tentang juru parkir (jukir) dan',
-    'parkir di pinggir jalan / depan toko di Sulawesi Selatan. Untuk setiap berita tentukan "relevan": true HANYA bila',
-    'berita membahas parkir di Sulawesi Selatan: juru parkir, parkir liar, tarif atau retribusi parkir, karcis,',
-    'penertiban, kebijakan parkir, atau keluhan warga soal parkir. relevan false untuk: berita di luar Sulawesi Selatan,',
+    'parkir di pinggir jalan / depan toko di pulau Sulawesi. Untuk setiap berita tentukan "relevan": true HANYA bila',
+    'berita membahas parkir di Sulawesi: juru parkir, parkir liar, tarif atau retribusi parkir, karcis,',
+    'penertiban, kebijakan parkir, atau keluhan warga soal parkir. relevan false untuk: berita di luar pulau Sulawesi,',
     'parkir pesawat/kapal, kecelakaan atau kriminal yang hanya kebetulan terjadi di tempat parkir, iklan/promosi/lowongan,',
     'dan topik lain. Bila relevan, tulis "ringkasan" netral 1–2 kalimat',
     `(maks. ${BATAS_BERITA.ringkasanMaks - 20} karakter) dalam bahasa Indonesia HANYA dari judul dan cuplikan: jangan`,
@@ -138,10 +151,10 @@ export function bacaJawabanBerita(jawaban, daftar) {
 
 // ------------------------------------------------------------------ tampilan (web)
 
-// Berita yang menyebut kabupaten pengguna dulu, lalu berita Sulsel lainnya; masing-masing terbaru dulu.
-// `daerah` = label kabupaten atau null (belum diketahui → semua, terbaru dulu).
-export function urutkanBerita(berita, daerah) {
-  const skor = (b) => (daerah && (b.kabupaten ?? []).includes(daerah) ? 0 : 1);
+// Berita kab/kota pengguna dulu, lalu provinsi zona aktif, lalu Sulawesi lainnya; masing-masing terbaru dulu.
+// `daerah` = label kab/kota atau null; `zona` = kode provinsi atau null.
+export function urutkanBerita(berita, daerah, zona = null) {
+  const skor = (b) => (daerah && (b.kabupaten ?? []).includes(daerah) ? 0 : zona && (b.provinsi ?? []).includes(zona) ? 1 : 2);
   return [...berita].sort((a, b) => skor(a) - skor(b) || Date.parse(b.terbit) - Date.parse(a.terbit));
 }
 

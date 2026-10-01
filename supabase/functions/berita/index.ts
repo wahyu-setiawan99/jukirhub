@@ -66,7 +66,7 @@ const db = {
   },
   async simpan(baris: Array<Record<string, unknown>>) {
     const { data, error } = await supabase.from('berita').upsert(baris, { onConflict: 'url', ignoreDuplicates: true })
-      .select('id, judul, sumber, relevan, ringkasan, kabupaten, url');
+      .select('id, judul, sumber, relevan, ringkasan, kabupaten, provinsi, url');
     if (error) throw error;
     return data ?? [];
   }

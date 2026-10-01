@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { useApp } from '../state.jsx';
+import { dataProvinsi } from '@shared/wilayah.js';
 import { buatPencari } from '../lib/cari.js';
 import { cariLokal, kodeLevel, labelLevel } from '../lib/tempat.js';
 import { Ikon } from './Ikon.jsx';
@@ -10,7 +11,7 @@ const cariNominatim = buatPencari((...a) => fetch(...a));
 // Kolom cari di atas peta (AGENTS.md 1.2 poin 1): tempat terlapor dicari langsung saat mengetik (lokal),
 // tempat lain di Nominatim OpenStreetMap hanya saat menekan Cari.
 export default function CariTempat({ onPilih, onLaporDiLokasi }) {
-  const { daftar } = useApp();
+  const { daftar, zona } = useApp();
   const [kueri, setKueri] = useState('');
   const [terbuka, setTerbuka] = useState(false);
   const [osm, setOsm] = useState({ status: 'diam', hasil: [], kueri: '' });   // diam | mencari | siap | galat
@@ -25,7 +26,7 @@ export default function CariTempat({ onPilih, onLaporDiLokasi }) {
     if (k.length < 3) return;
     setOsm({ status: 'mencari', hasil: [], kueri: k });
     try {
-      const hasil = await cariNominatim(k);
+      const hasil = await cariNominatim(k, zona);
       setOsm(o => (o.kueri === k ? { status: 'siap', hasil, kueri: k } : o));
     } catch (err) {
       console.warn('[cari] gagal:', err.message);
@@ -100,7 +101,7 @@ export default function CariTempat({ onPilih, onLaporDiLokasi }) {
               </ul>
             </>
           ) : (
-            <p className="redup pesan-hasil">Tidak ditemukan di peta Makassar Raya.</p>
+            <p className="redup pesan-hasil">Tidak ditemukan di {dataProvinsi(zona)?.nama ?? 'zona ini'}. Ganti zona di bagian atas bila tempatnya di provinsi lain.</p>
           ))}
           {!osmBerlaku && osm.status !== 'mencari' && kueri.trim().length >= 3 && (
             <p className="redup pesan-hasil">Tekan Cari untuk mencari tempat lain di peta.</p>

@@ -3,6 +3,7 @@ import * as maplibregl from 'maplibre-gl';
 // CSS peta ikut dimuat bersama komponen ini (dipisah dari muatan awal app).
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
+import { dataProvinsi, provinsiDariKoordinat } from '@shared/wilayah.js';
 import { useApp } from '../state.jsx';
 import { kodeLevel, labelLevel } from '../lib/tempat.js';
 import { pesanGalatLokasi } from '../lib/lokasi.js';
@@ -32,8 +33,8 @@ const GAYA_CADANGAN = {
   layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
 };
 
-const PUSAT_MAKASSAR = [119.4327, -5.1477];
-const BATAS_GESER = [[118.9, -6.1], [120.4, -4.3]];
+// Pulau Sulawesi (fase N2, AGENTS.md 1.5): peta bisa digeser se-Sulawesi; pusat awal = ibu kota zona aktif.
+const BATAS_GESER = [[116.8, -8.2], [127.6, 5.2]];
 // Nama tempat (POI) mulai terlihat & bisa diketuk pada zoom ini (AGENTS.md 1.2 poin 1).
 export const ZOOM_NAMA_TEMPAT = 15;
 const ZOOM_FOKUS = 17;
@@ -96,7 +97,8 @@ function poiDiTitik(m, titik) {
 }
 
 export default function Peta({ pilihan, onPilih, fokus, petunjukPilih, onTutupPetunjuk }) {
-  const { daftar, posisi, izinLokasi, galatLokasi, mintaPosisi } = useApp();
+  const { daftar, posisi, izinLokasi, galatLokasi, mintaPosisi, zona } = useApp();
+  const pusatZona = dataProvinsi(zona)?.pusat ?? dataProvinsi('sulsel').pusat;
   const wadah = useRef(null);
   const peta = useRef(null);
   const marker = useRef(new Map());
@@ -119,7 +121,7 @@ export default function Peta({ pilihan, onPilih, fokus, petunjukPilih, onTutupPe
     const m = new maplibregl.Map({
       container: wadah.current,
       style: GAYA_TEMA[temaPeta.current] ?? GAYA_TEMA.gelap,
-      center: PUSAT_MAKASSAR,
+      center: pusatZona,
       zoom: 12.5,
       maxBounds: BATAS_GESER,
       attributionControl: { compact: true },
@@ -251,6 +253,17 @@ export default function Peta({ pilihan, onPilih, fokus, petunjukPilih, onTutupPe
       m.flyTo({ center: [posisi.lng, posisi.lat], zoom: 16.5, duration: 900 });
     }
   }, [siap, posisi]);
+
+  // --- zona diganti (pilihan di header): terbang ke ibu kota provinsi itu, kecuali pengguna memang berada di sana.
+  const zonaSebelum = useRef(zona);
+  useEffect(() => {
+    if (!siap || zonaSebelum.current === zona) return;
+    zonaSebelum.current = zona;
+    if (posisi && provinsiDariKoordinat(posisi) === zona) return;
+    sudahTerbang.current = true;
+    peta.current.flyTo({ center: pusatZona, zoom: 12.5, duration: 900 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [siap, zona]);
 
   // --- fokus ke satu tempat (hasil cari, Daftar, Beranda). Setelah efek posisi supaya flyTo ini yang menang.
   useEffect(() => {

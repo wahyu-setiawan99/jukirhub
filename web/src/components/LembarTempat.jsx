@@ -8,6 +8,19 @@ import { LencanaIndikasi } from './Legenda.jsx';
 import Riwayat from './Riwayat.jsx';
 import { Ikon } from './Ikon.jsx';
 
+// Indeks pungli 0–100 + bilah 10 ruas (tampilan Radar). Angka dari ringkasan server, bukan tuduhan.
+function IndeksPungli({ nilai, level }) {
+  const isi = Math.round(nilai / 10);
+  return (
+    <div className={`indeks-pungli indikasi-${level}`} role="img" aria-label={`Indeks indikasi pungli ${nilai} dari 100`}>
+      <p><span className="angka indeks-angka">{nilai}</span><span className="label-data"> /100 indeks indikasi pungli</span></p>
+      <div className="ruas" aria-hidden="true">
+        {Array.from({ length: 10 }, (_, i) => <span key={i} className={i < isi ? 'isi' : ''} />)}
+      </div>
+    </div>
+  );
+}
+
 // Lembar tempat di tab Peta (AGENTS.md 1.2 poin 2): setengah layar supaya peta tetap terlihat.
 // `tempat` = tempat terlapor ({ id, …, ringkasan }) atau tempat yang baru diketuk/dicari/dipin ({ nama, lat, lng }).
 export default function LembarTempat({ tempat, onTutup, onLapor }) {
@@ -46,7 +59,7 @@ export default function LembarTempat({ tempat, onTutup, onLapor }) {
       <div className="lembar-kepala">
         <div>
           <h2 id="lembar-judul" ref={judul} tabIndex={-1}>{nama}</h2>
-          <p className="redup">
+          <p className="label-data">
             {[tempat.alamat || tempat.kota, jarak ? `${jarak} dari Anda` : null].filter(Boolean).join(' · ') ||
               (tempat.sumber === 'pin' ? 'Titik yang Anda tandai di peta' : 'Dari peta OpenStreetMap')}
           </p>
@@ -67,6 +80,7 @@ export default function LembarTempat({ tempat, onTutup, onLapor }) {
       {terlapor ? (
         <div className="ringkas-tempat">
           <p><LencanaIndikasi level={kodeLevel(r)} label={labelLevel(r)} /></p>
+          {r.indeks != null && <IndeksPungli nilai={r.indeks} level={kodeLevel(r)} />}
           {kalimatTanpaJukir(r) && <p>{kalimatTanpaJukir(r)}</p>}
           {r.alasan && <p>{r.alasan}</p>}
           {/* Ringkasan jukir hanya dari laporan yang ada jukirnya. */}

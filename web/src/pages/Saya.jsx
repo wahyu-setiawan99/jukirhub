@@ -4,7 +4,7 @@ import {
   BATAS_LAPORAN_BERKOIN_HARIAN, HARI_PEMBUKA, HARI_PERINGKAT, KOIN, kemajuanLencana
 } from '@shared/koin.js';
 import { LABEL_KENDARAAN } from '@shared/konstanta.js';
-import { semuaKabupaten } from '@shared/kabupaten.js';
+import { PROVINSI, kabupatenDiProvinsi } from '@shared/wilayah.js';
 import { useApp } from '../state.jsx';
 import { ambilKontribusi } from '../lib/kontribusi.js';
 import { waktuRelatif } from '../lib/riwayat.js';
@@ -71,7 +71,7 @@ export default function Saya() {
           </div>
           <h2 id="judul-saya" className="nama-samaran">{saya.nama_samaran}</h2>
           <dl className="angka-saya">
-            <div><dt>koin</dt><dd className="angka-koin">{saya.koin}</dd></div>
+            <div><dt>koin</dt><dd className="angka angka-koin">{saya.koin}</dd></div>
             <div><dt>laporan</dt><dd>{saya.laporan}</dd></div>
             <div><dt>hari seri</dt><dd>{saya.seri}</dd></div>
             <div><dt>{saya.kabupaten ? `di ${saya.kabupaten}` : 'peringkat'}</dt><dd>{saya.posisi ? `#${saya.posisi}` : '–'}</dd></div>
@@ -105,8 +105,12 @@ export default function Saya() {
           <label className="pilih-daerah">
             <span className="redup kecil">Wilayah</span>
             <select value={kabAktif} onChange={e => setKabupaten(e.target.value)}>
-              <option value="semua">Semua kabupaten/kota</option>
-              {semuaKabupaten().map(k => <option key={k} value={k}>{k}</option>)}
+              <option value="semua">Semua Sulawesi</option>
+              {PROVINSI.map(p => (
+                <optgroup key={p.kode} label={p.nama}>
+                  {kabupatenDiProvinsi(p.kode).map(k => <option key={k} value={k}>{k}</option>)}
+                </optgroup>
+              ))}
             </select>
           </label>
           {peringkat.daftar.length ? (

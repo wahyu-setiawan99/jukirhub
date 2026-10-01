@@ -5,7 +5,7 @@
 // koin SAH. Hanya nama samaran; tanpa koordinat, IP, atau identitas.
 
 import { HARI_PERINGKAT, PERINGKAT_TAMPIL, namaSamaran, seriBerjalan } from '../_shared/koin.js';
-import { kabupatenSah } from '../_shared/kabupaten.js';
+import { kabupatenSah } from '../_shared/wilayah.js';
 import { sha256 } from '../lapor/proses.js';
 
 const AKSI = new Set(['lihat', 'sembunyikan', 'tampilkan', 'ganti_nama']);
