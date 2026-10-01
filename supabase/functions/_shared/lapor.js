@@ -5,6 +5,7 @@ import { BATAS, INDIKASI_PUNGLI, KENDARAAN, MAKS_BAYAR } from './konstanta.js';
 
 const KODE_PUNGLI = new Set(INDIKASI_PUNGLI.map(i => i.kode));
 const REF_OSM = /^(node|way|relation)\/[0-9]{1,15}$/;
+const POLA_KAMPANYE = /^[a-z0-9_-]{1,40}\/[a-z0-9_-]{1,40}\/[a-z0-9_-]{1,40}$/;
 const angka = (v) => typeof v === 'number' && Number.isFinite(v);
 const galat = (kode, pesan) => ({ ok: false, kode, pesan });
 
@@ -85,12 +86,15 @@ export function validasiLaporan(body) {
   const pesanKomentar = periksaKomentar(b.komentar);
   if (pesanKomentar) return galat('komentar', pesanKomentar);
   const komentar = String(b.komentar ?? '').trim() || null;
+  // Kode kampanye iklan "sumber/kampanye/konten" (web/src/lib/kampanye.js): tidak valid → diabaikan, laporan tetap jalan.
+  const kampanye = typeof b.kampanye === 'string' && POLA_KAMPANYE.test(b.kampanye) ? b.kampanye : null;
 
   return {
     ok: true,
     data: {
       perangkat: b.perangkat,
       komentar,
+      kampanye,
       titik_id: b.titik_id ?? null,
       tempat,
       ada_jukir: adaJukir,

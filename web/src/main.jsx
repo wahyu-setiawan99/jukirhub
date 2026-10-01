@@ -9,6 +9,10 @@ import './app.css';
 import App from './App.jsx';
 import { AppProvider } from './state.jsx';
 import { daftarkanServiceWorker } from './lib/sw.js';
+import { tangkapKampanye } from './lib/kampanye.js';
+
+// Klik iklan (?utm_…): simpan kode kampanye di perangkat lalu bersihkan alamat, sebelum router membaca URL.
+tangkapKampanye();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

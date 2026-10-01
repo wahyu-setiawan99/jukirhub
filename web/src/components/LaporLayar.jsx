@@ -5,6 +5,7 @@ import { KONFIGURASI, useApp } from '../state.jsx';
 import { PROFIL_LOKASI, kodeGalatLokasi, pesanGalatLokasi } from '../lib/lokasi.js';
 import { formatJarak, formatRupiah, jarakM } from '../lib/util.js';
 import { kunciPerangkat, panggilFungsi, susunLaporan } from '../lib/fungsi.js';
+import { kampanyeAktif } from '../lib/kampanye.js';
 import { Ikon } from './Ikon.jsx';
 
 // Form laporan satu layar (AGENTS.md 1.2 poin 3): datang/pergi membantu, bayar, indikasi pungli (boleh kosong),
@@ -67,7 +68,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
       if (pesan) { setKirim({ status: 'galat', pesan }); return; }
     }
     if (isian.adaJukir == null) { setKirim({ status: 'galat', pesan: 'Jawab dulu: ada jukir di tempat ini?' }); return; }
-    const body = susunLaporan({ tempat, isian, posisi: lokasi.posisi, perangkat: kunciPerangkat() });
+    const body = susunLaporan({ tempat, isian, posisi: lokasi.posisi, perangkat: kunciPerangkat(), kampanye: kampanyeAktif() });
     // Pesan yang sama dengan server, sebelum dikirim (server tetap memeriksa ulang).
     const cek = validasiLaporan(body);
     if (!cek.ok) { setKirim({ status: 'galat', pesan: cek.pesan }); return; }

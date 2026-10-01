@@ -37,12 +37,16 @@ export default function Info() {
         </p>
       </section>
 
-      <section className="kartu" aria-labelledby="judul-privasi">
+      <section className="kartu" id="privasi" aria-labelledby="judul-privasi">
         <h2 id="judul-privasi">Privasi</h2>
         <ul className="poin">
           <li>Tanpa akun, tanpa nama, tanpa nomor HP.</li>
           <li>Tidak ada nama, foto, atau ciri pribadi jukir. Laporan berupa pilihan dan bintang.</li>
           <li>Koordinat saat melapor hanya untuk memastikan Anda di lokasi, tidak ditampilkan, dan dihapus setelah 7 hari.</li>
+          <li>
+            Tanpa pelacak iklan (tidak ada Meta Pixel atau sejenisnya). Bila Anda datang dari iklan, hanya nama
+            kampanyenya yang ikut tersimpan di laporan, untuk menghitung iklan mana yang berguna.
+          </li>
         </ul>
       </section>
 

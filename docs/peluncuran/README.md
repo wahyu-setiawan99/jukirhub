@@ -7,6 +7,8 @@ Materi di folder ini:
 - [teks-whatsapp.md](teks-whatsapp.md): pesan untuk grup warga, driver ojol, pemilik usaha, dan jawaban pertanyaan umum
 - [poster.html](poster.html): dua poster A5 siap cetak (buka di browser → Cetak → A5, margin minimum,
   aktifkan "Grafik latar"). Halaman 1 ajakan melapor; halaman 2 "Parkir di sini gratis, tanpa jukir" untuk usaha.
+- [iklan.md](iklan.md): rencana iklan Facebook (utama), Instagram, TikTok: struktur kampanye, naskah video, UTM,
+  jadwal 4 minggu, balasan komentar. Hasil per iklan: `npm run kampanye`.
 - `qr-jukirhub.svg` (cetak) / `.png` (chat) → https://jukirhub.vercel.app/peta (buat ulang: `npm run qr`)
 
 ---

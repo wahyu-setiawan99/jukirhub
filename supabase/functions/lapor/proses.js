@@ -117,7 +117,9 @@ export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.
     lng: d.lng,
     akurasi_m: d.akurasi_m,
     jarak_m: Math.round(jarak),
-    bobot_manual: gps.bobotManual
+    bobot_manual: gps.bobotManual,
+    // Hanya bila ada: laporan tanpa kampanye tetap tersimpan walau migrasi kampanye belum dijalankan.
+    ...(d.kampanye ? { kampanye: d.kampanye } : {})
   });
 
   // Komentar (M4): disimpan 'menunggu', tampil setelah pemilik menekan Tampilkan di Telegram (AGENTS.md 1.3.1).

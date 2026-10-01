@@ -237,6 +237,7 @@ Pola feed berita Adami (Adami AGENTS.md 10.6), ditambah pencocokan lokasi:
 | `npm run build --prefix web` | Build produksi (sekaligus membuat HTML statis SEO, robots, sitemap) |
 | `npm run seed` | Buat ulang `seed.sql` dari `scripts/data/` (tarif resmi) — dibuat saat tarif diisi pemilik |
 | `npm run moderasi` | Tinjau titik baru / sembunyikan titik atau laporan |
+| `npm run kampanye` | Laporan & pelapor per kampanye iklan (UTM), dari view `kampanye_publik` (`docs/peluncuran/iklan.md`) |
 | `npm run ikon` | Buat ulang favicon, ikon HP, dan `og.png` dari `web/src/lib/logo.js` |
 | `npm run cloud:secrets`, `bot:setup`, `pemantauan:setup` | **Dijalankan pemilik** (menyentuh rahasia) |
 | `npx supabase db push` | Terapkan migrasi baru ke cloud |
@@ -274,6 +275,9 @@ Supabase lokal **55321** (API), 55322 (db), 55323 (studio), 55324 (email) — li
   wajah dan plat tidak boleh terlihat.
 - Setiap halaman titik memuat disclaimer: "Data dari laporan warga, belum diverifikasi pihak berwenang."
   Info memuat cara menyampaikan keberatan (pemilik tempat / pihak resmi).
+- **Tanpa pelacak iklan** (Meta Pixel, TikTok Pixel, Google Analytics, dsb.). Iklan diukur dengan UTM: web
+  menyimpan `sumber/kampanye/konten` di HP 30 hari (`web/src/lib/kampanye.js`), laporan membawanya ke kolom
+  `laporan.kampanye`, publik hanya melihat angka agregat (`kampanye_publik`).
 - Uji di produksi: jangan kirim laporan palsu. Kalau terpaksa menulis data uji, bersihkan lagi.
 
 ---
@@ -318,7 +322,8 @@ angkanya. Tarif yang belum diperiksa tidak dipakai untuk menilai "di atas tarif 
   pura-pura diterima). GPS palsu → bobot 0,2 diam-diam (bagian 4).
 - **Kolom `laporan`:** `titik_id`, `kendaraan` (`motor`/`mobil`), `bantu_datang` (bool), `bantu_pergi` (bool),
   `bayar` (0–100.000), `pungli[]` (kode di bawah, boleh kosong), `bintang` (1–5), `reporter_key`, `ip_hash`, `lat`,
-  `lng`, `akurasi_m`, `jarak_m`, `bobot_manual`, `dibuat`.
+  `lng`, `akurasi_m`, `jarak_m`, `bobot_manual`, `dibuat`, `kampanye` (kode iklan `sumber/kampanye/konten`, boleh
+  kosong; tidak valid → diabaikan tanpa menolak laporan).
 - **Kode indikasi pungli** (`_shared/konstanta.js` → `INDIKASI_PUNGLI`, juga dicek database):
 
   | Kode | Label di layar |
@@ -524,7 +529,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M0 Fondasi** | Kerangka `web/` meniru Adami, tema, Poppins, service worker, SEO dasar, migrasi awal, tes. *Selesai (lihat status).* |
 | **M1 Peta & pilih tempat** | Peta MapLibre + penanda tempat terlapor + gugus, ketuk tempat di peta dasar, cari (lokal + Nominatim), tekan lama untuk pin, lembar tempat (baca dari view publik), Daftar *Selesai 29 Sept (lihat status).* |
 | **M2 Laporkan parkir** | Form 1 layar (1.2 poin 3), Edge Function `lapor` (gerbang 250 m, batas, GPS palsu, buat tempat baru), `skor-pungli.js` + ringkasan, penanda berubah warna setelah lapor *Selesai 30 Sept (lihat status).* |
-| **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan. *Materi siap 30 Sept: `docs/peluncuran/` (checklist, poster A5 ×2, teks WhatsApp, QR `npm run qr`). Sisa: uji HP lapangan & cold start oleh pemilik, domain (opsional).* |
+| **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan. *Materi siap 30 Sept: `docs/peluncuran/` (checklist, poster A5 ×2, teks WhatsApp, QR `npm run qr`). Sisa: uji HP lapangan & cold start oleh pemilik, domain (opsional). Rencana iklan FB/IG/TikTok + pengukuran UTM siap 1 Okt (`docs/peluncuran/iklan.md`).* |
 | **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) *Selesai 1 Okt (moderasi lewat Telegram; AI menyusul).* |
 | **M5 Berita parkir** | Edge Function `berita` (RSS + AI deteksi lokasi + Nominatim), "Berita parkir di sekitar sini" di lembar tempat (bagian 1.3.2) |
 
@@ -600,6 +605,10 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
     `main`). Pemilik mengganti ke `main` dan mengaktifkan "Auto-assign Custom Production Domains" (30 Sept).
   - Pemilik: nama tempat baru cukup **dikabarkan** ke pemilik; selama tidak dihapus berarti sah, tanpa halaman
     moderasi → Telegram + tombol Sembunyikan (bagian 5).
+- **1 Okt 2026:**
+  - Pemasaran fokus **Facebook Ads (Meta Ads Manager), video**, plus IG & TikTok organik → `docs/peluncuran/iklan.md`.
+    Tujuan iklan = pelapor; ukuran utama **biaya per pelapor** (`npm run kampanye`), tanpa Meta Pixel (rekomendasi
+    Claude, pola Adami). Nada iklan: info praktis & adil, bukan kampanye anti-jukir.
 
 **Belum diputuskan (tanyakan pemilik sebelum dikerjakan):**
 

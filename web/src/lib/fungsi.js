@@ -29,7 +29,7 @@ export async function panggilFungsi(fetchFn, konfigurasi, nama, body) {
 
 // Isian form + tempat + posisi → body untuk Edge Function `lapor` (bentuknya divalidasi _shared/lapor.js).
 // Tempat terlapor dikirim sebagai titik_id; tempat baru (peta / cari / pin) sebagai { nama, osm_ref, lat, lng }.
-export function susunLaporan({ tempat, isian, posisi, perangkat }) {
+export function susunLaporan({ tempat, isian, posisi, perangkat, kampanye = null }) {
   const t = tempat.id != null
     ? { titik_id: tempat.id }
     // Pin (tekan lama / "Laporkan di lokasi saya"): nama yang diketik di form. Tempat dari peta / cari: namanya sendiri.
@@ -52,6 +52,8 @@ export function susunLaporan({ tempat, isian, posisi, perangkat }) {
     pungli: [...isian.pungli],
     bintang: isian.bintang,
     ...(String(isian.komentar ?? '').trim() ? { komentar: String(isian.komentar).trim() } : {}),
+    // Kode kampanye iklan (lib/kampanye.js), hanya bila pelapor datang dari iklan ≤ 30 hari lalu.
+    ...(kampanye ? { kampanye } : {}),
     lat: posisi?.lat,
     lng: posisi?.lng,
     akurasi_m: posisi?.akurasi != null ? Math.round(posisi.akurasi) : undefined

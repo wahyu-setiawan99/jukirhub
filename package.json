@@ -7,7 +7,8 @@
     "ikon": "node scripts/buat-ikon.js",
     "bot:setup": "node scripts/setup-telegram.js",
     "cek:tayang": "node scripts/cek-tayang.js",
-    "qr": "node scripts/buat-qr.js"
+    "qr": "node scripts/buat-qr.js",
+    "kampanye": "node --env-file-if-exists=web/.env.local scripts/kampanye.js"
   },
   "devDependencies": {
     "qrcode": "^1.5.4",
