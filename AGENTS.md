@@ -19,45 +19,28 @@ Terakhir diperbarui: 1 Okt 2026.
 
 ## Serah terima (status terkini, 1 Okt 2026) — baca ini dulu
 
-**Yang sudah tayang** (https://jukirhub.vercel.app, commit `285c15a`): M0–M6 lengkap.
+**Tayang di https://jukirhub.site** (domain utama; commit `17c4910`, semua sudah di-push). `jukirhub.vercel.app` &
+`www.jukirhub.site` dialihkan 308 ke `jukirhub.site` (diuji, termasuk halaman depan). Isi: M0–M6 lengkap.
 - Peta & lapor (1.2), riwayat + komentar (1.3.1), koin + tab Saya + foto bukti (1.4).
 - Berita parkir per daerah + halaman `/berita` (1.3.2), zonasi pulau Sulawesi N2 (1.5).
-- Tampilan Radar + logo perisai heksagon (6.3), halaman situs untuk AdSense (1.6), kecepatan diukur ulang (7).
-- Migrasi s/d `20261001000007_kontak.sql` sudah di-`db push` pemilik. Fungsi `lapor kontribusi foto berita telegram kontak
-  aduan` sudah di-deploy. `npm run berita:setup` sudah dijalankan (berita aktif, tidak dikirim ke Telegram).
+- Tampilan Radar + logo perisai heksagon (6.3), halaman situs untuk AdSense (1.6), kecepatan diukur (7).
+- Migrasi s/d `20261001000007_kontak.sql` sudah di-`db push`. Fungsi `lapor kontribusi foto berita telegram kontak aduan`
+  sudah di-deploy. Berita aktif (`npm run berita:setup`), tidak dikirim ke Telegram.
 
-**Sudah di-commit, BELUM di-push** (cek: `git log --oneline origin/main..main`):
-1. `80225b1`: berita lebih cepat di `/berita`, tagline Beranda dihapus, dan **perbaikan bug**: data tidak termuat di tab
-   tersembunyi (`setelahGambarPertama` kini punya cadangan timer).
-2. `f0c5c58`: **domain `jukirhub.site`** (URL kanonik, sitemap, QR, dokumen, redirect permanen `jukirhub.vercel.app`
-   & `www` → `jukirhub.site` di `vercel.json`).
-3. Commit dokumen serah terima ini (AGENTS.md, CLAUDE.md, `.cursor/rules/jukirhub.mdc`): aman di-push kapan saja.
-
-**JANGAN push `f0c5c58` sebelum domain aktif.** Per 1 Okt, DNS `jukirhub.site` masih "Non-existent domain"; redirect
-akan membuat situs tidak bisa dibuka. Cek dulu: `nslookup jukirhub.site 8.8.8.8` harus memberi alamat IP, dan Vercel →
-proyek jukirhub → Settings → Domains menandai `jukirhub.site` "Valid Configuration". Bila pemilik ingin perbaikan bug
-tayang lebih dulu, push `80225b1` saja: `git push origin 80225b1:main`.
-
-**Sudah dikerjakan AI lewat CLI (1 Okt, atas permintaan pemilik):**
-- Supabase `ALLOWED_ORIGINS` = `https://jukirhub.site,https://www.jukirhub.site,https://jukirhub.vercel.app,http://localhost:5174,http://localhost:4174`
-  (nilai lama `https://jukirhub.vercel.app,http://localhost:5174` ditemukan lewat pencocokan hash; CORS dicek).
-- Vercel: `jukirhub.site` & `www.jukirhub.site` ditambahkan ke proyek `jukirhub` (`vercel domains add`). `VITE_SITE_URL`
-  tidak ada di env Vercel (situs memakai `SITUS.urlBawaan` dari kode). Folder lokal di-`vercel link` (`.vercel/`, `.env.local`
-  root berisi token OIDC: di-gitignore, jangan dibaca/di-commit).
+**Domain (selesai 1 Okt):** registrar DomaiNesia, nameserver sudah diganti ke `ns1/ns2.vercel-dns.com` (DNS kini dikelola
+Vercel: record bisa ditambah AI lewat `npx vercel dns add jukirhub.site …`). Domain & `www` terpasang di proyek Vercel
+`jukirhub`, HTTPS aktif. Supabase `ALLOWED_ORIGINS` memuat jukirhub.site, www, vercel.app, localhost:5174/4174; `URL_WEB`
+= `https://jukirhub.site`. `VITE_SITE_URL` tidak dipakai di Vercel. Folder lokal di-`vercel link` (`.vercel/` & `.env.local`
+root berisi token OIDC: di-gitignore, jangan dibaca/di-commit).
 
 **Menunggu pemilik (urut):**
-1. **DNS di DomaiNesia** (registrar; nameserver sekarang `ns1/ns2.domainesia.net`, belum ada record). Pilih salah satu:
-   - Ganti nameserver ke `ns1.vercel-dns.com` & `ns2.vercel-dns.com` (disarankan: DNS lalu bisa diatur AI lewat
-     `vercel dns add`, mis. TXT Search Console), **atau**
-   - Tetap DomaiNesia, isi record: `A @ 216.198.79.1`, `A @ 64.29.17.1`, `CNAME www 8880a4bf15a543bf.vercel-dns-017.com`.
-   Cek: `npx vercel domains verify jukirhub.site` → "Valid Configuration".
-2. Setelah domain aktif (AI boleh mengerjakan): `npx supabase secrets set URL_WEB=https://jukirhub.site`, push semua commit,
-   `npm run cek:tayang`, cek redirect `jukirhub.vercel.app` → `jukirhub.site`.
-3. Google Search Console: properti `jukirhub.site` (TXT DNS) + sitemap `https://jukirhub.site/sitemap.xml`.
-4. Google AdSense: daftar dengan `jukirhub.site`. Kode `ca-pub-…` diisi di env Vercel `VITE_ADSENSE_CLIENT`, lalu build
-   ulang (meta verifikasi & `ads.txt` otomatis, bagian 1.6). Skrip iklan belum dipasang (keputusan menunggu persetujuan).
-5. Lapangan: uji laporan sungguhan dari HP (koin, foto bukti ke Telegram), ganti tautan di FB/IG/TikTok, cetak ulang
-   poster dengan QR baru.
+1. Google Search Console: buat properti **Domain** `jukirhub.site`, salin nilai TXT `google-site-verification=…` →
+   AI menambahkannya: `npx vercel dns add jukirhub.site @ TXT "google-site-verification=…"`. Lalu kirim sitemap
+   `https://jukirhub.site/sitemap.xml`.
+2. Google AdSense: daftar dengan `jukirhub.site`. Kode `ca-pub-…` diisi di env Vercel `VITE_ADSENSE_CLIENT` (AI bisa lewat
+   `npx vercel env add`), lalu build ulang (meta verifikasi & `ads.txt` otomatis, bagian 1.6). Skrip iklan belum dipasang.
+3. Lapangan: uji laporan sungguhan dari HP (koin, foto bukti ke Telegram), ganti tautan di FB/IG/TikTok ke jukirhub.site,
+   cetak ulang poster dengan QR baru (`docs/peluncuran/qr-jukirhub.svg`).
 
 **Belum diputuskan / calon pekerjaan berikutnya:** bagian 11 "Belum diputuskan" (fase N3, moderator per zona,
 imbauan manual, skrip iklan AdSense, og.png masih memuat tagline).
