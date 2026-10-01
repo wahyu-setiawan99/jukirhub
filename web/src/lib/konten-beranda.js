@@ -10,7 +10,7 @@ export const SITUS = {
   tagline: 'Melaporkan juru parkir liar',
   // Domain belum diputuskan (AGENTS.md bagian 11). Bisa ditimpa env VITE_SITE_URL.
   urlBawaan: 'https://jukirhub.site',
-  judul: 'JukirHub: Info Juru Parkir, Tarif, dan Indikasi Pungli dari Warga',
+  judul: 'JukirHub: Informasi Seputar Juru Parkir',
   // Deskripsi ±150 karakter: lebih panjang dari ±160 dipotong Google di hasil pencarian.
   deskripsi:
     'Cek apakah jukir membantu, tarif parkir, dan indikasi pungli di depan toko dan pinggir jalan dari laporan ' +
