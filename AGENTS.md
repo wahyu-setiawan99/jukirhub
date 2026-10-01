@@ -1,18 +1,66 @@
 # AGENTS.md — JukirHub
 
-Pedoman bersama untuk semua asisten AI (Claude Code, Cursor/Grok, dan lainnya) serta manusia yang mengerjakan
-repo ini. Baca sampai habis sebelum mengubah apa pun. Kalau ada yang bertentangan dengan permintaan pemilik
-proyek di chat, tanyakan dulu.
+Pedoman bersama untuk semua asisten AI (Claude Code, Cursor, dan lainnya) serta manusia yang mengerjakan repo ini.
+**File ini satu-satunya sumber aturan** (Cursor membacanya otomatis; `CLAUDE.md` & `.cursor/rules/` hanya menunjuk ke
+sini). Baca **"Serah terima"** di bawah dulu, lalu bagian yang relevan. Kalau ada yang bertentangan dengan permintaan
+pemilik proyek di chat, tanyakan dulu.
 
-**JukirHub meniru Adami** (`../Adami App`, https://adami.tech): pola kerja, tech stack, struktur repo, tampilan,
-font, ukuran huruf, keamanan, dan SEO. Yang berbeda hanya isi (juru parkir, bukan SPBU) dan **warna tema**
-(bagian 6.3). Bila ragu soal cara mengerjakan sesuatu, lihat cara Adami mengerjakannya. Repo Adami **hanya
-dibaca**: salin polanya ke sini lalu sesuaikan nama (`adami_` → `jukirhub_`), jangan pernah mengubah file di sana.
+**Pola kerja, tech stack, struktur repo, keamanan, dan SEO meniru Adami** (`../Adami App`, https://adami.tech).
+**Tampilan & font TIDAK lagi meniru Adami** sejak 1 Okt 2026: ikuti tampilan "Radar" (bagian 6.3). Bila ragu soal cara
+mengerjakan sesuatu, lihat cara Adami mengerjakannya. Repo Adami **hanya dibaca**: salin polanya ke sini lalu sesuaikan
+nama (`adami_` → `jukirhub_`), jangan pernah mengubah file di sana, dan **jangan membaca file `.env*` di sana**.
 
 **Mulai dari bagian 1.2 (Prioritas dasar).** Itu inti produk yang dikerjakan lebih dulu. Kalau bagian lain
 bertentangan dengan 1.2, **1.2 yang berlaku**; fitur di luar 1.2 hanya dikerjakan bila pemilik memintanya.
 
-Terakhir diperbarui: 26 Sept 2026.
+Terakhir diperbarui: 1 Okt 2026.
+
+---
+
+## Serah terima (status terkini, 1 Okt 2026) — baca ini dulu
+
+**Yang sudah tayang** (https://jukirhub.vercel.app, commit `285c15a`): M0–M6 lengkap.
+- Peta & lapor (1.2), riwayat + komentar (1.3.1), koin + tab Saya + foto bukti (1.4).
+- Berita parkir per daerah + halaman `/berita` (1.3.2), zonasi pulau Sulawesi N2 (1.5).
+- Tampilan Radar + logo perisai heksagon (6.3), halaman situs untuk AdSense (1.6), kecepatan diukur ulang (7).
+- Migrasi s/d `20261001000007_kontak.sql` sudah di-`db push` pemilik. Fungsi `lapor kontribusi foto berita telegram kontak
+  aduan` sudah di-deploy. `npm run berita:setup` sudah dijalankan (berita aktif, tidak dikirim ke Telegram).
+
+**Sudah di-commit, BELUM di-push** (cek: `git log --oneline origin/main..main`):
+1. `80225b1`: berita lebih cepat di `/berita`, tagline Beranda dihapus, dan **perbaikan bug**: data tidak termuat di tab
+   tersembunyi (`setelahGambarPertama` kini punya cadangan timer).
+2. `f0c5c58`: **domain `jukirhub.site`** (URL kanonik, sitemap, QR, dokumen, redirect permanen `jukirhub.vercel.app`
+   & `www` → `jukirhub.site` di `vercel.json`).
+3. Commit dokumen serah terima ini (AGENTS.md, CLAUDE.md, `.cursor/rules/jukirhub.mdc`): aman di-push kapan saja.
+
+**JANGAN push `f0c5c58` sebelum domain aktif.** Per 1 Okt, DNS `jukirhub.site` masih "Non-existent domain"; redirect
+akan membuat situs tidak bisa dibuka. Cek dulu: `nslookup jukirhub.site 8.8.8.8` harus memberi alamat IP, dan Vercel →
+proyek jukirhub → Settings → Domains menandai `jukirhub.site` "Valid Configuration". Bila pemilik ingin perbaikan bug
+tayang lebih dulu, push `80225b1` saja: `git push origin 80225b1:main`.
+
+**Menunggu pemilik (urut):**
+1. Vercel: tambah domain `jukirhub.site` (+ `www`); isi DNS di registrar (record A/CNAME dari Vercel, atau nameserver
+   `ns1.vercel-dns.com` / `ns2.vercel-dns.com`).
+2. Supabase: `npx supabase secrets set ALLOWED_ORIGINS=https://jukirhub.site,https://www.jukirhub.site,https://jukirhub.vercel.app,http://localhost:5174,http://localhost:4174 URL_WEB=https://jukirhub.site`.
+   Tanpa ini, lapor/koin/foto/kontak ditolak (CORS) dari domain baru.
+3. Vercel → Environment Variables: `VITE_SITE_URL` diubah ke `https://jukirhub.site` atau dihapus.
+4. Setelah domain aktif: AI push → `npm run cek:tayang` (sudah memakai jukirhub.site) → cek redirect alamat lama.
+5. Google Search Console: properti `jukirhub.site` + sitemap `https://jukirhub.site/sitemap.xml`.
+6. Google AdSense: daftar dengan `jukirhub.site`. Kode `ca-pub-…` diisi di env Vercel `VITE_ADSENSE_CLIENT`, lalu build
+   ulang (meta verifikasi & `ads.txt` otomatis, bagian 1.6). Skrip iklan belum dipasang (keputusan menunggu persetujuan).
+7. Lapangan: uji laporan sungguhan dari HP (koin, foto bukti ke Telegram), ganti tautan di FB/IG/TikTok, cetak ulang
+   poster dengan QR baru.
+
+**Belum diputuskan / calon pekerjaan berikutnya:** bagian 11 "Belum diputuskan" (fase N3, moderator per zona,
+imbauan manual, skrip iklan AdSense, og.png masih memuat tagline).
+
+**Cara memeriksa tanpa alat khusus Claude:**
+- Tes & build: `npm test` dan `npm run build --prefix web` (wajib lolos sebelum commit).
+- Server dev: `npm run dev --prefix web` → http://localhost:5174. Versi produksi: `npm run build --prefix web` lalu
+  `npm run preview --prefix web -- --port 4174`.
+- Lighthouse: `npx lighthouse@12 http://localhost:4174/ --only-categories=performance,seo,accessibility` (ulang 2–3×).
+- Tampilan: cek di 375×812, 360×640, dan 1280×800, tema gelap & terang (DevTools → mode perangkat).
+- Situs live: `npm run cek:tayang` setelah push. **Jangan** mengulang curl ke situs live dalam loop cepat (bagian 9).
 
 ---
 
@@ -24,15 +72,19 @@ Terakhir diperbarui: 26 Sept 2026.
   dulu", jangan ubah kode sama sekali.
 - Beri pilihan dengan rekomendasi dan alasannya, termasuk perkiraan biaya bila memakai layanan berbayar.
   Hindari layanan yang mewajibkan kartu kredit kecuali pemilik menyetujuinya.
-- **Git:** kerja langsung di `main`, tanpa PR atau cabang (repo belum dibuat, lihat bagian 11). Setelah deploy
-  tersambung, **push ke `main` = langsung tayang**. Jangan push tanpa izin; setelah selesai mengubah kode, tawarkan
-  pilihan "commit saja" atau "commit & push".
+- **Git:** kerja langsung di `main`, tanpa PR atau cabang. **Push ke `main` = langsung tayang** (Vercel). Jangan push
+  tanpa izin; setelah selesai mengubah kode, tawarkan pilihan "commit saja" atau "commit & push".
 - Pesan commit jelas, dalam bahasa Indonesia. Tulis juga yang belum selesai (mis. "perlu dicek").
 - Sebelum commit: `npm test` dan `npm run build --prefix web` harus lolos.
 - **Setiap perubahan wajib tetap ramah HP, cepat, dan kuat SEO-nya** (bagian 7). Kalau ada yang terpaksa
   dikorbankan, jelaskan ke pemilik sebelum dikerjakan.
 - Setiap selesai push, cek tampilan di situs langsung (bagian 9) dan laporkan hasilnya ke pemilik.
 - Berganti alat/model AI: commit dulu, dan baca ulang file sebelum mengubahnya (file bisa sudah diubah alat lain).
+  Perbarui bagian "Serah terima" di atas setiap selesai sesi supaya alat berikutnya tahu status terakhir.
+- **Perintah deploy, migrasi, dan yang menyentuh rahasia dijalankan pemilik.** AI menuliskannya dalam blok kode `bash`
+  satu perintah per blok. AI tidak mengetik, menyalin, atau meminta token/password/API key; bila pemilik tidak sengaja
+  menempel kunci di chat, sarankan membuat kunci baru.
+- Perubahan tampilan diverifikasi di server dev pada 375×812, 360×640, dan 1280×800, tema gelap & terang.
 
 ---
 
@@ -716,6 +768,8 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 wilayah + CSV, halaman statis per tempat, rincian kerja jukir, atribut resmi, tag sikap, foto publik, notifikasi, bot
 Telegram warga, akun untuk menyimpan koin, hadiah/penukaran koin, hak jawab pemilik tempat, lencana "Resmi
 terverifikasi Dishub", akun pemerintah.
+
+*Catatan di bawah ini riwayat per tahap; status terbaru selalu di bagian "Serah terima" di awal file.*
 
 **Status (30 Sept 2026): M0, M1, dan M2 selesai dan tayang** di https://jukirhub.vercel.app (M2 dicek langsung 30 Sept: bundle baru, view Supabase 200, form lapor terbuka) (cek setelah push M0: semua
 halaman 200, canonical & sitemap benar, tampilan HP benar).

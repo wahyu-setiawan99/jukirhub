@@ -1,0 +1,8 @@
+---
+description: Aturan proyek JukirHub (selalu berlaku)
+alwaysApply: true
+---
+
+Semua aturan proyek ada di @AGENTS.md (root repo). Baca bagian "Serah terima" di awal file itu dulu: status terkini,
+commit yang belum di-push, dan langkah yang menunggu pemilik. Komunikasi dalam Bahasa Indonesia, tanya dulu sebelum
+mengubah hal yang sudah jadi, jangan push tanpa izin pemilik, dan perintah deploy/rahasia dijalankan pemilik.
