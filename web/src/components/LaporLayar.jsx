@@ -6,6 +6,8 @@ import { PROFIL_LOKASI, kodeGalatLokasi, pesanGalatLokasi } from '../lib/lokasi.
 import { formatJarak, formatRupiah, jarakM } from '../lib/util.js';
 import { kunciPerangkat, panggilFungsi, susunLaporan } from '../lib/fungsi.js';
 import { kampanyeAktif } from '../lib/kampanye.js';
+import KoinDiterima from './KoinDiterima.jsx';
+import TambahFoto from './TambahFoto.jsx';
 import { Ikon } from './Ikon.jsx';
 
 // Form laporan satu layar (AGENTS.md 1.2 poin 3): datang/pergi membantu, bayar, indikasi pungli (boleh kosong),
@@ -74,7 +76,9 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
     if (!cek.ok) { setKirim({ status: 'galat', pesan: cek.pesan }); return; }
     setKirim({ status: 'mengirim', pesan: null });
     const h = await panggilFungsi(fetch, KONFIGURASI, 'lapor', body);
-    if (h.ok) setKirim({ status: 'sukses', pesan: h.data.pesan, hasil: h.data.titik, komentar: h.data.komentar });
+    if (h.ok) setKirim({ status: 'sukses', pesan: h.data.pesan, hasil: h.data.titik, komentar: h.data.komentar,
+      // laporan_id: angka, null (pura-pura diterima), atau tidak ada (fungsi lapor versi lama → tanpa foto).
+      laporanId: 'laporan_id' in h.data ? h.data.laporan_id : undefined, koin: h.data.koin ?? null });
     else setKirim({ status: 'galat', pesan: h.pesan });
   };
 
@@ -88,6 +92,8 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
             Laporan Anda ikut dihitung di {kirim.hasil?.nama}. Indikasi pungli baru tampil setelah cukup laporan dari warga lain.
           </p>
           {kirim.komentar === 'menunggu' && <p className="redup">Cerita Anda tampil di riwayat setelah diperiksa pengelola.</p>}
+          <KoinDiterima koin={kirim.koin} />
+          {kirim.laporanId !== undefined && <TambahFoto laporanId={kirim.laporanId} />}
           <button type="button" className="tombol-utama lebar-penuh" onClick={() => onSelesai(kirim.hasil)}>Lihat di peta</button>
         </div>
       </div>

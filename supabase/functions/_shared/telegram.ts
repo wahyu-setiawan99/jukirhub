@@ -32,6 +32,26 @@ export async function kabariPemilik(teksHtml: string, tombol?: unknown) {
   }
 }
 
+// Foto bukti (Edge Function foto) ke pemilik: multipart sendPhoto. true bila Telegram menerima.
+export async function kirimFotoPemilik(jpeg: Uint8Array, keteranganHtml: string): Promise<boolean> {
+  if (!TOKEN || !CHAT_PEMILIK) return false;
+  const form = new FormData();
+  form.append('chat_id', CHAT_PEMILIK);
+  form.append('caption', keteranganHtml.slice(0, 1000));
+  form.append('parse_mode', 'HTML');
+  form.append('photo', new Blob([new Uint8Array(jpeg)], { type: 'image/jpeg' }), 'bukti.jpg');
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, {
+      method: 'POST', body: form, signal: AbortSignal.timeout(15_000)
+    });
+    if (!res.ok) console.warn('[telegram] sendPhoto ditolak:', res.status);
+    return res.ok;
+  } catch (err) {
+    console.warn('[telegram] sendPhoto gagal:', err);
+    return false;
+  }
+}
+
 // Jalankan di latar supaya lama balasan ke pelapor tidak bergantung pada Telegram.
 export function diLatar(tugas: Promise<unknown>) {
   const runtime = (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime;

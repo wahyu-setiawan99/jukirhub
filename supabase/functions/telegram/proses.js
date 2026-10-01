@@ -3,7 +3,7 @@
 // node:test. Hanya chat pemilik yang boleh mengubah status; permintaan tanpa secret webhook yang benar ditolak.
 
 import {
-  barisStatus, barisStatusKomentar, bacaTombol, escapeHtml, tombolKomentar, tombolUntuk
+  barisStatus, barisStatusBerita, barisStatusKomentar, bacaTombol, escapeHtml, tombolBerita, tombolKomentar, tombolUntuk
 } from '../_shared/kabar-pemilik.js';
 
 export function samaAman(a, b) {
@@ -20,7 +20,8 @@ const tanpaStatus = (teks) => String(teks ?? '').replace(/\n\n(🙈|✅|🚫)[^\
 /**
  * @param {{ update: any, rahasiaHeader: string | null, rahasia: string, chatPemilik: string,
  *   db: { ubahStatus(id: number, status: 'aktif' | 'disembunyikan'): Promise<{ nama: string } | null>,
- *     ubahStatusKomentar(id: number, status: 'tampil' | 'ditolak'): Promise<{ isi: string } | null> },
+ *     ubahStatusKomentar(id: number, status: 'tampil' | 'ditolak'): Promise<{ isi: string } | null>,
+ *     ubahStatusBerita?(id: number, disembunyikan: boolean): Promise<{ judul: string } | null> },
  *   tg: { jawabTombol(idCallback: string, teks: string): Promise<unknown>,
  *     ubahPesan(chatId: number, idPesan: number, teksHtml: string, tombol: unknown): Promise<unknown>,
  *     kirim(chatId: number, teksHtml: string): Promise<unknown> } }} p
@@ -45,6 +46,18 @@ export async function prosesTelegram({ update, rahasiaHeader, rahasia, chatPemil
     const ubahPesan = (teksStatus, markup) => (pesan?.chat?.id != null && pesan.message_id != null
       ? tg.ubahPesan(pesan.chat.id, pesan.message_id, escapeHtml(tanpaStatus(pesan.text)) + teksStatus, markup)
       : null);
+
+    if (tombol.jenis === 'berita') {
+      const sembunyi = tombol.aksi === 'sembunyikan';
+      const berita = await db.ubahStatusBerita?.(tombol.id, sembunyi);
+      if (!berita) {
+        await tg.jawabTombol(cb.id, 'Berita tidak ditemukan.');
+        return { status: 200 };
+      }
+      await tg.jawabTombol(cb.id, sembunyi ? 'Berita disembunyikan.' : 'Berita ditampilkan lagi.');
+      await ubahPesan(barisStatusBerita(sembunyi), tombolBerita(sembunyi, tombol.id));
+      return { status: 200 };
+    }
 
     if (tombol.jenis === 'komentar') {
       const status = tombol.aksi === 'tampilkan' ? 'tampil' : 'ditolak';

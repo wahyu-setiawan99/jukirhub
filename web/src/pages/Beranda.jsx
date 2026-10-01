@@ -6,6 +6,7 @@ import { CATATAN_KAKI, FAQ, HERO, LANGKAH, TENTANG, WILAYAH } from '../lib/konte
 import { urutkanTempat } from '../lib/tempat.js';
 import { pramuatPetaSaatSenggang } from '../lib/koneksi.js';
 import BarisTempat from '../components/BarisTempat.jsx';
+import Berita from '../components/Berita.jsx';
 
 const JUMLAH_SOROTAN = 3;
 
@@ -54,6 +55,8 @@ export default function Beranda() {
           <button type="button" className="tombol-sekunder" onClick={() => navigate('/daftar')}>Lihat daftar</button>
         </div>
       </section>
+
+      <Berita />
 
       <KontenBeranda />
     </div>

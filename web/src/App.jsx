@@ -18,6 +18,7 @@ import { LegendaIndikasi } from './components/Legenda.jsx';
 // lalu dipramuat saat perangkat senggang agar tetap tersedia offline (lib/koneksi.js).
 const Daftar = lazy(muatBagian.daftar);
 const Info = lazy(muatBagian.info);
+const Saya = lazy(muatBagian.saya);
 const LaporLayar = lazy(muatBagian.lapor);
 
 // Pustaka peta (MapLibre + worker + CSS) jauh lebih besar dari sisa app: dimuat terpisah saat tab Peta dibuka.
@@ -32,7 +33,8 @@ const MENU_BAWAH = [
   ['/', 'Beranda', 'rumah'],
   ['/peta', 'Peta', 'peta'],
   ['/daftar', 'Daftar', 'daftar'],
-  ['/info', 'Info', 'info']
+  ['/info', 'Info', 'info'],
+  ['/saya', 'Saya', 'orang']
 ];
 
 export default function App() {
@@ -79,6 +81,7 @@ export default function App() {
               <Route path="/peta" element={<HalamanPeta />} />
               <Route path="/daftar" element={<Daftar />} />
               <Route path="/info" element={<Info />} />
+              <Route path="/saya" element={<Saya />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>

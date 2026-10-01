@@ -36,9 +36,17 @@ function dbTiruan({ tempat = [TEMPAT_A], laporan = [] } = {}) {
       return id;
     },
     async riwayatPerangkat(rk) { return l.filter(x => x.reporter_key === rk); },
-    async simpanLaporan(baris) { l.push({ ...baris, dibuat: new Date().toISOString() }); },
+    async simpanLaporan(baris) { l.push({ ...baris, id: l.length + 1, dibuat: new Date().toISOString() }); return l.length; },
     async laporanTitik(id) { return l.filter(x => x.titik_id === id); },
-    async simpanRingkasan(id, r) { ringkasan.set(id, r); }
+    async simpanRingkasan(id, r) { ringkasan.set(id, r); },
+    // koin (migrasi 20261001000003)
+    reputasi: new Map(), harian: [],
+    async bacaReputasi(k) { return db.reputasi.get(k) ?? null; },
+    async simpanReputasi(b) { db.reputasi.set(b.reporter_key, { ...db.reputasi.get(b.reporter_key), ...b }); },
+    async catatKoinHarian(k) { db.harian.push(k); },
+    async kotaTitik(id) { return t.find(x => x.id === id)?.kota ?? null; },
+    async isiKota(id, kota) { t.find(x => x.id === id).kota = kota; },
+    async catatKoinSahLaporan(id, n) { l.find(x => x.id === id).koin_sah = n; }
   };
   return db;
 }
@@ -79,7 +87,8 @@ test('laporan sah ke tempat terlapor: disimpan tanpa IP/kunci mentah, ringkasan 
   const db = dbTiruan();
   const h = await lapor(db, isian());
   assert.equal(h.status, 200);
-  assert.deepEqual(h.body, { ok: true, pesan: PESAN_SUKSES, titik: { id: 1, nama: 'Indomaret Perintis' } });
+  assert.deepEqual({ ...h.body, koin: h.body.koin?.koin }, { ok: true, pesan: PESAN_SUKSES, titik: { id: 1, nama: 'Indomaret Perintis' },
+    laporan_id: 1, koin: 15 });
   assert.equal(db.l.length, 1);
   const s = db.l[0];
   assert.equal(s.reporter_key, await sha256('garam-r:perangkat-uji-1'));
@@ -151,8 +160,13 @@ test('GPS terlalu sempurna → tetap diterima dengan balasan sama, bobot 0,2 dia
   const db = dbTiruan();
   const h = await lapor(db, isian({ akurasi_m: 1 }));
   assert.equal(h.status, 200);
-  assert.deepEqual(h.body, { ok: true, pesan: PESAN_SUKSES, titik: { id: 1, nama: 'Indomaret Perintis' } });
+  assert.deepEqual({ ...h.body, koin: h.body.koin?.koin }, { ok: true, pesan: PESAN_SUKSES, titik: { id: 1, nama: 'Indomaret Perintis' },
+    laporan_id: 1, koin: 15 });
   assert.equal(db.l[0].bobot_manual, 0.2);
+  // Koin tampil sama dengan laporan sah (pelapor tidak tahu), tetapi tidak masuk peringkat.
+  assert.equal(db.harian[0].tampil, 15);
+  assert.equal(db.harian[0].sah, 0);
+  assert.equal(db.l[0].koin_sah, undefined);
 });
 
 test('isian rusak ditolak sebelum menyentuh database', async () => {

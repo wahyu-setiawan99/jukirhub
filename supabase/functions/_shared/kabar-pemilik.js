@@ -3,6 +3,8 @@
 // - Komentar: baru tampil setelah pemilik menekan Tampilkan (tombol Tampilkan / Tolak).
 // ESM murni (Node & Deno), dites dengan node:test. Pesan tidak memuat identitas, IP, atau koordinat PELAPOR.
 
+import { INDIKASI_PUNGLI } from './konstanta.js';
+
 export const LABEL_SUMBER = {
   pin: 'nama diketik warga (tempat tidak ada di peta)',
   peta: 'nama dari peta OpenStreetMap',
@@ -13,17 +15,62 @@ export const escapeHtml = (teks) =>
   String(teks ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // Data tombol Telegram (maks. 64 byte). Tempat: "jh:s:<id>" sembunyikan, "jh:t:<id>" tampilkan.
-// Komentar: "jh:ks:<id>" tampilkan, "jh:kx:<id>" tolak / sembunyikan.
+// Komentar: "jh:ks:<id>" tampilkan, "jh:kx:<id>" tolak / sembunyikan. Berita (M5): "jh:bs:<id>" sembunyikan,
+// "jh:bt:<id>" tampilkan lagi.
 export const dataTombol = (aksi, id) => `jh:${aksi === 'sembunyikan' ? 's' : 't'}:${id}`;
 export const dataTombolKomentar = (aksi, id) => `jh:${aksi === 'tampilkan' ? 'ks' : 'kx'}:${id}`;
+export const dataTombolBerita = (aksi, id) => `jh:${aksi === 'sembunyikan' ? 'bs' : 'bt'}:${id}`;
 
 export function bacaTombol(data) {
-  const m = /^jh:(s|t|ks|kx):([0-9]{1,15})$/.exec(String(data ?? ''));
+  const m = /^jh:(s|t|ks|kx|bs|bt):([0-9]{1,15})$/.exec(String(data ?? ''));
   if (!m) return null;
   const id = Number(m[2]);
   if (m[1] === 's') return { jenis: 'tempat', aksi: 'sembunyikan', id };
   if (m[1] === 't') return { jenis: 'tempat', aksi: 'tampilkan', id };
+  if (m[1] === 'bs') return { jenis: 'berita', aksi: 'sembunyikan', id };
+  if (m[1] === 'bt') return { jenis: 'berita', aksi: 'tampilkan', id };
   return { jenis: 'komentar', aksi: m[1] === 'ks' ? 'tampilkan' : 'tolak', id };
+}
+
+export const tombolBerita = (disembunyikan, id) => ({
+  inline_keyboard: [[disembunyikan
+    ? { text: '↩️ Tampilkan lagi', callback_data: dataTombolBerita('tampilkan', id) }
+    : { text: '🙈 Sembunyikan', callback_data: dataTombolBerita('sembunyikan', id) }]]
+});
+
+// Satu pesan per berita parkir baru yang tampil di JukirHub (M5), dengan tombol Sembunyikan.
+export function pesanBeritaBaru({ id, sumber, judul, ringkasan, kabupaten = [], url }) {
+  return [
+    `📰 <b>Berita parkir baru</b> (berita ${id})${kabupaten.length ? ` · ${escapeHtml(kabupaten.join(', '))}` : ''}`,
+    `<b>${escapeHtml(judul)}</b>`,
+    `${escapeHtml(sumber)}: ${escapeHtml(ringkasan ?? '')}`,
+    `<a href="${escapeHtml(url)}">Baca di sumbernya</a>`,
+    '',
+    'Sudah tampil di Beranda JukirHub. Tekan Sembunyikan bila tidak relevan atau ringkasannya keliru.'
+  ].join('\n');
+}
+
+export const barisStatusBerita = (disembunyikan) => (disembunyikan
+  ? '\n\n🙈 <b>Berita disembunyikan</b> dari JukirHub.'
+  : '\n\n✅ <b>Berita ditampilkan</b> di JukirHub.');
+
+// Keterangan foto bukti (Edge Function foto). Tanpa identitas/koordinat pelapor.
+export function keteranganFoto({ id, nama, ada_jukir, kendaraan, bayar, pungli = [], bintang, bobot_manual = 1 }) {
+  const label = Object.fromEntries(INDIKASI_PUNGLI.map(i => [i.kode, i.label]));
+  const isi = ada_jukir === false
+    ? ['Tidak ada jukir']
+    : [
+      kendaraan === 'mobil' ? 'Mobil' : 'Motor',
+      `bayar Rp ${Number(bayar ?? 0).toLocaleString('id-ID')}`,
+      bintang ? `${bintang}★` : null,
+      ...(pungli ?? []).map(k => label[k] ?? k)
+    ].filter(Boolean);
+  return [
+    `📷 <b>Foto bukti</b> · <b>${escapeHtml(nama)}</b> (laporan ${id})`,
+    escapeHtml(isi.join(' · ')),
+    ...(bobot_manual < 1 ? ['⚠️ Lokasi pelapor mencurigakan (bobot laporan diturunkan).'] : []),
+    'Foto hanya untuk Anda; tidak tampil di JukirHub.'
+  ].join('\n');
 }
 
 export const tombolUntuk = (status, id) => ({

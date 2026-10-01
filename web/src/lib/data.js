@@ -30,6 +30,9 @@ export const KOLOM_RINGKASAN = 'titik_id,jumlah_laporan,data_cukup,level_pungli,
   'bantu_pergi_ya,bayar_median_motor,jumlah_motor,bayar_median_mobil,jumlah_mobil,bintang_rata,laporan_terakhir,' +
   'jumlah_tanpa_jukir';
 
+// Berita parkir (M5): view berita_publik (≤ 30 hari, maks. 50, terbaru dulu). Diurutkan per daerah di web.
+export const KOLOM_BERITA = 'id,sumber,judul,ringkasan,url,terbit,kabupaten';
+
 // Riwayat laporan satu tempat (view riwayat_publik, M4): terbaru dulu, per halaman. Ambil satu baris lebih untuk tahu
 // apakah masih ada halaman berikutnya.
 export const KOLOM_RIWAYAT = 'id,waktu,ada_jukir,kendaraan,bantu_datang,bantu_pergi,bayar,pungli,bintang,komentar_id,komentar';

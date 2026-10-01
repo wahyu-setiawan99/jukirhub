@@ -396,3 +396,14 @@ verify_jwt = false
 # Tombol "Laporkan komentar" (M4): anonim, validasi di dalam fungsi.
 [functions.aduan]
 verify_jwt = false
+
+# Tab Saya (koin & peringkat) dan foto bukti: anonim, validasi di dalam fungsi (kunci perangkat → hash).
+[functions.kontribusi]
+verify_jwt = false
+
+[functions.foto]
+verify_jwt = false
+
+# Berita parkir (M5): dipanggil pg_cron dengan header x-berita-secret; keaslian diperiksa di dalam fungsi.
+[functions.berita]
+verify_jwt = false

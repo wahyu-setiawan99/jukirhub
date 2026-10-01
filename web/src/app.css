@@ -228,7 +228,7 @@ a { color: var(--aksen); }
 
 .bawah {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   height: var(--tinggi-nav);
   padding-inline: var(--tepi-kolom);
   padding-bottom: env(safe-area-inset-bottom);
@@ -340,7 +340,7 @@ a { color: var(--aksen); }
 
 /* ------------------------------------------------ halaman daftar, info */
 
-.daftar, .info { display: grid; align-content: start; gap: 12px; padding-bottom: 24px; }
+.daftar, .info, .halaman-saya { display: grid; align-content: start; gap: 12px; padding-bottom: 24px; }
 .kartu {
   display: grid;
   gap: 8px;
@@ -375,7 +375,7 @@ a { color: var(--aksen); }
 /* ------------------------------------------------ beranda */
 
 .beranda { display: grid; align-content: start; gap: 20px; padding-bottom: 32px; }
-.beranda > *, .daftar > *, .info > * { width: 100%; max-width: var(--lebar-kolom); margin-inline: auto; }
+.beranda > *, .daftar > *, .info > *, .halaman-saya > * { width: 100%; max-width: var(--lebar-kolom); margin-inline: auto; }
 .beranda h1 {
   font-family: var(--font-judul);
   font-size: clamp(1.45rem, 5.4vw, 2rem);
@@ -960,17 +960,25 @@ a { color: var(--aksen); }
   border-top: 1px solid var(--garis);
 }
 .lapor-bawah .tombol-utama:disabled { opacity: 0.6; cursor: progress; }
+/* Di tengah bila muat; bila lebih tinggi dari layar (koin + foto + komentar di HP pendek) bisa digulir tanpa
+   bagian atas terpotong (margin auto, bukan align-content: center). */
 .lapor-sukses {
-  display: grid;
-  justify-items: center;
-  align-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  width: 100%;
   max-width: 480px;
   margin-inline: auto;
   padding: 24px;
   text-align: center;
 }
+.lapor-sukses > :first-child { margin-top: auto; }
+.lapor-sukses > :last-child { margin-bottom: auto; }
+.lapor-sukses > p { margin: 0; }
 .lapor-sukses h2 { font-size: 1.2rem; outline: none; }
 .sukses-ikon {
   display: grid;
@@ -983,6 +991,113 @@ a { color: var(--aksen); }
   font-size: 2rem;
   font-weight: 600;
 }
+
+/* ------------------------------------------------ koin, tab Saya, foto bukti (pola Adami 10.4–10.5) */
+
+.lencana-koin {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--kuning-latar);
+  color: var(--kuning-teks);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.koin-diterima {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--kuning-garis);
+  border-radius: 12px;
+  background: var(--permukaan);
+  text-align: left;
+}
+.koin-diterima p { margin: 0; }
+.koin-baris { display: flex; align-items: center; gap: 8px; }
+.koin-diterima .tautan { padding: 0; display: inline-flex; align-items: center; }
+
+.tambah-foto { display: grid; gap: 6px; width: 100%; text-align: left; }
+.tambah-foto p { margin: 0; }
+.tombol-foto { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.tombol-foto:disabled { cursor: progress; }
+.tambah-foto-hasil { display: flex; align-items: center; gap: 8px; color: var(--indikasi-rendah-teks); font-weight: 600; }
+
+.nama-samaran { margin: 0; font-size: 1.15rem; }
+.angka-saya { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0; }
+.angka-saya div { display: grid; }
+.angka-saya dd { margin: 0; font-size: 1.2rem; font-weight: 600; order: -1; }
+.angka-saya dt { color: var(--redup); font-size: 0.8rem; }
+.angka-koin { color: var(--kuning-teks); }
+
+.daftar-lencana { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.daftar-lencana li {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 2px;
+  padding: 10px 6px;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--redup);
+}
+.daftar-lencana li strong { font-size: 0.8rem; line-height: 1.25; }
+.daftar-lencana li .kecil { font-size: 0.7rem; line-height: 1.3; }
+.daftar-lencana li.dapat { color: var(--teks); border-color: var(--kuning-garis); }
+.daftar-lencana li.dapat svg { color: var(--kuning-teks); }
+
+.daftar-peringkat { list-style: none; margin: 0; padding: 0; display: grid; }
+.daftar-peringkat li {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--garis);
+}
+.daftar-peringkat li.saya { background: var(--lembut); border-radius: 8px; font-weight: 600; }
+.daftar-peringkat .urut { color: var(--redup); font-weight: 600; }
+
+.daftar-saya { list-style: none; margin: 0; padding: 0; display: grid; }
+.daftar-saya li {
+  display: grid;
+  gap: 1px;
+  min-height: 44px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--garis);
+  align-content: center;
+}
+.daftar-saya li:last-child { border-bottom: 0; }
+.daftar-saya a, .daftar-saya li > span:first-child { font-weight: 600; overflow-wrap: anywhere; }
+
+/* pilihan wilayah peringkat & daerah berita */
+.pilih-daerah { display: flex; align-items: center; gap: 8px; }
+.pilih-daerah select {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--garis);
+  border-radius: 10px;
+  background: var(--permukaan);
+  color: var(--teks);
+  font: inherit;
+}
+
+/* ------------------------------------------------ berita parkir (M5, Beranda) */
+
+.berita { display: grid; gap: 10px; }
+.berita h2 { display: flex; align-items: center; gap: 6px; }
+.berita p { margin: 0; }
+.daftar-berita { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.daftar-berita li { display: grid; gap: 2px; }
+.daftar-berita a { color: var(--aksen); font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.daftar-berita p { line-height: 1.45; color: var(--teks-isi); }
 
 /* Judul untuk pembaca layar saja. Sengaja di akhir file: aturan lebar kolom (.info > * dst.) tidak boleh
    menimpa width 1px, kalau tidak judul ini melebar ke luar layar. */

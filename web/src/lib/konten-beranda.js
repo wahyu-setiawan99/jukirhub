@@ -107,6 +107,12 @@ export const FAQ = {
     {
       tanya: 'Apakah JukirHub berbayar atau perlu mendaftar?',
       jawab: 'Tidak. JukirHub gratis dipakai tanpa akun, tanpa nama, dan tanpa nomor HP.'
+    },
+    {
+      tanya: 'Apa itu koin di tab Saya?',
+      jawab: 'Setiap laporan parkir dari lokasi memberi koin, ditambah bonus untuk pelapor pertama di suatu tempat ' +
+        'dan melapor beberapa hari berturut-turut. Koin untuk lencana dan peringkat per kabupaten dengan nama ' +
+        'samaran, belum bisa ditukar uang atau hadiah. Tanpa akun, koin tersimpan di HP dan browser yang Anda pakai.'
     }
   ]
 };

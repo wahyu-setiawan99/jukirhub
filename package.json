@@ -6,6 +6,7 @@
     "test": "node --test \"tests/**/*.test.js\"",
     "ikon": "node scripts/buat-ikon.js",
     "bot:setup": "node scripts/setup-telegram.js",
+    "berita:setup": "node scripts/setup-berita.js",
     "cek:tayang": "node scripts/cek-tayang.js",
     "qr": "node scripts/buat-qr.js",
     "kampanye": "node --env-file-if-exists=web/.env.local scripts/kampanye.js"

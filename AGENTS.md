@@ -125,7 +125,8 @@ Peta ──► pilih tempat (ketuk di peta / cari nama) ──► lembar tempat 
   kebanyakan, "Pernah dilaporkan tanpa jukir" bila sebagian kecil.
 - Kendaraan diambil dari pilihan **Motor / Mobil** di header (bukan pertanyaan tersendiri), ditampilkan di form dan
   bisa diganti di situ.
-- Tanpa teks bebas (kecuali nama tempat baru), tanpa foto, tanpa akun.
+- Tanpa teks bebas (kecuali nama tempat baru & komentar opsional), tanpa akun. Foto bukti opsional sesudah lapor
+  hanya untuk pemilik (bagian 1.4).
 - Laporan dikirim satu kali, biasanya saat mau pergi (kedua pertanyaan dijawab sekaligus). Tidak ada laporan dua
   tahap.
 
@@ -143,8 +144,8 @@ Peta ──► pilih tempat (ketuk di peta / cari nama) ──► lembar tempat 
 jukir/pelapor (bagian 4), indikasi bukan tuduhan (1.1), ambang tampil level pungli (6.2).
 
 **Ditunda (jangan dikerjakan sebelum 1.2 selesai dan pemilik meminta):** estimasi pendapatan / mode amati, tab Data
-dan dashboard per wilayah, rincian kerja jukir, atribut resmi, tag sikap, foto, notifikasi, koin, halaman statis per
-tempat.
+dan dashboard per wilayah, rincian kerja jukir, atribut resmi, tag sikap, foto publik, notifikasi, halaman statis per
+tempat. (Koin, tab Saya, dan foto bukti untuk pemilik dibuat 1 Okt atas permintaan pemilik, bagian 1.4.)
 
 ### 1.3 Setelah alur dasar jalan: riwayat + komentar, dan berita parkir
 
@@ -176,34 +177,71 @@ moderasi dan kunci AI yang berjalan. Tetap sederhana: satu komentar per laporan,
   berstatus `tampil`). Web: `components/Riwayat.jsx`, `lib/riwayat.js`, `ambilRiwayat` di `lib/data.js`.
 - Info memuat cara meminta penghapusan komentar (pemilik tempat / pihak yang disebut).
 
-#### 1.3.2 Berita parkir di detail tempat (M5)
+#### 1.3.2 Berita parkir per daerah pengguna (M5, dibuat 1 Okt 2026)
 
-Pola feed berita Adami (Adami AGENTS.md 10.6), ditambah pencocokan lokasi:
+Keputusan pemilik 1 Okt: berita mengikuti **daerah pengguna** (mis. di Soppeng → berita Soppeng dulu), cakupan
+**seluruh Sulsel per kabupaten/kota**. Rencana lama (berita diselipkan ke lembar tempat ≤ 300 m lewat geocoding frasa
+lokasi) **diganti** karena lebih rumit dan rawan salah cocok. Pola feed berita Adami (Adami AGENTS.md 10.6).
 
-1. **Ambil** (Edge Function `berita`, pg_cron tiap 3 jam): RSS media yang mengizinkan akses otomatis, dimulai dari
-   media Sulsel yang sudah dicek di Adami (`_shared/berita.js` Adami); setiap sumber baru dicek dulu. **Tidak** dari
-   Google News atau situs yang menolak bot. Saring kata kunci dulu (parkir, jukir, juru parkir, retribusi parkir,
-   parkir liar, pungli parkir) supaya panggilan AI hemat.
-2. **AI mendeteksi** (Gemini, keluaran JSON divalidasi server): relevan tidaknya (tentang parkir di Makassar Raya),
-   **frasa lokasi** yang disebut (nama tempat / jalan / kecamatan / kota, **harus muncul persis** di judul atau
-   cuplikan), tingkat presisi (`tempat`, `jalan`, `kecamatan`, `kota`), dan ringkasan netral 1–2 kalimat. Maks.
-   100 panggilan per hari; lewat batas atau gagal → berita dilewati.
-3. **Cari koordinat** frasa lokasi lewat Nominatim di server (maks. 1 permintaan/detik, hasil disimpan), harus di
-   dalam kotak Makassar Raya.
-4. **Selipkan ke tempat:** presisi `tempat`/`jalan` → tampil di lembar tempat yang berjarak ≤ **300 m** sebagai
-   **"Berita parkir di sekitar sini"** (judul, media, tanggal, ringkasan AI, jarak/lokasi, tautan). Presisi
-   `kecamatan`/`kota` → **tidak** diselipkan ke tempat, hanya di daftar "Berita parkir terbaru" (Beranda/Info).
-   Tampil 90 hari sejak terbit.
-- **Pagar hukum:** berita ditempel berdasarkan **kedekatan lokasi**, bukan berarti berita itu tentang jukir di tempat
-  ini. Label wajib: "Dicocokkan otomatis dari lokasi yang disebut berita · bisa keliru". Berita tidak memengaruhi
-  skor pungli.
-- **Hak cipta:** hanya judul, nama media, tanggal, ringkasan buatan sendiri, dan tautan `nofollow noopener`; isi dan
-  gambar artikel tidak disalin.
-- **Data:** tabel `berita` (`judul`, `media`, `tautan` unik, `terbit`, `ringkasan`, `lokasi_teks`, `presisi`, `lat`,
-  `lng`, `kota`, `relevan`, `disembunyikan`, `dibuat`); view `berita_publik`; fungsi `berita_sekitar(titik_id)`.
-  Pemilik bisa menyembunyikan satu berita (`npm run berita -- sembunyikan <id>`).
-- Secret `GEMINI_API_KEY` dipasang pemilik di proyek Supabase **JukirHub** (bukan disalin dari Adami oleh AI);
-  dipakai juga untuk pemeriksaan komentar (1.3.1).
+1. **Ambil** (Edge Function `berita` = `berita/proses.js` + `index.ts`, pg_cron `berita` tiap 3 jam menit ke-20 lewat
+   pg_net; URL & secret di Supabase Vault `berita_url`/`berita_secret`): RSS media Sulsel yang sudah dicek di Adami
+   (`_shared/berita.js` → `SUMBER_BERITA`: ANTARA Sulsel, detikSulsel, Herald.id, FAJAR, Terkini.id). **Tidak** dari
+   Google News / situs yang menolak bot; sumber baru dicek dulu. Saring kata kunci dulu (parkir, perparkiran, jukir,
+   juru parkir, tukang parkir) supaya hemat AI. Hanya berita ≤ 30 hari, tautan harus ke domain sumber.
+2. **AI** (Gemini `gemini-3.5-flash-lite`, bisa diganti secret `GEMINI_MODEL`; maks. **60 panggilan/hari**, tabel
+   `pemakaian_ai` + `ambil_jatah_ai`): relevan (parkir di Sulsel) + ringkasan netral 1–2 kalimat HANYA dari judul &
+   cuplikan, tanpa nama orang biasa. Ringkasan divalidasi server (panjang, tanpa tautan/emoji, **angka harus ada di
+   sumber**). Tidak relevan tetap dicatat supaya tidak dinilai ulang. Tanpa kunci / jatah habis → dicoba lagi nanti.
+3. **Kabupaten** yang disebut di judul/cuplikan dicatat (`_shared/kabupaten.js`: 24 kabupaten/kota Sulsel + alias ibu
+   kota, mis. Sengkang → Wajo, Watansoppeng → Soppeng; "Bone Bolango" bukan Bone).
+4. **Tampil di Beranda** (`components/Berita.jsx`): kartu "Berita parkir · <daerah>", 3 berita + "Tampilkan semua";
+   berita daerah pengguna dulu, lalu Sulsel lainnya (`urutkanBerita`). **Daerah pengguna** (`web/src/lib/daerah.js`):
+   pilihan manual (disimpan di HP), atau otomatis dari posisi yang **sudah diizinkan** (tidak meminta izin sendiri) lewat
+   Nominatim reverse zoom 8 dengan koordinat dibulatkan ±1 km, disimpan 7 hari per sel. Kartu tidak tampil bila belum
+   ada berita. Label: "Ringkasan dibuat otomatis oleh AI dari judul berita dan bisa keliru".
+- **Pemilik dikabari** tiap berita yang tampil (pesan 📰 Telegram) dengan tombol **🙈 Sembunyikan / ↩️ Tampilkan lagi**
+  (`jh:bs:<id>` / `jh:bt:<id>`). Tidak ada skrip CLI moderasi berita.
+- **Hak cipta:** hanya judul, nama media, tanggal, ringkasan buatan AI, dan tautan `noopener noreferrer nofollow`; isi,
+  cuplikan, dan gambar artikel tidak disimpan. Berita tidak memengaruhi skor pungli.
+- **Data** (migrasi `20261001000005_berita.sql`): tabel `berita` (`url` unik, `sumber_id`, `sumber`, `judul`,
+  `ringkasan`, `terbit`, `kabupaten[]`, `relevan`, `disembunyikan`, `dibuat`), view `berita_publik` (relevan, ≤ 30 hari,
+  maks. 50), cron `bersihkan-berita` (> 90 hari, 04:10 WITA).
+- **Pemasangan oleh pemilik:** `npm run berita:setup` (minta kunci Gemini **khusus JukirHub** dari AI Studio, pasang
+  secret `GEMINI_API_KEY` & `BERITA_SECRET`, isi Vault, uji sekali). AI tidak melihat kuncinya.
+
+### 1.4 Koin, tab Saya, dan foto bukti (M6, keputusan pemilik 1 Okt 2026)
+
+Pemilik: "akun poin dan koin + tab Saya mirip Adami; foto bukti opsional". Pilihan pemilik (semua rekomendasi Claude):
+**koin saja** (satu angka, tanpa "poin" terpisah), **tanpa login** (koin terikat HP/browser), **foto hanya untuk
+pemilik**. Pola Adami 10.4 fase A.
+
+- **Aturan koin** (`_shared/koin.js`, dites `tests/koin.test.js`): laporan dari lokasi **+10**; **pembuka data +5** bila
+  belum ada laporan siapa pun di tempat itu 7 hari terakhir (termasuk tempat baru); **seri harian** +2 per hari
+  berturut-turut (maks. +10, sekali sehari, tanggal WITA); maks. **5 laporan berkoin per hari** (laporan berikutnya
+  tetap diterima tanpa koin). **Tanpa nilai uang.** Foto dan komentar tidak memberi koin (supaya warga tidak terdorong
+  memotret jukir). 6 lencana: Pelapor pertama, Penjelajah (5 tempat), Pembuka data (3×), Seri 7 hari, Langganan
+  (5 laporan di satu tempat), Rajin (25 laporan).
+- **Anti-kecurangan diam-diam:** laporan GPS palsu (bobot < 1) atau ke tempat dibekukan tetap terlihat mendapat koin di
+  HP pelapor (`koin_tampil`) tetapi tidak masuk peringkat (`koin_sah` = 0). `koin_sah` tidak pernah dikirim ke pelapor.
+- **Peringkat 30 hari per kabupaten/kota** tempat parkir (24 kabupaten Sulsel, `_shared/kabupaten.js`), nama samaran
+  hewan khas Sulawesi + kabupaten (bisa diganti, bisa disembunyikan dari peringkat). Kabupaten tempat diisi `lapor`
+  sekali per tempat (`titik_parkir.kota`) lewat Nominatim reverse (maks. 3 detik; gagal → koin tanpa kabupaten).
+- **`lapor`** mencatat koin setelah laporan tersimpan (galat koin tidak menggagalkan laporan) dan mengembalikan
+  `koin` (ringkasan untuk layar sukses) + `laporan_id` (untuk foto; `null` saat pura-pura diterima).
+- **Tab "Saya"** (`/saya`, tab ke-5 menu bawah, `pages/Saya.jsx`, Edge Function `kontribusi`): nama samaran, koin,
+  laporan, seri, posisi; lencana + kemajuan; 10 laporan terakhir HP ini (tanpa bobot/tanda GPS palsu); peringkat per
+  kabupaten; cara dapat koin. Halaman pribadi: `noindex`, tidak masuk sitemap. Layar sukses lapor menampilkan koin
+  (`components/KoinDiterima.jsx`).
+- **Data** (migrasi `20261001000003_koin.sql`): `reputasi_pelapor`, `koin_harian` (dihapus > 35 hari),
+  `laporan.koin_sah`, fungsi `tanggal_wita`, `catat_koin_harian`, `peringkat_pelapor`, `koin_saya`, `posisi_peringkat`
+  (hanya service_role). Anon tidak bisa membaca apa pun dari tabel koin.
+- **Foto bukti** (`_shared/foto.js`, Edge Function `foto`, `components/TambahFoto.jsx`): tombol opsional di layar sukses
+  lapor (mis. karcis, papan tarif, tulisan "parkir gratis"). HP mengecilkan foto (1280 px, JPEG ±70%, ≤ 500 KB; kanvas
+  membuang EXIF) → server membuang lagi segmen metadata JPEG → **diteruskan ke Telegram pemilik** (sendPhoto + keterangan
+  laporan, peringatan bila lokasi pelapor mencurigakan). **Tidak tampil publik dan tidak disimpan di server JukirHub.**
+  Syarat: laporan milik HP itu, ≤ 30 menit setelah lapor, satu foto per laporan, maks. 3 foto per HP per 24 jam. Tabel
+  `foto_laporan` hanya mencatat batas (migrasi `20261001000004_foto.sql`, dihapus > 30 hari).
+- **Akun (username/sandi) belum dibuat.** Bila nanti diminta: ikuti catatan "Akun opsional" di Adami AGENTS.md 10.4.
 
 ---
 
@@ -212,12 +250,12 @@ Pola feed berita Adami (Adami AGENTS.md 10.6), ditambah pencocokan lokasi:
 | Folder / file | Isi |
 |---|---|
 | `web/` | Web app: React 19, Vite 8, react-router 7, MapLibre 6 (dimuat belakangan), PWA dengan service worker tulisan tangan |
-| `web/src/pages/` | Beranda, Peta (di `App.jsx` + `components/Peta.jsx`), Daftar, Info |
+| `web/src/pages/` | Beranda, Peta (di `App.jsx` + `components/Peta.jsx`), Daftar, Info, Saya (koin, noindex) |
 | `web/src/components/` | Komponen React (nama bahasa Indonesia: `Peta.jsx`, `CariTempat.jsx`, `LembarTempat.jsx`, `LaporLayar.jsx`, `Legenda.jsx`) |
 | `web/src/lib/` | Logika web tanpa React bila memungkinkan: `data.js` (baca view publik lewat `fetch` REST, tanpa supabase-js), `tempat.js` (gabung data, cocokkan tempat, kalimat ringkasan), `lokasi.js`, `cari.js` (Nominatim), `offline.js`, `seo.js`, `tema.js`, `koneksi.js`, `konten-beranda.js`, `util.js` |
 | `web/src/state.jsx` | Context app: data tempat + ringkasan, posisi pengguna, kendaraan terpilih (motor/mobil) |
 | `web/src/app.css` | **Satu file CSS**, semua warna lewat variabel (bagian 6.3) |
-| `supabase/functions/` | Edge Function: `lapor` (juga membuat tempat baru bila belum ada), `komentar` (periksa komentar di latar, M4), `berita` (M5), nanti `telegram` (kabar ke pemilik) |
+| `supabase/functions/` | Edge Function: `lapor` (juga membuat tempat baru & mencatat koin), `telegram` (tombol pemilik), `aduan` (laporkan komentar), `kontribusi` (tab Saya), `foto` (foto bukti → Telegram pemilik), `berita` (M5, cron). Logika di `proses.js` (JS murni, dites), `index.ts` = pembungkus Deno |
 | `supabase/functions/_shared/` | Modul bersama. File `.js` = ESM murni, dipakai web (alias `@shared`), Edge Function, dan tes. File `.ts` hanya untuk Edge Function |
 | `supabase/migrations/` | Skema, RLS, view publik, retensi, cron |
 | `supabase/seed.sql` | Dibuat otomatis dari `scripts/`, jangan diedit manual |
@@ -238,6 +276,7 @@ Pola feed berita Adami (Adami AGENTS.md 10.6), ditambah pencocokan lokasi:
 | `npm run seed` | Buat ulang `seed.sql` dari `scripts/data/` (tarif resmi) — dibuat saat tarif diisi pemilik |
 | `npm run moderasi` | Tinjau titik baru / sembunyikan titik atau laporan |
 | `npm run kampanye` | Laporan & pelapor per kampanye iklan (UTM), dari view `kampanye_publik` (`docs/peluncuran/iklan.md`) |
+| `npm run berita:setup` | **Dijalankan pemilik**: kunci Gemini + secret jadwal berita (M5) |
 | `npm run ikon` | Buat ulang favicon, ikon HP, dan `og.png` dari `web/src/lib/logo.js` |
 | `npm run cloud:secrets`, `bot:setup`, `pemantauan:setup` | **Dijalankan pemilik** (menyentuh rahasia) |
 | `npx supabase db push` | Terapkan migrasi baru ke cloud |
@@ -271,7 +310,8 @@ Supabase lokal **55321** (API), 55322 (db), 55323 (studio), 55324 (email) — li
   **komentar opsional** (≤ 200 huruf, mulai M4). Keduanya disaring server (tanpa nomor HP, tautan, plat, kata kasar,
   nama orang); komentar juga diperiksa AI dan baru tampil bila lolos (bagian 1.3.1). Isian lain berupa pilihan dan
   bintang dari daftar tetap.
-- **Foto belum ada** di versi awal (bagian 10). Bila dibuat: bucket privat, EXIF dibuang di HP, moderasi dulu,
+- **Foto bukti** (dibuat 1 Okt, bagian 1.4) hanya diteruskan ke Telegram pemilik, tidak tampil publik dan tidak disimpan
+  di server; EXIF dibuang di HP dan di server. Bila kelak foto ditampilkan publik: bucket privat, moderasi dulu,
   wajah dan plat tidak boleh terlihat.
 - Setiap halaman titik memuat disclaimer: "Data dari laporan warga, belum diverifikasi pihak berwenang."
   Info memuat cara menyampaikan keberatan (pemilik tempat / pihak resmi).
@@ -498,7 +538,7 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **Cek tipe Edge Function** tanpa memasang Deno: salin `supabase/functions` ke folder sementara berisi
   `deno.json` `{ "nodeModulesDir": "auto" }`, lalu `npx --yes deno@2 check functions/<nama>/index.ts`.
 - **Migrasi:** file baru di `supabase/migrations/` (`YYYYMMDDNNNNNN_nama.sql`), lalu `npx supabase db push`.
-- **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA); mulai M4 `periksa-komentar` (tiap 5 menit, hanya bila ada yang menunggu); mulai M5 `berita` (tiap 3 jam).
+- **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA), `bersihkan-koin-harian` (03:40), `bersihkan-foto-laporan` (03:45), `bersihkan-berita` (04:10), `berita` (tiap 3 jam menit ke-20, lewat pg_net + Vault; aktif setelah `npm run berita:setup`). Pemeriksaan komentar oleh AI belum dibuat (moderasi lewat Telegram).
 - Pemilik menerima kabar Telegram untuk setiap tempat baru dan laporan (yang berpola GPS palsu diberi tanda) —
   menyusul setelah alur 1.2 jalan.
 - **Alur rilis (seperti Adami): `git push` ke `main` → Vercel build & tayang otomatis → `npm run cek:tayang`.**
@@ -531,11 +571,13 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M2 Laporkan parkir** | Form 1 layar (1.2 poin 3), Edge Function `lapor` (gerbang 250 m, batas, GPS palsu, buat tempat baru), `skor-pungli.js` + ringkasan, penanda berubah warna setelah lapor *Selesai 30 Sept (lihat status).* |
 | **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan. *Materi siap 30 Sept: `docs/peluncuran/` (checklist, poster A5 ×2, teks WhatsApp, QR `npm run qr`). Sisa: uji HP lapangan & cold start oleh pemilik, domain (opsional). Rencana iklan FB/IG/TikTok + pengukuran UTM siap 1 Okt (`docs/peluncuran/iklan.md`).* |
 | **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) *Selesai 1 Okt (moderasi lewat Telegram; AI menyusul).* |
-| **M5 Berita parkir** | Edge Function `berita` (RSS + AI deteksi lokasi + Nominatim), "Berita parkir di sekitar sini" di lembar tempat (bagian 1.3.2) |
+| **M5 Berita parkir** | Berita parkir per daerah pengguna di Beranda: RSS media Sulsel + ringkasan Gemini + kabupaten yang disebut (bagian 1.3.2) *Dibuat 1 Okt; aktif setelah pemilik menjalankan `npm run berita:setup`.* |
+| **M6 Koin & tab Saya** | Koin tanpa nilai uang, lencana, seri, peringkat per kabupaten, tab Saya, foto bukti ke Telegram pemilik (bagian 1.4) *Dibuat 1 Okt.* |
 
 **Ditunda (hanya bila pemilik meminta setelah M3):** estimasi pendapatan / mode amati, tab Data & dashboard per
-wilayah + CSV, halaman statis per tempat, rincian kerja jukir, atribut resmi, tag sikap, foto, notifikasi, bot
-Telegram warga, koin pelapor, hak jawab pemilik tempat, lencana "Resmi terverifikasi Dishub", akun pemerintah.
+wilayah + CSV, halaman statis per tempat, rincian kerja jukir, atribut resmi, tag sikap, foto publik, notifikasi, bot
+Telegram warga, akun untuk menyimpan koin, hadiah/penukaran koin, hak jawab pemilik tempat, lencana "Resmi
+terverifikasi Dishub", akun pemerintah.
 
 **Status (30 Sept 2026): M0, M1, dan M2 selesai dan tayang** di https://jukirhub.vercel.app (M2 dicek langsung 30 Sept: bundle baru, view Supabase 200, form lapor terbuka) (cek setelah push M0: semua
 halaman 200, canonical & sitemap benar, tampilan HP benar).
@@ -606,6 +648,11 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   - Pemilik: nama tempat baru cukup **dikabarkan** ke pemilik; selama tidak dihapus berarti sah, tanpa halaman
     moderasi → Telegram + tombol Sembunyikan (bagian 5).
 - **1 Okt 2026:**
+  - Legenda "Arti warna" di peta: judul + tombol ✕ jelas, tertutup juga saat peta diketuk (masukan pemilik dari
+    tangkapan layar HP).
+  - Koin + tab Saya + foto bukti (bagian 1.4): koin saja (tanpa poin terpisah), tanpa login, foto hanya untuk pemilik.
+  - M5 berita: per daerah pengguna, seluruh Sulsel per kabupaten (bagian 1.3.2), menggantikan rencana berita per
+    tempat ≤ 300 m.
   - Pemasaran fokus **Facebook Ads (Meta Ads Manager), video**, plus IG & TikTok organik → `docs/peluncuran/iklan.md`.
     Tujuan iklan = pelapor; ukuran utama **biaya per pelapor** (`npm run kampanye`), tanpa Meta Pixel (rekomendasi
     Claude, pola Adami). Nada iklan: info praktis & adil, bukan kampanye anti-jukir.
@@ -618,4 +665,6 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
 - Poin skor pungli di 6.2 masih usulan awal; kalibrasi setelah ada data.
 - Komentar hanya lewat laporan (rekomendasi Claude, 1.3.1) atau juga boleh tanpa melapor (butuh batas & moderasi
   tambahan).
-- Daftar sumber berita parkir (1.3.2) dan kunci Gemini untuk proyek JukirHub.
+- Wilayah peta & pencarian masih Makassar Raya, sedangkan berita & peringkat sudah seluruh Sulsel: perluas peta ke
+  kabupaten lain (mis. Soppeng) bila pemilik ingin warga di sana bisa mencari tempat dan melapor dengan nyaman.
+- Pemeriksaan komentar oleh AI (1.3.1) bisa memakai kunci Gemini yang sama bila pemilik menginginkan.

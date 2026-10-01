@@ -8,8 +8,50 @@ import { jarakM, namaMirip } from '../_shared/geo.js';
 import { formatJarak } from '../_shared/format.js';
 import { HARI_RINGKASAN, ringkasTempat } from '../_shared/skor-pungli.js';
 import { periksaKecurigaan } from '../_shared/deteksi-gps.js';
+import { HARI_PEMBUKA, hitungKoin, namaSamaran } from '../_shared/koin.js';
 
 export const PESAN_SUKSES = 'Terima kasih, laporan Anda sudah masuk.';
+const MENIT_HARI = 24 * 60;
+
+// Kabupaten tempat (peringkat koin per kabupaten): dari titik_parkir.kota; bila kosong dicari sekali lewat `geo`
+// (Nominatim di index.ts) lalu disimpan. Gagal → null (koin tetap diberikan, dicatat tanpa kabupaten).
+async function kabupatenTitik(titik, db, geo) {
+  try {
+    let kab = (await db.kotaTitik?.(titik.id)) ?? null;
+    if (!kab && geo?.kabupaten && titik.lat != null) {
+      kab = await geo.kabupaten(titik.lat, titik.lng);
+      if (kab) await db.isiKota?.(titik.id, kab);
+    }
+    return kab;
+  } catch (err) {
+    console.warn('[lapor] kabupaten tempat:', err?.message ?? err);
+    return null;
+  }
+}
+
+// Koin laporan ini (AGENTS.md 10.4). Galat koin tidak boleh menggagalkan laporan → null.
+// Mengembalikan { ringkasan (untuk pelapor), koinSah (hanya server) }.
+async function beriKoin({ db, reporterKey, kabupaten, pembukaData, sah, laporanSebelumnyaDiTempat, sekarang }) {
+  if (!db.bacaReputasi) return null;
+  try {
+    const lama = await db.bacaReputasi(reporterKey);
+    const { baris, ringkasan, koinSah, tanggal } = hitungKoin({ lama, pembukaData, sah, laporanSebelumnyaDiTempat, waktu: sekarang });
+    await db.simpanReputasi({
+      ...baris,
+      reporter_key: reporterKey,
+      nama_samaran: lama?.nama_samaran ?? namaSamaran(reporterKey, kabupaten),
+      kabupaten_asal: lama?.kabupaten_asal ?? kabupaten,
+      diperbarui: new Date(sekarang).toISOString()
+    });
+    if (ringkasan.koin > 0) {
+      await db.catatKoinHarian({ reporter: reporterKey, tanggal, kabupaten, tampil: ringkasan.koin, sah: koinSah });
+    }
+    return { ringkasan, koinSah };
+  } catch (err) {
+    console.warn('[lapor] koin gagal dicatat:', err?.message ?? err);
+    return null;
+  }
+}
 
 export async function sha256(teks) {
   const buf = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(teks));
@@ -30,12 +72,19 @@ const sukses = (titik) => ({ status: 200, body: { ok: true, pesan: PESAN_SUKSES,
  *   simpanLaporan(baris: Record<string, unknown>): Promise<number>,
  *   simpanKomentar?(k: { laporan_id: number, titik_id: number, isi: string }): Promise<number>,
  *   laporanTitik(titikId: number, sejakHari: number): Promise<Array<Record<string, unknown>>>,
- *   simpanRingkasan(titikId: number, ringkasan: Record<string, unknown>): Promise<void>
+ *   simpanRingkasan(titikId: number, ringkasan: Record<string, unknown>): Promise<void>,
+ *   kotaTitik?(titikId: number): Promise<string | null>,
+ *   isiKota?(titikId: number, kota: string): Promise<void>,
+ *   bacaReputasi?(reporterKey: string): Promise<Record<string, any> | null>,
+ *   simpanReputasi?(baris: Record<string, unknown>): Promise<void>,
+ *   catatKoinHarian?(k: { reporter: string, tanggal: string, kabupaten: string | null, tampil: number, sah: number }): Promise<void>,
+ *   catatKoinSahLaporan?(laporanId: number, koinSah: number): Promise<void>
  * }, kabar?: { tempatBaru(t: { id: number, nama: string, sumber: string, lat: number, lng: number }): void,
- *   komentarBaru?(k: { id: number, isi: string, namaTempat: string }): void } }} p
+ *   komentarBaru?(k: { id: number, isi: string, namaTempat: string }): void },
+ *   geo?: { kabupaten(lat: number, lng: number): Promise<string | null> } }} p
  * @returns {Promise<{ status: number, body: Record<string, unknown> }>}
  */
-export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.now() }) {
+export async function prosesLapor({ body, ip, garam, db, kabar, geo, sekarang = Date.now() }) {
   const v = validasiLaporan(body);
   if (!v.ok) return tolak(v.kode === 'lokasi' ? 422 : 400, v.kode, v.pesan);
   const d = v.data;
@@ -81,10 +130,19 @@ export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.
       return tolak(429, 'sudah_lapor', `Anda sudah melaporkan tempat ini. Bisa melapor lagi setelah ${BATAS.jedaPerTempatJam} jam.`);
     }
     // Circuit breaker: tempat dibekukan / terlalu banyak laporan per jam → pura-pura diterima, tidak disimpan.
+    // Koin tetap terlihat bertambah di HP pelapor, tetapi tidak sah (tidak masuk peringkat).
     if (titik.dibekukan || await db.hitungLaporan({ titik_id: titik.id }, 60) >= BATAS.laporanPerTempatPerJam) {
-      return sukses(titik);
+      const koin = await beriKoin({ db, reporterKey, kabupaten: await kabupatenTitik(titik, db, null), pembukaData: false,
+        sah: false, laporanSebelumnyaDiTempat: 1, sekarang });
+      return { status: 200, body: { ...sukses(titik).body, laporan_id: null, koin: koin?.ringkasan ?? null } };
     }
   }
+
+  // Untuk koin, dihitung SEBELUM laporan ini disimpan: pembuka data = belum ada laporan siapa pun 7 hari terakhir.
+  const pembukaData = !titik || await db.hitungLaporan({ titik_id: titik.id }, HARI_PEMBUKA * MENIT_HARI) === 0;
+  const laporanSebelumnyaDiTempat = titik
+    ? await db.hitungLaporan({ reporter_key: reporterKey, titik_id: titik.id }, 365 * MENIT_HARI)
+    : 0;
 
   // Pola GPS palsu → tetap diterima, bobot diturunkan diam-diam (balasan ke pelapor tidak berubah).
   const gps = periksaKecurigaan({
@@ -97,7 +155,7 @@ export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.
     const id = await db.buatTitik({
       nama: d.tempat.nama, osm_ref: d.tempat.osm_ref, lat: d.tempat.lat, lng: d.tempat.lng, dibuat_oleh: reporterKey
     });
-    titik = { id, nama: d.tempat.nama };
+    titik = { id, nama: d.tempat.nama, lat: d.tempat.lat, lng: d.tempat.lng };
     // Kabar ke pemilik (Telegram) dengan tombol Sembunyikan; tidak boleh menahan / menggagalkan laporan.
     try { kabar?.tempatBaru({ id, nama: d.tempat.nama, sumber: d.tempat.sumber, lat: d.tempat.lat, lng: d.tempat.lng }); } catch { /* abaikan */ }
   }
@@ -132,5 +190,22 @@ export async function prosesLapor({ body, ip, garam, db, kabar, sekarang = Date.
   const laporan = await db.laporanTitik(titik.id, HARI_RINGKASAN);
   await db.simpanRingkasan(titik.id, ringkasTempat(laporan, { sekarang }));
 
-  return { status: 200, body: { ...sukses(titik).body, ...(d.komentar ? { komentar: 'menunggu' } : {}) } };
+  // Koin (setelah laporan tersimpan). GPS palsu (bobot < 1) → koin tampil saja, diam-diam.
+  const koin = await beriKoin({
+    db, reporterKey, kabupaten: await kabupatenTitik(titik, db, geo), pembukaData,
+    sah: gps.bobotManual >= 1, laporanSebelumnyaDiTempat, sekarang
+  });
+  if (koin?.koinSah > 0) {
+    try { await db.catatKoinSahLaporan?.(laporanId, koin.koinSah); } catch { /* abaikan */ }
+  }
+
+  return {
+    status: 200,
+    body: {
+      ...sukses(titik).body,
+      laporan_id: laporanId,
+      koin: koin?.ringkasan ?? null,
+      ...(d.komentar ? { komentar: 'menunggu' } : {})
+    }
+  };
 }

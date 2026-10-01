@@ -41,8 +41,13 @@ export default function Info() {
         <h2 id="judul-privasi">Privasi</h2>
         <ul className="poin">
           <li>Tanpa akun, tanpa nama, tanpa nomor HP.</li>
-          <li>Tidak ada nama, foto, atau ciri pribadi jukir. Laporan berupa pilihan dan bintang.</li>
+          <li>Tidak ada nama, foto, atau ciri pribadi jukir yang ditampilkan. Laporan berupa pilihan dan bintang.</li>
           <li>Koordinat saat melapor hanya untuk memastikan Anda di lokasi, tidak ditampilkan, dan dihapus setelah 7 hari.</li>
+          <li>
+            Foto bukti (opsional) hanya dikirim ke pengelola JukirHub, tidak ditampilkan, dan tidak disimpan di server
+            JukirHub. Data lokasi di dalam foto dibuang dulu.
+          </li>
+          <li>Koin dan peringkat memakai nama samaran acak, tanpa akun. Anda bisa menyembunyikan diri dari peringkat.</li>
           <li>
             Tanpa pelacak iklan (tidak ada Meta Pixel atau sejenisnya). Bila Anda datang dari iklan, hanya nama
             kampanyenya yang ikut tersimpan di laporan, untuk menghitung iklan mana yang berguna.

@@ -13,6 +13,7 @@ export const muatModulPeta = () => import('../components/Peta.jsx');
 export const muatBagian = {
   daftar: () => import('../pages/Daftar.jsx'),
   info: () => import('../pages/Info.jsx'),
+  saya: () => import('../pages/Saya.jsx'),
   lapor: () => import('../components/LaporLayar.jsx')
 };
 

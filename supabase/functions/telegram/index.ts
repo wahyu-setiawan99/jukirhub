@@ -22,6 +22,11 @@ const db = {
     const { data, error } = await supabase.from('komentar').update({ status, alasan: 'pemilik' }).eq('id', id).select('isi').maybeSingle();
     if (error) throw error;
     return data;
+  },
+  async ubahStatusBerita(id: number, disembunyikan: boolean) {
+    const { data, error } = await supabase.from('berita').update({ disembunyikan }).eq('id', id).select('judul').maybeSingle();
+    if (error) throw error;
+    return data;
   }
 };
 

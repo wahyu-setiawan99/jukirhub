@@ -5,6 +5,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { prosesLapor } from './proses.js';
 import { diLatar, kabariPemilik } from '../_shared/telegram.ts';
 import { pesanKomentarBaru, pesanTempatBaru, tombolKomentar, tombolUntuk } from '../_shared/kabar-pemilik.js';
+import { kabupatenDariAlamat, urlKabupatenNominatim } from '../_shared/kabupaten.js';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -89,6 +90,47 @@ const db = {
   async simpanRingkasan(titikId: number, ringkasan: Record<string, unknown>) {
     periksa(await supabase.from('ringkasan_titik')
       .upsert({ titik_id: titikId, ...ringkasan, diperbarui: new Date().toISOString() }));
+  },
+  // Koin (migrasi 20261001000003_koin.sql)
+  async kotaTitik(titikId: number) {
+    const baris = periksa(await supabase.from('titik_parkir').select('kota').eq('id', titikId).maybeSingle()) as { kota: string | null } | null;
+    return baris?.kota ?? null;
+  },
+  async isiKota(titikId: number, kota: string) {
+    periksa(await supabase.from('titik_parkir').update({ kota }).eq('id', titikId).is('kota', null));
+  },
+  async bacaReputasi(reporterKey: string) {
+    return periksa(await supabase.from('reputasi_pelapor').select(KOLOM_REPUTASI).eq('reporter_key', reporterKey).maybeSingle());
+  },
+  async simpanReputasi(baris: Record<string, unknown>) {
+    periksa(await supabase.from('reputasi_pelapor').upsert(baris));
+  },
+  async catatKoinHarian(k: { reporter: string; tanggal: string; kabupaten: string | null; tampil: number; sah: number }) {
+    periksa(await supabase.rpc('catat_koin_harian', {
+      p_reporter: k.reporter, p_tanggal: k.tanggal, p_kabupaten: k.kabupaten, p_tampil: k.tampil, p_sah: k.sah
+    }));
+  },
+  async catatKoinSahLaporan(laporanId: number, koinSah: number) {
+    periksa(await supabase.from('laporan').update({ koin_sah: koinSah }).eq('id', laporanId));
+  }
+};
+
+const KOLOM_REPUTASI = 'nama_samaran, kabupaten_asal, koin_tampil, koin_sah, laporan_berkoin, seri_hari, seri_terpanjang, ' +
+  'tanggal_terakhir, laporan_hari_ini, pembuka_data, tempat_berbeda, maks_satu_tempat, lencana';
+
+// Kabupaten tempat baru dari Nominatim (sekali per tempat, maks. 3 detik; gagal → null, laporan tetap jalan).
+const geo = {
+  async kabupaten(lat: number, lng: number) {
+    try {
+      const res = await fetch(urlKabupatenNominatim(lat, lng), {
+        headers: { 'User-Agent': `JukirHub/1.0 (+${URL_WEB})`, Accept: 'application/json' },
+        signal: AbortSignal.timeout(3_000)
+      });
+      if (!res.ok) return null;
+      return kabupatenDariAlamat((await res.json())?.address);
+    } catch {
+      return null;
+    }
   }
 };
 
@@ -116,7 +158,7 @@ Deno.serve(async (req) => {
     return balas(req, 400, { ok: false, kode: 'format', pesan: 'Format laporan tidak valid.' });
   }
   try {
-    const hasil = await prosesLapor({ body, ip: ipClient(req), garam: { reporter: REPORTER_SALT, ip: IP_SALT }, db, kabar });
+    const hasil = await prosesLapor({ body, ip: ipClient(req), garam: { reporter: REPORTER_SALT, ip: IP_SALT }, db, kabar, geo });
     return balas(req, hasil.status, hasil.body);
   } catch (err) {
     console.error('[lapor]', err);
