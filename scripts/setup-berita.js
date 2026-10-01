@@ -40,7 +40,8 @@ async function main() {
   const kunci = (process.env.GEMINI_API_KEY ||
     await rl.question('Tempel kunci Gemini dari aistudio.google.com/apikey (Enter = pakai yang sudah terpasang): ')).trim();
   rl.close();
-  if (kunci && !/^[A-Za-z0-9_-]{30,}$/.test(kunci)) throw new Error('Format kunci Gemini tidak dikenali. Salin ulang dari AI Studio.');
+  // Format kunci Google lama "AIza…" dan baru "AQ.…" (ada titik).
+  if (kunci && !/^[A-Za-z0-9._-]{30,}$/.test(kunci)) throw new Error('Format kunci Gemini tidak dikenali. Salin ulang dari AI Studio.');
 
   const secret = randomBytes(32).toString('base64url');
   const fileSementara = path.join(os.tmpdir(), `jukirhub-secrets-${process.pid}.env`);
