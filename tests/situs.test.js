@@ -91,6 +91,7 @@ test('domain utama jukirhub.site: kanonik, dan alamat lama & www dialihkan perma
   const v = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
   for (const host of ['jukirhub.vercel.app', 'www.jukirhub.site']) {
     const r = v.redirects.find(x => x.has?.[0]?.value === host);
-    assert.ok(r && r.permanent && r.destination === 'https://jukirhub.site/:jalur*', host);
+    // "/(.*)" (bukan "/:jalur*"): pola :jalur* di Vercel tidak mencakup halaman depan "/" (diuji live 1 Okt 2026).
+    assert.ok(r && r.permanent && r.source === '/(.*)' && r.destination === 'https://jukirhub.site/$1', host);
   }
 });

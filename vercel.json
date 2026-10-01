@@ -7,25 +7,25 @@
   "cleanUrls": true,
   "redirects": [
     {
-      "source": "/:jalur*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "jukirhub.vercel.app"
         }
       ],
-      "destination": "https://jukirhub.site/:jalur*",
+      "destination": "https://jukirhub.site/$1",
       "permanent": true
     },
     {
-      "source": "/:jalur*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "www.jukirhub.site"
         }
       ],
-      "destination": "https://jukirhub.site/:jalur*",
+      "destination": "https://jukirhub.site/$1",
       "permanent": true
     }
   ],
