@@ -423,19 +423,6 @@ a { color: var(--aksen); }
   letter-spacing: -0.02em;
 }
 .beranda-pembuka { display: grid; gap: 8px; padding-top: 8px; }
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  justify-self: start;
-  padding: 4px 10px;
-  border: 1px solid var(--garis);
-  border-radius: 8px;
-  font-family: var(--font-angka);
-  font-size: 0.8rem;
-  color: var(--aksen);
-}
-.sinyal { width: 7px; height: 7px; border-radius: 50%; background: var(--logo-sinyal); }
 .beranda-pembuka .redup { font-size: 1rem; line-height: 1.5; }
 .beranda-status {
   display: flex;

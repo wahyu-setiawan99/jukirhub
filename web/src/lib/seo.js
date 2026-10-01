@@ -205,7 +205,6 @@ export function buatIsiStatis(jalur = '/') {
       ${kepalaStatis()}
       <main class="halaman beranda">
         <section class="beranda-pembuka">
-          <p class="eyebrow">${e(SITUS.tagline)}</p>
           <h1>${e(HERO.judul)}</h1>
           <p class="redup">${e(HERO.sub)}</p>
           <p class="beranda-status">Memuat data tempat parkir…</p>

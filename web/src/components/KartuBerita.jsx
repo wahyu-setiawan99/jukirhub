@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { BATAS_BERITA, adaBeritaDaerah, urutkanBerita } from '@shared/berita.js';
 import { PROVINSI, dataProvinsi, kabupatenDiProvinsi } from '@shared/wilayah.js';
 import { KONFIGURASI, useApp } from '../state.jsx';
-import { KOLOM_BERITA, ambilView } from '../lib/data.js';
+import { muatBerita } from '../lib/berita.js';
 import { daerahManual, pilihDaerahManual } from '../lib/daerah.js';
 import { setelahGambarPertama } from '../lib/koneksi.js';
 import { Ikon } from './Ikon.jsx';
@@ -13,20 +13,25 @@ const FORMAT_TANGGAL = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month:
 // Data berita parkir (M5) untuk kartu Beranda & halaman /berita: urutan kab/kota pengguna → provinsi zona aktif →
 // Sulawesi lainnya. Daerah = pilihan manual, atau kab/kota otomatis dari posisi yang sudah diizinkan.
 // status: memuat | siap | galat. Berita tidak dikirim ke Telegram (keputusan pemilik 1 Okt 2026).
-export function useBerita() {
+// segera = true di halaman /berita (berita = isi utama); kartu Beranda menunggu gambar pertama dulu.
+export function useBerita({ segera = false } = {}) {
   const { kabupatenSaya, zona } = useApp();
   const [data, setData] = useState({ status: KONFIGURASI ? 'memuat' : 'siap', berita: [] });
   const [manual, setManual] = useState(() => daerahManual());
 
   useEffect(() => {
     if (!KONFIGURASI) return undefined;
-    return setelahGambarPertama(() => ambilView(fetch, KONFIGURASI, 'berita_publik', KOLOM_BERITA)
-      .then(berita => setData({ status: 'siap', berita }))
+    let batal = false;
+    const muat = () => muatBerita()
+      .then(berita => { if (!batal) setData({ status: 'siap', berita }); })
       .catch(err => {
         console.warn('[berita] gagal memuat:', err.message);
-        setData(d => ({ ...d, status: 'galat' }));
-      }));
-  }, []);
+        if (!batal) setData(d => ({ ...d, status: 'galat' }));
+      });
+    if (segera) muat();
+    const henti = segera ? null : setelahGambarPertama(muat);
+    return () => { batal = true; henti?.(); };
+  }, [segera]);
 
   const daerah = manual ?? kabupatenSaya;
   const urut = useMemo(() => urutkanBerita(data.berita, daerah, zona), [data.berita, daerah, zona]);

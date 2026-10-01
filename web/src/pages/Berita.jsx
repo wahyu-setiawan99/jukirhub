@@ -8,7 +8,7 @@ import { CATATAN_AI, DaftarBerita, PilihDaerahBerita, useBerita } from '../compo
 // daerah pengguna dulu. Tidak lewat Telegram. Isi lengkap ada di situs media sumber.
 export default function Berita() {
   const h = HALAMAN['/berita'];
-  const b = useBerita();
+  const b = useBerita({ segera: true });
   return (
     <div className="halaman halaman-berita">
       <section className="kepala-halaman">

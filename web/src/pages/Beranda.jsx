@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LABEL_KENDARAAN } from '@shared/konstanta.js';
 import { useApp } from '../state.jsx';
-import { CATATAN_KAKI, FAQ, HERO, LANGKAH, SITUS, TENTANG, WILAYAH } from '../lib/konten-beranda.js';
+import { CATATAN_KAKI, FAQ, HERO, LANGKAH, TENTANG, WILAYAH } from '../lib/konten-beranda.js';
 import { dataProvinsi } from '@shared/wilayah.js';
 import { tempatDiZona, urutkanTempat } from '../lib/tempat.js';
 import { pramuatPetaSaatSenggang } from '../lib/koneksi.js';
@@ -29,7 +29,6 @@ export default function Beranda() {
   return (
     <div className="halaman beranda">
       <section className="beranda-pembuka">
-        <p className="eyebrow"><span className="sinyal" aria-hidden="true" />{SITUS.tagline}</p>
         <h1>{HERO.judul}</h1>
         <p className="redup">{HERO.sub}</p>
         <p className="beranda-status" role="status">

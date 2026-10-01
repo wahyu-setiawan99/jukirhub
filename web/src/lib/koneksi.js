@@ -22,10 +22,20 @@ export const muatBagian = {
 // Jalankan setelah gambar pertama (satu frame): permintaan data tidak berebut dengan teks pertama halaman.
 // Lighthouse menghitung semua permintaan yang mulai sebelum LCP sebagai penghalang; data Supabase (lintas origin)
 // membuat LCP Beranda tersimulasi 4 detik padahal LCP nyata ±0,35 detik (diukur 1 Okt 2026). Mengembalikan pembatal.
+// requestAnimationFrame tidak berjalan di tab tersembunyi / jendela diperkecil: cadangan timer 300 ms supaya data tetap
+// dimuat (ditemukan 1 Okt 2026: Beranda di tab latar tidak pernah memuat data).
 export function setelahGambarPertama(jalankan) {
+  let selesai = false;
   let waktu = null;
-  const bingkai = requestAnimationFrame(() => { waktu = setTimeout(jalankan, 0); });
-  return () => { cancelAnimationFrame(bingkai); if (waktu != null) clearTimeout(waktu); };
+  const sekali = () => { if (!selesai) { selesai = true; jalankan(); } };
+  const bingkai = requestAnimationFrame(() => { waktu = setTimeout(sekali, 0); });
+  const cadangan = setTimeout(sekali, 300);
+  return () => {
+    selesai = true;
+    cancelAnimationFrame(bingkai);
+    clearTimeout(cadangan);
+    if (waktu != null) clearTimeout(waktu);
+  };
 }
 
 // Pramuat menunggu halaman selesai dimuat + JEDA_PRAMUAT_MS, baru saat senggang: unduhan bagian lain (Peta ±275 KB)

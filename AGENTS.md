@@ -522,7 +522,8 @@ laporan motor"). Bila tarif resmi daerah sudah diperiksa pemilik, tampil berdamp
   **"Laporkan parkir"**, membuka Peta di lokasi pengguna + petunjuk "Ketuk tempat Anda parkir") · menu bawah
   **5 tab: Beranda, Peta, Daftar, Info, Saya** (tab Data ditunda, bagian 1.2). **Di tab Peta bilah aksi tidak ditampilkan**
   (tombol "Laporkan parkir" ada di lembar tempat; dua tombol sama bertumpuk membingungkan).
-- **Header:** logo perisai heksagon + "JukirHub" (tagline **tidak** di dekat logo, permintaan pemilik 1 Okt), pilihan **Motor / Mobil** (menentukan tarif yang ditampilkan dan kendaraan di form lapor),
+- **Header:** logo perisai heksagon + "JukirHub" (tagline **tidak** di dekat logo maupun di Beranda, permintaan
+  pemilik 1 Okt; `SITUS.tagline` hanya dipakai og.png), pilihan **Motor / Mobil** (menentukan tarif yang ditampilkan dan kendaraan di form lapor),
   lalu ikon tema di kanan. **Jangan menaruh pemilih zona/provinsi di header** (masukan pemilik); letaknya di halaman
   (bagian 1.5). Di HP < 360 px tulisan "JukirHub" disembunyikan, logo tetap.
 - **Logo** (`web/src/lib/logo.js`, satu sumber untuk header, HTML statis, `npm run ikon`): perisai heksagon cyan +
@@ -614,7 +615,9 @@ Daftar 93, Berita 96, Info/Tentang/Privasi/Kontak 97, Saya 96; SEO 100 & aksesib
 sudah dicoba dan tidak membantu. Pelajaran (jangan diulang):
 - Pramuat bagian lain (Peta, Daftar, …) **menunggu event load + 3 detik** (`lib/koneksi.js`); pramuat yang terlalu cepat
   membuat LCP Beranda 4 detik (unduhan 470 KB) padahal LCP nyata ±0,35 detik. Sekarang LCP 2,1 s, 170 KB.
-- Data Supabase diminta **setelah gambar pertama** (`setelahGambarPertama`).
+- Data Supabase diminta **setelah gambar pertama** (`setelahGambarPertama`, dengan cadangan timer 300 ms karena
+  requestAnimationFrame tidak berjalan di tab tersembunyi). **Kecuali halaman /berita**: berita = isi utama, jadi
+  diunduh sejak `main.jsx` (`lib/berita.js`, sekali per kunjungan & dipakai bersama kartu Beranda). Berita 97 (LCP 2,4 s).
 - Preload font **memperburuk** LCP (diuji 3×), menanam CSS di HTML tidak terukur manfaatnya → keduanya tidak dipakai.
 - Font cadangan berukuran sama (`@font-face` "… Fallback", Capsize) supaya ganti font tidak menggeser teks.
 - Saat memuat daftar/berita, `.memuat-blok` mencadangkan tinggi supaya tautan situs di bawah tidak terdorong (CLS).
