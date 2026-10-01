@@ -75,6 +75,10 @@ imbauan manual, skrip iklan AdSense, og.png masih memuat tagline).
 - **Perintah deploy, migrasi, dan yang menyentuh rahasia dijalankan pemilik.** AI menuliskannya dalam blok kode `bash`
   satu perintah per blok. AI tidak mengetik, menyalin, atau meminta token/password/API key; bila pemilik tidak sengaja
   menempel kunci di chat, sarankan membuat kunci baru.
+- **Pengecualian (izin pemilik 1 Okt 2026):** bila pemilik meminta, AI boleh menjalankan CLI `vercel` / `supabase` yang
+  sudah login di mesin pemilik untuk pengaturan yang **tidak menampilkan nilai rahasia** (mis. `vercel domains add`,
+  `vercel dns add`, `supabase secrets set ALLOWED_ORIGINS=…`/`URL_WEB=…`, `vercel env add VITE_ADSENSE_CLIENT`). Nilai
+  rahasia lama tidak bisa dibaca (hanya hash); cocokkan hash bila perlu mempertahankan isinya.
 - Perubahan tampilan diverifikasi di server dev pada 375×812, 360×640, dan 1280×800, tema gelap & terang.
 
 ---
@@ -134,7 +138,7 @@ Peta ──► pilih tempat (ketuk di peta / cari nama) ──► lembar tempat 
   ATM, masjid, sekolah dari OpenStreetMap. Mengetuknya mengambil nama + koordinat langsung dari tile, tanpa layanan lain.
 - **Cari nama tempat** lewat kolom cari di atas peta: (1) tempat yang sudah dilaporkan dicari langsung di data yang
   sudah dimuat (instan); (2) tempat lain dicari di **Nominatim OpenStreetMap** saat pengguna menekan Cari (bukan
-  setiap huruf, sesuai aturan Nominatim), dibatasi kotak Makassar Raya, maks. 5 hasil, atribusi OSM. **Tidak memakai
+  setiap huruf, sesuai aturan Nominatim), dibatasi kotak provinsi zona aktif (1.5), maks. 5 hasil, atribusi OSM. **Tidak memakai
   Google Places** (berbayar, perlu kartu kredit, dan ketentuannya melarang menyimpan datanya).
 - **Tekan lama di peta** untuk tempat tanpa nama di peta (mis. pinggir jalan): pin + isi nama singkat (≤ 60 huruf).
 - **"Tidak ada di peta? Laporkan di lokasi saya"** (hasil cari & panel peta): pin di posisi GPS pengguna, nama dari
@@ -339,7 +343,7 @@ fase setelah pemilik memilih fase (tabel di bawah). **Pemilik memilih mulai dari
 **Yang berubah per zona**
 - **Peta & daftar:** pusat awal = zona aktif; tempat dimuat per provinsi/bbox (bukan seluruh Indonesia sekaligus,
   `titik_publik` difilter kode provinsi), snapshot offline per zona.
-- **Pencarian:** viewbox Nominatim = zona aktif (sekarang dikunci Makassar Raya di `lib/cari.js`).
+- **Pencarian:** viewbox Nominatim = zona aktif (`kotakZona` di `lib/cari.js`, sudah dibuat di N2).
 - **Peringkat koin:** kab/kota (bawaan), provinsi, pulau, nasional.
 - **Berita (1.3.2):** `SUMBER_BERITA` diberi `provinsi`; sumber tiap provinsi dicek dulu (RSS, izin bot). Jatah Gemini
   per hari dinaikkan bertahap; berita diurutkan kab/kota pengguna → provinsi → pulau.
@@ -410,14 +414,14 @@ Permintaan pemilik: siapkan halaman yang dibutuhkan untuk daftar AdSense sesuai 
 | `web/src/pages/` | Beranda, Peta (di `App.jsx` + `components/Peta.jsx`), Daftar, Info, Saya (koin, noindex) |
 | `web/src/components/` | Komponen React (nama bahasa Indonesia: `Peta.jsx`, `CariTempat.jsx`, `LembarTempat.jsx`, `LaporLayar.jsx`, `Legenda.jsx`) |
 | `web/src/lib/` | Logika web tanpa React bila memungkinkan: `data.js` (baca view publik lewat `fetch` REST, tanpa supabase-js), `tempat.js` (gabung data, cocokkan tempat, kalimat ringkasan), `lokasi.js`, `cari.js` (Nominatim), `offline.js`, `seo.js`, `tema.js`, `koneksi.js`, `konten-beranda.js`, `util.js` |
-| `web/src/state.jsx` | Context app: data tempat + ringkasan, posisi pengguna, kendaraan terpilih (motor/mobil) |
+| `web/src/state.jsx` | Context app: data tempat + ringkasan, posisi pengguna, zona aktif (provinsi) & kab/kota pengguna, kendaraan terpilih (motor/mobil) |
 | `web/src/app.css` | **Satu file CSS**, semua warna lewat variabel (bagian 6.3) |
-| `supabase/functions/` | Edge Function: `lapor` (juga membuat tempat baru & mencatat koin), `telegram` (tombol pemilik), `aduan` (laporkan komentar), `kontribusi` (tab Saya), `foto` (foto bukti → Telegram pemilik), `berita` (M5, cron). Logika di `proses.js` (JS murni, dites), `index.ts` = pembungkus Deno |
+| `supabase/functions/` | Edge Function: `lapor` (juga membuat tempat baru & mencatat koin), `telegram` (tombol pemilik), `aduan` (laporkan komentar), `kontribusi` (tab Saya), `foto` (foto bukti → Telegram pemilik), `berita` (M5, cron), `kontak` (formulir kontak → Telegram). Logika di `proses.js` (JS murni, dites), `index.ts` = pembungkus Deno |
 | `supabase/functions/_shared/` | Modul bersama. File `.js` = ESM murni, dipakai web (alias `@shared`), Edge Function, dan tes. File `.ts` hanya untuk Edge Function |
 | `supabase/migrations/` | Skema, RLS, view publik, retensi, cron |
-| `supabase/seed.sql` | Dibuat otomatis dari `scripts/`, jangan diedit manual |
-| `scripts/` | Seed tarif, moderasi, setup rahasia, ikon |
-| `scripts/data/` | `tarif-resmi.json` (diisi/diperiksa pemilik) |
+| `supabase/seed.sql` | Data awal lokal. Tarif resmi belum diisi (5, menunggu pemilik) |
+| `scripts/` | `setup-telegram.js`, `setup-berita.js` (rahasia, dijalankan pemilik), `cek-tayang.js`, `buat-ikon.js`, `buat-qr.js`, `kampanye.js` |
+| `scripts/data/` | Kosong; nanti `tarif-resmi.json` (diisi/diperiksa pemilik) |
 | `tests/` | `node:test`, satu file per modul |
 | `docs/` | Dokumen pendukung, materi peluncuran |
 
@@ -430,12 +434,13 @@ Permintaan pemilik: siapkan halaman yang dibutuhkan untuk daftar AdSense sesuai 
 | `npm test` | Semua tes (`node --test "tests/**/*.test.js"`) |
 | `npm run dev --prefix web` | Server dev (Supabase lokal di `web/.env.local`) |
 | `npm run build --prefix web` | Build produksi (sekaligus membuat HTML statis SEO, robots, sitemap) |
-| `npm run seed` | Buat ulang `seed.sql` dari `scripts/data/` (tarif resmi) — dibuat saat tarif diisi pemilik |
-| `npm run moderasi` | Tinjau titik baru / sembunyikan titik atau laporan |
+| `npm run cek:tayang` | Setelah push: tunggu sampai commit terakhir tayang di jukirhub.site (bagian 9) |
+| `npm run qr` | Buat ulang QR poster ke `https://jukirhub.site/peta` |
 | `npm run kampanye` | Laporan & pelapor per kampanye iklan (UTM), dari view `kampanye_publik` (`docs/peluncuran/iklan.md`) |
 | `npm run berita:setup` | **Dijalankan pemilik**: kunci Gemini + secret jadwal berita (M5) |
 | `npm run ikon` | Buat ulang favicon, ikon HP, dan `og.png` dari `web/src/lib/logo.js` |
-| `npm run cloud:secrets`, `bot:setup`, `pemantauan:setup` | **Dijalankan pemilik** (menyentuh rahasia) |
+| `npm run bot:setup` | **Dijalankan pemilik**: token bot Telegram + webhook (rahasia) |
+| *(belum ada)* `seed`, `moderasi`, `cloud:secrets`, `pemantauan:setup` | Pola Adami, belum dibuat di JukirHub; moderasi lewat tombol Telegram, rahasia lewat `npx supabase secrets set` |
 | `npx supabase db push` | Terapkan migrasi baru ke cloud |
 
 Perintah yang menyentuh rahasia atau deploy ditulis dalam blok `bash` supaya pemilik menjalankannya sendiri.
@@ -452,7 +457,7 @@ Supabase lokal **55321** (API), 55322 (db), 55323 (studio), 55324 (email) — li
 - **AI tidak mengetik, menyalin, atau meminta** token, password, atau API key. Pemilik yang menjalankan script
   rahasia dan login CLI.
 - Anon **tidak punya SELECT** ke tabel mentah. Web hanya membaca view publik (`titik_publik`, `ringkasan_titik_publik`,
-  `tarif_publik`).
+  `tarif_publik`, `riwayat_publik`, `berita_publik`, `imbauan_publik`, `kampanye_publik`): hanya hasil/agregat.
 - **Semua penulisan lewat Edge Function**; tidak ada insert langsung dari client. Validasi di server.
 - **Bobot laporan tidak pernah keluar dari server.** Skor dan estimasi dihitung Edge Function; view publik hanya
   berisi hasil (level, rentang, keyakinan, jumlah laporan, alasan utama).
@@ -465,13 +470,14 @@ Supabase lokal **55321** (API), 55322 (db), 55323 (studio), 55324 (email) — li
 - **Tanpa identitas jukir:** tidak ada kolom nama, NIK, nomor HP, plat, ciri fisik, atau foto jukir.
 - **Teks bebas hanya dua:** **nama tempat** (≤ 60 huruf) saat melapor di tempat tanpa nama di peta, dan
   **komentar opsional** (≤ 200 huruf, mulai M4). Keduanya disaring server (tanpa nomor HP, tautan, plat, kata kasar,
-  nama orang); komentar juga diperiksa AI dan baru tampil bila lolos (bagian 1.3.1). Isian lain berupa pilihan dan
-  bintang dari daftar tetap.
+  nama orang); komentar baru tampil setelah pemilik menekan Tampilkan di Telegram (pemeriksaan AI belum dibuat,
+  bagian 1.3.1). Isian lain berupa pilihan dan bintang dari daftar tetap.
 - **Foto bukti** (dibuat 1 Okt, bagian 1.4) hanya diteruskan ke Telegram pemilik, tidak tampil publik dan tidak disimpan
   di server; EXIF dibuang di HP dan di server. Bila kelak foto ditampilkan publik: bucket privat, moderasi dulu,
   wajah dan plat tidak boleh terlihat.
 - Setiap halaman titik memuat disclaimer: "Data dari laporan warga, belum diverifikasi pihak berwenang."
-  Info memuat cara menyampaikan keberatan (pemilik tempat / pihak resmi).
+  Keberatan (pemilik tempat / pihak resmi / pihak yang disebut) lewat halaman **/kontak**; kebijakan lengkap di
+  **/privasi** & **/syarat** (1.6).
 - **Tanpa pelacak iklan** (Meta Pixel, TikTok Pixel, Google Analytics, dsb.). Iklan diukur dengan UTM: web
   menyimpan `sumber/kampanye/konten` di HP 30 hari (`web/src/lib/kampanye.js`), laporan membawanya ke kolom
   `laporan.kampanye`, publik hanya melihat angka agregat (`kampanye_publik`).
@@ -708,26 +714,26 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **Web:** Vercel, `installCommand` `npm ci --prefix web`, `buildCommand` `npm run build --prefix web`, output
   `web/dist`, `cleanUrls: true`. Tujuan rewrite SPA **tanpa** `.html` (pelajaran Adami: `/index.html` membuat alamat
   tak dikenal jadi 404 polos). Salin `vercel.json` Adami lalu sesuaikan domain.
-- **Environment Vercel** (diisi pemilik): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (kunci anon **atau** publishable `sb_publishable_…`; hanya dikirim di header `apikey`), opsional `VITE_SITE_URL`. Tanpa keduanya app tetap jalan dengan data kosong. Untuk dev: `web/.env.local` (di-gitignore).
+- **Environment Vercel**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (kunci anon **atau** publishable `sb_publishable_…`; hanya dikirim di header `apikey`); opsional `VITE_SITE_URL` (tidak dipakai: bawaan `SITUS.urlBawaan` = jukirhub.site) dan `VITE_ADSENSE_CLIENT` (belum diisi; meta AdSense & Search Console sementara ditulis langsung pemilik di `web/index.html`, `ads.txt` belum ada, 1.6). Tanpa keduanya app tetap jalan dengan data kosong. Untuk dev: `web/.env.local` (di-gitignore).
 - **Edge Function** (dideploy pemilik): `npx supabase functions deploy <nama>`.
-- **Secret Edge Function** (lewat `npm run cloud:secrets`, dijalankan pemilik): `ALLOWED_ORIGINS`, `URL_WEB`,
-  `REPORTER_SALT`, `IP_SALT`, `PEMANTAUAN_SECRET`, mulai M4 `GEMINI_API_KEY` (dipasang pemilik sendiri).
+- **Secret Edge Function** (`npx supabase secrets set …`): `ALLOWED_ORIGINS`, `URL_WEB`, `REPORTER_SALT`, `IP_SALT`,
+  `GEMINI_API_KEY` & `BERITA_SECRET` (`npm run berita:setup`), `TELEGRAM_*` (`npm run bot:setup`).
 - **Bot Telegram pemilik:** `npm run bot:setup` (dijalankan pemilik; `scripts/setup-telegram.js`) memasang
   `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`, `URL_WEB` dan webhook ke fungsi `telegram`.
   Tanpa itu kabar tempat baru diam saja (no-op), laporan tetap jalan.
 - **Cek tipe Edge Function** tanpa memasang Deno: salin `supabase/functions` ke folder sementara berisi
   `deno.json` `{ "nodeModulesDir": "auto" }`, lalu `npx --yes deno@2 check functions/<nama>/index.ts`.
 - **Migrasi:** file baru di `supabase/migrations/` (`YYYYMMDDNNNNNN_nama.sql`), lalu `npx supabase db push`.
-- **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA), `bersihkan-koin-harian` (03:40), `bersihkan-foto-laporan` (03:45), `bersihkan-berita` (04:10), `berita` (tiap 3 jam menit ke-20, lewat pg_net + Vault; aktif setelah `npm run berita:setup`). Pemeriksaan komentar oleh AI belum dibuat (moderasi lewat Telegram).
-- Pemilik menerima kabar Telegram untuk setiap tempat baru dan laporan (yang berpola GPS palsu diberi tanda) —
-  menyusul setelah alur 1.2 jalan.
+- **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA), `bersihkan-koin-harian` (03:40), `bersihkan-foto-laporan` (03:45), `bersihkan-pesan-kontak` (03:50), `bersihkan-berita` (04:10), `berita` (tiap 3 jam menit ke-20, lewat pg_net + Vault; aktif). Pemeriksaan komentar oleh AI belum dibuat (moderasi lewat Telegram).
+- Kabar Telegram ke pemilik: tempat baru, komentar baru, komentar diadukan, foto bukti, pesan kontak. Belum ada:
+  ringkasan harian / cek kesehatan (pola `pemantauan` Adami) dan tanda laporan GPS palsu.
 - **Alur rilis (seperti Adami): `git push` ke `main` → Vercel build & tayang otomatis → `npm run cek:tayang`.**
   Build menulis `/versi.json` (commit yang tayang); `scripts/cek-tayang.js` membandingkannya dengan HEAD tiap 30 detik
   (maks. 10 menit) sambil membaca status build Vercel di GitHub, lalu melapor: tayang / build gagal (dengan tautan log) /
   build sukses tapi tidak dijadikan Production (dengan cara memperbaikinya) / diblokir checkpoint. Pemilik tidak perlu
   membuka Vercel kecuali skrip menyuruh. Syarat sekali di Vercel: Environments → Production → Branch Tracking `main` (bukan `master`)
   + "Auto-assign Custom Production Domains" aktif.
-- **Hanya SATU proyek Vercel: `jukirhub`** (memegang jukirhub.vercel.app). 30 Sept 2026 repo ternyata tersambung juga ke
+- **Hanya SATU proyek Vercel: `jukirhub`** (memegang jukirhub.site, www, dan jukirhub.vercel.app). 30 Sept 2026 repo ternyata tersambung juga ke
   duplikat `jukirhub-aywb` (import kedua, preset Vite → build selalu gagal) dan production `jukirhub` tertahan di M0
   sampai pemilik menjalankan **Promote to Production** pada deploy M2. Setelah push, pastikan bundle di situs berganti;
   kalau tidak, cek tab Deployments proyek `jukirhub` (bukan build lokal). Status deploy juga terlihat di
@@ -735,7 +741,7 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **Jangan mengecek situs langsung dengan loop cepat** (mis. `curl` tiap 10 detik): 29 Sept 2026 hal itu memicu
   **Vercel Security Checkpoint** (403 `x-vercel-mitigated: challenge`) untuk jaringan pemilik, termasuk browser pane.
   Tunggu ±2 menit setelah push, lalu cek sekali; jangan pernah mencoba melewati tantangan anti-bot.
-- **Cek setelah push:** tunggu deploy selesai; `/`, `/peta`, `/daftar`, `/info` menjawab 200; buka di 375×812,
+- **Cek setelah push:** tunggu deploy selesai; `/`, `/peta`, `/daftar`, `/berita`, `/info`, `/privasi`, `/kontak` menjawab 200; buka di 375×812,
   360×640, dan desktop, tema gelap dan terang; console bersih; laporkan ke pemilik.
 
 ---
@@ -749,9 +755,9 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M0 Fondasi** | Kerangka `web/` meniru Adami, tema, Poppins, service worker, SEO dasar, migrasi awal, tes. *Selesai (lihat status).* |
 | **M1 Peta & pilih tempat** | Peta MapLibre + penanda tempat terlapor + gugus, ketuk tempat di peta dasar, cari (lokal + Nominatim), tekan lama untuk pin, lembar tempat (baca dari view publik), Daftar *Selesai 29 Sept (lihat status).* |
 | **M2 Laporkan parkir** | Form 1 layar (1.2 poin 3), Edge Function `lapor` (gerbang 250 m, batas, GPS palsu, buat tempat baru), `skor-pungli.js` + ringkasan, penanda berubah warna setelah lapor *Selesai 30 Sept (lihat status).* |
-| **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan. *Materi siap 30 Sept: `docs/peluncuran/` (checklist, poster A5 ×2, teks WhatsApp, QR `npm run qr`). Sisa: uji HP lapangan & cold start oleh pemilik, domain (opsional). Rencana iklan FB/IG/TikTok + pengukuran UTM siap 1 Okt (`docs/peluncuran/iklan.md`).* |
+| **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan. *Materi siap 30 Sept: `docs/peluncuran/` (checklist, poster A5 ×2, teks WhatsApp, QR `npm run qr`). Domain `jukirhub.site` aktif 1 Okt. Sisa: uji HP lapangan & cold start oleh pemilik. Rencana iklan FB/IG/TikTok + pengukuran UTM siap 1 Okt (`docs/peluncuran/iklan.md`).* |
 | **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) *Selesai 1 Okt (moderasi lewat Telegram; AI menyusul).* |
-| **M5 Berita parkir** | Berita parkir per daerah pengguna di Beranda: RSS media Sulsel + ringkasan Gemini + kabupaten yang disebut (bagian 1.3.2) *Dibuat 1 Okt; aktif setelah pemilik menjalankan `npm run berita:setup`.* |
+| **M5 Berita parkir** | Berita parkir per daerah pengguna (kartu Beranda + halaman `/berita`): RSS media Sulawesi + ringkasan Gemini + kab/kota & provinsi yang disebut (bagian 1.3.2) *Selesai & aktif 1 Okt.* |
 | **M6 Koin & tab Saya** | Koin tanpa nilai uang, lencana, seri, peringkat per kabupaten, tab Saya, foto bukti ke Telegram pemilik (bagian 1.4) *Dibuat 1 Okt.* |
 | **M7 Nasional** | Zonasi pulau / provinsi / kab-kota, imbauan parkir per zona, halaman wilayah (bagian 1.5), per fase N1–N4 *N2 pulau Sulawesi dibuat 1 Okt (pilihan pemilik); N3–N4 rencana.* |
 
@@ -856,7 +862,6 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
 
 **Belum diputuskan (tanyakan pemilik sebelum dikerjakan):**
 
-- Nama domain.
 - Gerbang lokasi 250 m untuk melapor (rekomendasi Claude, bagian 6.1): bila pemilik ingin warga bisa melapor dari
   jauh (mis. setelah sampai rumah), perlu keputusan dan penanganan laporan palsu.
 - Poin skor pungli di 6.2 masih usulan awal; kalibrasi setelah ada data.
@@ -864,7 +869,6 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   tambahan).
 - Rencana nasional (1.5): kapan N3 (kota besar Jawa–Bali), moderator per zona, dan apakah imbauan manual boleh dari
   mitra (Dishub / komunitas).
-- Tagline logo "Melaporkan juru parkir liar" dipakai sesuai pilihan pemilik. Catatan Claude tetap berlaku: kata "liar"
-  bernada menuduh (1.1) dan berisiko ditolak iklan Meta; bila iklan ditolak, pakai tagline netral di materi iklan
-  (mis. "Lapor parkir, jaga bersama").
+- Tagline "Melaporkan juru parkir liar" sudah dihapus dari header & Beranda (pemilik, 1 Okt); hanya tersisa di `og.png`.
+  Hapus juga dari og.png? (kata "liar" bernada menuduh, 1.1, dan berisiko ditolak iklan Meta).
 - Pemeriksaan komentar oleh AI (1.3.1) bisa memakai kunci Gemini yang sama bila pemilik menginginkan.
