@@ -426,10 +426,10 @@ Permintaan pemilik: siapkan halaman yang dibutuhkan untuk daftar AdSense sesuai 
   membaca `titik_publik` + `ringkasan_titik_publik` dengan kunci anon dari env build, menulis `dist/tempat/<slug>.html`
   (judul ≤ 70, deskripsi kalimat utuh ≤ 160, isi ringkasan), daftar tautan di `daftar.html`, dan sitemap. Tanpa env
   Supabase build tetap lolos (0 halaman tempat).
-- **Indeks hanya bila ≥ 3 laporan** (`MIN_LAPORAN_INDEKS`): di bawah itu `noindex, follow` dan tidak masuk sitemap
+- **Indeks hanya bila ≥ 3 laporan** (`MIN_LAPORAN_INDEKS`, disetujui pemilik 1 Okt 2026): di bawah itu `noindex, follow` dan tidak masuk sitemap
   (halaman tipis merugikan SEO & AdSense). Tanpa menuduh: kalimat sama dengan lembar (bagian 6.2).
 - Keterbatasan: HTML statis hanya diperbarui saat deploy (halaman React selalu terbaru). Bila perlu: Vercel Deploy
-  Hook + cron harian (belum dibuat, tanya pemilik).
+  Hook + pg_cron harian ±02:00 WITA (diusulkan 1 Okt, belum diputuskan pemilik).
 
 ---
 
