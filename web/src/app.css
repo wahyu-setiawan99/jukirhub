@@ -659,13 +659,34 @@ a { color: var(--aksen); }
   .info-peta, .tombol-lokasi { bottom: 58px; }
 }
 .info-peta .galat { color: var(--merah-teks); }
-.legenda-peta summary {
+.buka-legenda {
   display: flex;
   align-items: center;
+  gap: 4px;
+  width: fit-content;
   min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--aksen);
+  font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+/* Judul legenda tetap terlihat saat isinya digulir; tombol ✕ besar di kanan atas. */
+.kepala-legenda {
+  position: sticky;
+  top: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: -8px -12px 4px;
+  padding: 4px 4px 4px 12px;
+  border-bottom: 1px solid var(--garis);
+  background: var(--permukaan);
+  font-size: 0.95rem;
+  z-index: 1;
 }
 .legenda-peta .legenda { padding-bottom: 6px; }
 .legenda-peta .legenda li .lencana-indikasi { min-width: 0; }

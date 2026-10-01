@@ -1,4 +1,4 @@
-import { Component, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
+import { Component, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { KENDARAAN, LABEL_KENDARAAN } from '@shared/konstanta.js';
 import { useApp } from './state.jsx';
@@ -214,6 +214,47 @@ class BatasGalatPeta extends Component {
   }
 }
 
+// Panel kiri bawah peta. "Arti warna" terbuka → panel hanya berisi legenda dengan judul + tombol ✕; tertutup lagi
+// lewat ✕, Esc, atau ketukan di luar panel (mis. di peta). Ditutup sendiri saat tempat dipilih (panel dilepas).
+function InfoPeta({ children }) {
+  const [legenda, setLegenda] = useState(false);
+  const panel = useRef(null);
+
+  useEffect(() => {
+    if (!legenda) return undefined;
+    const luar = (e) => { if (!panel.current?.contains(e.target)) setLegenda(false); };
+    const esc = (e) => { if (e.key === 'Escape') setLegenda(false); };
+    document.addEventListener('pointerdown', luar);
+    document.addEventListener('keydown', esc);
+    return () => {
+      document.removeEventListener('pointerdown', luar);
+      document.removeEventListener('keydown', esc);
+    };
+  }, [legenda]);
+
+  if (legenda) {
+    return (
+      <div className="info-peta legenda-peta" ref={panel} role="dialog" aria-labelledby="judul-legenda">
+        <div className="kepala-legenda">
+          <strong id="judul-legenda">Arti warna</strong>
+          <button type="button" className="tombol-ikon" onClick={() => setLegenda(false)} aria-label="Tutup arti warna" autoFocus>
+            <Ikon nama="silang" ukuran={18} />
+          </button>
+        </div>
+        <LegendaIndikasi />
+      </div>
+    );
+  }
+  return (
+    <div className="info-peta">
+      {children}
+      <button type="button" className="buka-legenda" aria-expanded="false" onClick={() => setLegenda(true)}>
+        Arti warna <Ikon nama="bawah" ukuran={16} />
+      </button>
+    </div>
+  );
+}
+
 // Pilihan "Muat peta" di koneksi lambat berlaku selama tab terbuka.
 let petaDiizinkanSesiIni = false;
 
@@ -319,7 +360,7 @@ function HalamanPeta() {
       <CariTempat onPilih={pilihDanFokus} onLaporDiLokasi={laporDiLokasi} />
 
       {!pilihan && (
-        <div className="info-peta">
+        <InfoPeta>
           {statusData === 'memuat' && <span>Memuat data…</span>}
           {statusData === 'galat' && (
             <span className="galat">
@@ -335,11 +376,7 @@ function HalamanPeta() {
             {mencariLokasiLapor ? 'Mencari lokasi Anda…' : 'Tempat tidak ada di peta? Laporkan di lokasi saya'}
           </button>
           <span className="kecil redup">atau tekan lama di peta</span>
-          <details className="legenda-peta">
-            <summary>Arti warna</summary>
-            <LegendaIndikasi />
-          </details>
-        </div>
+        </InfoPeta>
       )}
 
       <LembarTempat tempat={laporTempat ? null : pilihan} onTutup={tutup} onLapor={setLaporTempat} />
