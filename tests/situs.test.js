@@ -76,3 +76,10 @@ test('meta verifikasi AdSense hanya bila kode penerbit sah', () => {
     .includes('<meta name="google-adsense-account" content="ca-pub-1234567890123456" />'));
   assert.ok(!buatKepalaSeo('https://contoh.test').includes('google-adsense-account'));
 });
+
+test('ads.txt tidak dialihkan ke aplikasi (404 sampai kode AdSense diisi, bukan HTML)', async () => {
+  const fs = await import('node:fs');
+  const v = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
+  assert.ok(new RegExp(v.rewrites[0].source.replace(/^\//, '^/') + '$').test('/privasi'));
+  assert.ok(!new RegExp(v.rewrites[0].source.replace(/^\//, '^/') + '$').test('/ads.txt'));
+});
