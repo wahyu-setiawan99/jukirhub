@@ -38,17 +38,25 @@ akan membuat situs tidak bisa dibuka. Cek dulu: `nslookup jukirhub.site 8.8.8.8`
 proyek jukirhub → Settings → Domains menandai `jukirhub.site` "Valid Configuration". Bila pemilik ingin perbaikan bug
 tayang lebih dulu, push `80225b1` saja: `git push origin 80225b1:main`.
 
+**Sudah dikerjakan AI lewat CLI (1 Okt, atas permintaan pemilik):**
+- Supabase `ALLOWED_ORIGINS` = `https://jukirhub.site,https://www.jukirhub.site,https://jukirhub.vercel.app,http://localhost:5174,http://localhost:4174`
+  (nilai lama `https://jukirhub.vercel.app,http://localhost:5174` ditemukan lewat pencocokan hash; CORS dicek).
+- Vercel: `jukirhub.site` & `www.jukirhub.site` ditambahkan ke proyek `jukirhub` (`vercel domains add`). `VITE_SITE_URL`
+  tidak ada di env Vercel (situs memakai `SITUS.urlBawaan` dari kode). Folder lokal di-`vercel link` (`.vercel/`, `.env.local`
+  root berisi token OIDC: di-gitignore, jangan dibaca/di-commit).
+
 **Menunggu pemilik (urut):**
-1. Vercel: tambah domain `jukirhub.site` (+ `www`); isi DNS di registrar (record A/CNAME dari Vercel, atau nameserver
-   `ns1.vercel-dns.com` / `ns2.vercel-dns.com`).
-2. Supabase: `npx supabase secrets set ALLOWED_ORIGINS=https://jukirhub.site,https://www.jukirhub.site,https://jukirhub.vercel.app,http://localhost:5174,http://localhost:4174 URL_WEB=https://jukirhub.site`.
-   Tanpa ini, lapor/koin/foto/kontak ditolak (CORS) dari domain baru.
-3. Vercel → Environment Variables: `VITE_SITE_URL` diubah ke `https://jukirhub.site` atau dihapus.
-4. Setelah domain aktif: AI push → `npm run cek:tayang` (sudah memakai jukirhub.site) → cek redirect alamat lama.
-5. Google Search Console: properti `jukirhub.site` + sitemap `https://jukirhub.site/sitemap.xml`.
-6. Google AdSense: daftar dengan `jukirhub.site`. Kode `ca-pub-…` diisi di env Vercel `VITE_ADSENSE_CLIENT`, lalu build
+1. **DNS di DomaiNesia** (registrar; nameserver sekarang `ns1/ns2.domainesia.net`, belum ada record). Pilih salah satu:
+   - Ganti nameserver ke `ns1.vercel-dns.com` & `ns2.vercel-dns.com` (disarankan: DNS lalu bisa diatur AI lewat
+     `vercel dns add`, mis. TXT Search Console), **atau**
+   - Tetap DomaiNesia, isi record: `A @ 216.198.79.1`, `A @ 64.29.17.1`, `CNAME www 8880a4bf15a543bf.vercel-dns-017.com`.
+   Cek: `npx vercel domains verify jukirhub.site` → "Valid Configuration".
+2. Setelah domain aktif (AI boleh mengerjakan): `npx supabase secrets set URL_WEB=https://jukirhub.site`, push semua commit,
+   `npm run cek:tayang`, cek redirect `jukirhub.vercel.app` → `jukirhub.site`.
+3. Google Search Console: properti `jukirhub.site` (TXT DNS) + sitemap `https://jukirhub.site/sitemap.xml`.
+4. Google AdSense: daftar dengan `jukirhub.site`. Kode `ca-pub-…` diisi di env Vercel `VITE_ADSENSE_CLIENT`, lalu build
    ulang (meta verifikasi & `ads.txt` otomatis, bagian 1.6). Skrip iklan belum dipasang (keputusan menunggu persetujuan).
-7. Lapangan: uji laporan sungguhan dari HP (koin, foto bukti ke Telegram), ganti tautan di FB/IG/TikTok, cetak ulang
+5. Lapangan: uji laporan sungguhan dari HP (koin, foto bukti ke Telegram), ganti tautan di FB/IG/TikTok, cetak ulang
    poster dengan QR baru.
 
 **Belum diputuskan / calon pekerjaan berikutnya:** bagian 11 "Belum diputuskan" (fase N3, moderator per zona,
