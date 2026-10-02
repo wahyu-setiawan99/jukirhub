@@ -66,8 +66,8 @@ export const umurDariFile = (file, sekarang = Date.now()) => umurFileDetik(file?
 
 const kabariFoto = () => { try { window.dispatchEvent(new Event(ACARA_FOTO_TERTUNDA)); } catch { /* tanpa window */ } };
 
-export function simpanFotoTertunda(laporanId, waktu = Date.now()) {
-  const ok = tulisFotoTertunda(sessionStorage, laporanId, waktu);
+export function simpanFotoTertunda(laporanId, nama = null, waktu = Date.now()) {
+  const ok = tulisFotoTertunda(sessionStorage, laporanId, waktu, nama);
   if (ok) kabariFoto();
   return ok;
 }

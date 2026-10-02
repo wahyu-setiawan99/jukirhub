@@ -8,17 +8,23 @@ const layarSentuh = () => typeof window !== 'undefined' && window.matchMedia('(p
 
 // Foto bukti opsional setelah lapor: hanya dikirim ke pengelola (Telegram), tidak tampil di JukirHub, tanpa koin.
 // `laporanId` null (laporan pura-pura diterima di server) → pura-pura terkirim tanpa mengunggah.
-export default function TambahFoto({ laporanId, onTerkirim }) {
+// `lupakanSaatDitutup`: layar sukses lapor ditutup biasa → tanda "foto tertunda" dihapus (pengguna sudah memutuskan).
+// Bila Android menutup tab saat kamera terbuka, komponen tidak sempat dilepas, jadi tandanya tetap ada untuk kartu
+// pemulihan. Kartu pemulihan sendiri menghapusnya lewat tombol Tutup.
+export default function TambahFoto({ laporanId, namaTempat = null, onTerkirim, lupakanSaatDitutup = true }) {
   const inputKamera = useRef(null);
   const inputGaleri = useRef(null);
   const [sentuh] = useState(layarSentuh);
   const [tahap, setTahap] = useState('awal');   // awal | proses | terkirim | selesai
   const [pesan, setPesan] = useState(null);
+  const [aktif, setAktif] = useState(null);     // sumber foto yang sedang dikirim: kamera | galeri
+
+  useEffect(() => () => { if (lupakanSaatDitutup) lupakanFotoTertunda(); }, [lupakanSaatDitutup]);
 
   // Simpan sebelum kamera terbuka: Android bisa menutup tab, lalu kartu ini dipasang lagi dari sessionStorage.
   const buka = (sumber) => {
     if (tahap === 'proses') return;
-    if (sumber === 'kamera' && laporanId) simpanFotoTertunda(laporanId);
+    if (sumber === 'kamera' && laporanId) simpanFotoTertunda(laporanId, namaTempat);
     (sumber === 'kamera' ? inputKamera : inputGaleri).current?.click();
   };
 
@@ -26,6 +32,7 @@ export default function TambahFoto({ laporanId, onTerkirim }) {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
+    setAktif(sumber);
     setTahap('proses');
     setPesan(null);
     const foto = await kecilkanFoto(file);
@@ -63,6 +70,8 @@ export default function TambahFoto({ laporanId, onTerkirim }) {
   }
 
   const proses = tahap === 'proses';
+  // Hanya tombol yang dipakai yang berubah jadi "Mengirim foto…"; tombol lain tetap berlabel, hanya nonaktif.
+  const label = (sumber, teks) => (proses && aktif === sumber ? 'Mengirim foto…' : teks);
   return (
     <section className="tambah-foto" aria-label="Foto bukti">
       {tahap !== 'selesai' && (
@@ -71,16 +80,17 @@ export default function TambahFoto({ laporanId, onTerkirim }) {
             <div className="baris-tombol">
               <button type="button" className="tombol-sekunder lebar-penuh tombol-foto" disabled={proses} onClick={() => buka('kamera')}>
                 <Ikon nama="kamera" ukuran={20} />
-                {proses ? 'Mengirim foto…' : 'Ambil foto'}
+                {label('kamera', 'Ambil foto')}
               </button>
               <button type="button" className="tombol-sekunder lebar-penuh tombol-foto" disabled={proses} onClick={() => buka('galeri')}>
-                {proses ? 'Mengirim foto…' : 'Pilih dari galeri'}
+                <Ikon nama="galeri" ukuran={20} />
+                {label('galeri', 'Pilih dari galeri')}
               </button>
             </div>
           ) : (
             <button type="button" className="tombol-sekunder lebar-penuh tombol-foto" disabled={proses} onClick={() => buka('galeri')}>
-              <Ikon nama="kamera" ukuran={20} />
-              {proses ? 'Mengirim foto…' : 'Pilih foto'}
+              <Ikon nama="galeri" ukuran={20} />
+              {label('galeri', 'Pilih foto')}
             </button>
           )}
           <input ref={inputKamera} type="file" accept="image/*" capture="environment" hidden tabIndex={-1} onChange={e => pilih(e, 'kamera')} />
@@ -119,14 +129,18 @@ export function KartuFotoTertunda({ diPeta = false }) {
   return (
     <div className={`foto-tertunda${diPeta ? ' di-peta' : ''}`} role="region" aria-label="Tambah foto bukti">
       <div className="foto-tertunda-kepala">
-        <strong>{terkirim ? 'Foto bukti' : 'Tambah foto bukti'}</strong>
+        <div>
+          <strong>{terkirim ? 'Foto bukti' : 'Tambah foto bukti'}</strong>
+          {tertunda?.nama && <p className="redup kecil">Untuk laporan Anda di {tertunda.nama}</p>}
+        </div>
         <button type="button" className="tombol-ikon" aria-label="Tutup" onClick={tutupKartu}>
           <Ikon nama="silang" ukuran={18} />
         </button>
       </div>
       {terkirim
         ? <p className="tambah-foto-hasil" role="status"><Ikon nama="centang" ukuran={18} /> Foto bukti terkirim ke pengelola. Terima kasih.</p>
-        : <TambahFoto laporanId={tertunda.laporanId} onTerkirim={() => setTerkirim(true)} />}
+        : <TambahFoto laporanId={tertunda.laporanId} namaTempat={tertunda.nama} lupakanSaatDitutup={false}
+          onTerkirim={() => setTerkirim(true)} />}
     </div>
   );
 }

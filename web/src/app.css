@@ -1103,6 +1103,7 @@ a { color: var(--aksen); }
 .app:has(.lapor) .foto-tertunda { display: none; }
 .foto-tertunda-kepala { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .foto-tertunda-kepala .tombol-ikon { background: transparent; }
+.foto-tertunda-kepala p { margin: 2px 0 0; }
 
 .nama-samaran { margin: 0; font-size: 1.15rem; }
 .angka-saya { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0; }

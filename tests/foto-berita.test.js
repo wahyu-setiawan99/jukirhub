@@ -113,7 +113,9 @@ test('foto tertunda: kartu diingat 30 menit, lalu dihapus', () => {
   const t = Date.parse('2026-10-02T04:00:00Z');
   assert.equal(tulisFotoTertunda(simpan, 12, t), true);
   assert.equal(tulisFotoTertunda(simpan, null, t), false);
-  assert.deepEqual(bacaFotoTertunda(simpan, t + 29 * 60_000), { laporanId: 12, waktu: t });
+  assert.deepEqual(bacaFotoTertunda(simpan, t + 29 * 60_000), { laporanId: 12, waktu: t, nama: null });
+  tulisFotoTertunda(simpan, 12, t, '  Coto Tamalanrea 1 ');
+  assert.equal(bacaFotoTertunda(simpan, t).nama, 'Coto Tamalanrea 1');
   assert.equal(bacaFotoTertunda(simpan, t + 31 * 60_000), null);
   assert.equal(m.size, 0);
   tulisFotoTertunda(simpan, 9, t);

@@ -54,15 +54,18 @@ export function barisSumberFoto(sumber, umurDetik) {
 }
 
 // sessionStorage (atau tiruan): kartu foto tetap ada bila Android menutup tab saat kamera terbuka.
-export function tulisFotoTertunda(simpan, laporanId, waktu = Date.now()) {
+// `nama` = nama tempat (opsional) supaya kartu pemulihan bisa menyebut laporan yang mana.
+export function tulisFotoTertunda(simpan, laporanId, waktu = Date.now(), nama = null) {
   if (!simpan || !Number.isSafeInteger(laporanId) || laporanId <= 0 || !Number.isFinite(waktu)) return false;
   try {
-    simpan.setItem(KUNCI_FOTO_TERTUNDA, JSON.stringify({ laporan_id: laporanId, waktu }));
+    simpan.setItem(KUNCI_FOTO_TERTUNDA, JSON.stringify({ laporan_id: laporanId, waktu, nama: namaTertunda(nama) }));
     return true;
   } catch {
     return false;
   }
 }
+
+const namaTertunda = (nama) => (typeof nama === 'string' && nama.trim() ? nama.trim().slice(0, 80) : null);
 
 export function hapusFotoTertunda(simpan) {
   try { simpan?.removeItem(KUNCI_FOTO_TERTUNDA); } catch { /* penyimpanan diblokir */ }
@@ -80,7 +83,7 @@ export function bacaFotoTertunda(simpan, sekarang = Date.now()) {
     && waktu <= sekarang + 120_000
     && sekarang - waktu <= BATAS_FOTO.menitSetelahLapor * 60_000;
   if (!berlaku) { hapusFotoTertunda(simpan); return null; }
-  return { laporanId: id, waktu };
+  return { laporanId: id, waktu, nama: namaTertunda(data?.nama) };
 }
 
 // JPEG: FF D8 … Segmen APP1 (Exif/XMP: lokasi GPS, waktu, kamera), APP13 (IPTC), dan COM (komentar) dibuang;

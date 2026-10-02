@@ -324,14 +324,18 @@ pemilik**. Pola Adami 10.4 fase A.
     minta izin kamera, boros baterai, rawan beda perilaku antar-HP; manfaatnya kecil untuk foto karcis/papan tarif.
   - **Jaga-jaga HP RAM kecil:** saat aplikasi kamera terbuka, Android bisa menutup tab browser; kembali ke JukirHub,
     halaman dimuat ulang dan layar sukses (beserta `laporan_id`) hilang. Sebelum membuka kamera, simpan
-    `{ laporan_id, waktu }` di `sessionStorage`; setelah muat ulang, tampilkan lagi kartu "Tambah foto bukti" selama
-    masih ≤ 30 menit (syarat server tetap berlaku). Dihapus setelah foto terkirim / kedaluwarsa.
+    `{ laporan_id, waktu, nama }` di `sessionStorage`; setelah muat ulang, tampilkan lagi kartu "Tambah foto bukti"
+    ("Untuk laporan Anda di <nama tempat>") selama masih ≤ 30 menit (syarat server tetap berlaku). Dihapus setelah foto
+    terkirim / kedaluwarsa / kartu ditutup, **dan saat layar sukses lapor ditutup biasa** (`lupakanSaatDitutup`, review
+    Claude 2 Okt: tanpa ini, pengguna yang batal memotret masih dikejar kartu melayang 30 menit).
   - **Keterangan sumber foto (DIPILIH pemilik):** web mengirim `sumber: 'kamera' | 'galeri'` (dari tombol yang ditekan)
     dan `umur_detik` (sekarang − `file.lastModified`, dibulatkan) ke fungsi `foto`; server memvalidasi (nilai lain →
     diabaikan) dan `keteranganFoto` menambah baris mis. "📷 Diambil dari kamera" / "🖼 Dari galeri, file ±3 hari lalu".
     Tidak disimpan di database. Hanya petunjuk, **bukan bukti**: `capture` bisa diakali dan jam HP bisa diubah, jadi tidak
-    memengaruhi koin atau bobot laporan.
+    memengaruhi koin atau bobot laporan. **Perlu dicek saat uji HP:** umur file dari galeri bisa selalu "baru saja"
+    (Android/iOS sering memberi waktu salin, bukan waktu potret); bila begitu, hapus umur dari keterangan.
   - Teks peringatan tetap ("Jangan memotret wajah orang atau pelat nomor"), lebih penting saat memotret langsung.
+  - Tombol: ikon `kamera` & `galeri` (`lib/ikon.js`); saat mengirim hanya tombol yang dipakai berlabel "Mengirim foto…".
   - **Uji:** `npm test` + build; browser pane hanya bisa memeriksa tampilan (375×812, 360×640, 1280×800, gelap & terang),
     kamera sungguhan **diuji pemilik** di HP Android (Chrome) dan iPhone (Safari), termasuk kasus tab dimuat ulang.
   - **Urutan kerja:** kode `TambahFoto.jsx` (+ `sessionStorage`) dan keterangan Telegram sudah dibuat 2 Okt.

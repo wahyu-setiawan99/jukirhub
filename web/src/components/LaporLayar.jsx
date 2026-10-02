@@ -93,7 +93,7 @@ export default function LaporLayar({ tempat, onTutup, onSelesai }) {
           </p>
           {kirim.komentar === 'menunggu' && <p className="redup">Cerita Anda tampil di riwayat setelah diperiksa pengelola.</p>}
           <KoinDiterima koin={kirim.koin} />
-          {kirim.laporanId !== undefined && <TambahFoto laporanId={kirim.laporanId} />}
+          {kirim.laporanId !== undefined && <TambahFoto laporanId={kirim.laporanId} namaTempat={kirim.hasil?.nama} />}
           <button type="button" className="tombol-utama lebar-penuh" onClick={() => onSelesai(kirim.hasil)}>Lihat di peta</button>
         </div>
       </div>
