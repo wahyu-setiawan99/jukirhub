@@ -4,6 +4,7 @@
 // ESM murni (Node & Deno), dites dengan node:test. Pesan tidak memuat identitas, IP, atau koordinat PELAPOR.
 
 import { INDIKASI_PUNGLI } from './konstanta.js';
+import { barisSumberFoto } from './foto.js';
 import { KATEGORI_KOMENTAR } from './periksa-komentar.js';
 
 export const LABEL_SUMBER = {
@@ -40,7 +41,8 @@ export function pesanKontak({ pesan, email }) {
 }
 
 // Keterangan foto bukti (Edge Function foto). Tanpa identitas/koordinat pelapor.
-export function keteranganFoto({ id, nama, ada_jukir, kendaraan, bayar, pungli = [], bintang, bobot_manual = 1 }) {
+// `sumber` + `umur_detik` hanya petunjuk (kamera/galeri); tidak memengaruhi koin atau bobot.
+export function keteranganFoto({ id, nama, ada_jukir, kendaraan, bayar, pungli = [], bintang, bobot_manual = 1, sumber = null, umur_detik = null }) {
   const label = Object.fromEntries(INDIKASI_PUNGLI.map(i => [i.kode, i.label]));
   const isi = ada_jukir === false
     ? ['Tidak ada jukir']
@@ -50,9 +52,11 @@ export function keteranganFoto({ id, nama, ada_jukir, kendaraan, bayar, pungli =
       bintang ? `${bintang}★` : null,
       ...(pungli ?? []).map(k => label[k] ?? k)
     ].filter(Boolean);
+  const asal = barisSumberFoto(sumber, umur_detik);
   return [
     `📷 <b>Foto bukti</b> · <b>${escapeHtml(nama)}</b> (laporan ${id})`,
     escapeHtml(isi.join(' · ')),
+    ...(asal ? [escapeHtml(asal)] : []),
     ...(bobot_manual < 1 ? ['⚠️ Lokasi pelapor mencurigakan (bobot laporan diturunkan).'] : []),
     'Foto hanya untuk Anda; tidak tampil di JukirHub.'
   ].join('\n');

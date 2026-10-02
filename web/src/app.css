@@ -1084,6 +1084,25 @@ a { color: var(--aksen); }
 .tombol-foto { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .tombol-foto:disabled { cursor: progress; }
 .tambah-foto-hasil { display: flex; align-items: center; gap: 8px; color: var(--indikasi-rendah-teks); font-weight: 600; }
+/* Kartu pemulihan setelah tab ditutup saat kamera terbuka. Tersembunyi selama layar lapor masih menutupi halaman. */
+.foto-tertunda {
+  position: fixed;
+  z-index: 8;
+  left: max(12px, calc((100% - 480px) / 2));
+  right: max(12px, calc((100% - 480px) / 2));
+  bottom: calc(var(--tinggi-nav) + var(--tinggi-aksi) + env(safe-area-inset-bottom) + 8px);
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  background: var(--permukaan);
+  box-shadow: var(--bayang);
+}
+.foto-tertunda.di-peta { bottom: calc(var(--tinggi-nav) + env(safe-area-inset-bottom) + 8px); }
+.app:has(.lapor) .foto-tertunda { display: none; }
+.foto-tertunda-kepala { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.foto-tertunda-kepala .tombol-ikon { background: transparent; }
 
 .nama-samaran { margin: 0; font-size: 1.15rem; }
 .angka-saya { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0; }

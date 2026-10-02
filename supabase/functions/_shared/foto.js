@@ -13,6 +13,76 @@ export const BATAS_FOTO = {
   menitSetelahLapor: 30    // foto hanya untuk laporan sendiri yang baru dikirim
 };
 
+// Petunjuk sumber foto (bukan bukti): hanya dua nilai ini yang ditulis ke keterangan Telegram.
+const SUMBER_FOTO = new Set(['kamera', 'galeri']);
+const MAKS_UMUR_DETIK = 10 * 365 * 24 * 3600;
+export const KUNCI_FOTO_TERTUNDA = 'jukirhub_foto_tertunda';
+
+// Nilai lain diabaikan (foto tetap dikirim). Tidak disimpan di database.
+export function bacaPetunjukFoto(body) {
+  const b = body && typeof body === 'object' ? body : {};
+  const sumber = SUMBER_FOTO.has(b.sumber) ? b.sumber : null;
+  const umur = Number.isSafeInteger(b.umur_detik) && b.umur_detik >= 0 && b.umur_detik <= MAKS_UMUR_DETIK
+    ? b.umur_detik : null;
+  return { sumber, umur_detik: umur };
+}
+
+// lastModified file (ms) → detik, atau null bila jam tidak masuk akal. Selisih kecil ke masa depan dianggap baru.
+export function umurFileDetik(terakhirDiubah, sekarang = Date.now()) {
+  if (!Number.isFinite(terakhirDiubah) || terakhirDiubah <= 0) return null;
+  const detik = Math.round((sekarang - terakhirDiubah) / 1000);
+  if (detik < -120 || detik > MAKS_UMUR_DETIK) return null;
+  return Math.max(0, detik);
+}
+
+export function teksUmurFile(detik) {
+  if (!Number.isSafeInteger(detik) || detik < 0) return null;
+  if (detik < 90) return 'baru saja';
+  const menit = Math.round(detik / 60);
+  if (menit < 60) return `±${menit} menit lalu`;
+  const jam = Math.round(detik / 3600);
+  if (jam < 48) return `±${jam} jam lalu`;
+  return `±${Math.round(detik / 86400)} hari lalu`;
+}
+
+// Satu baris keterangan Telegram, atau null bila sumber tidak dikenal.
+export function barisSumberFoto(sumber, umurDetik) {
+  if (sumber === 'kamera') return '📷 Diambil dari kamera';
+  if (sumber !== 'galeri') return null;
+  const umur = teksUmurFile(umurDetik);
+  return umur ? `🖼 Dari galeri, file ${umur}` : '🖼 Dari galeri';
+}
+
+// sessionStorage (atau tiruan): kartu foto tetap ada bila Android menutup tab saat kamera terbuka.
+export function tulisFotoTertunda(simpan, laporanId, waktu = Date.now()) {
+  if (!simpan || !Number.isSafeInteger(laporanId) || laporanId <= 0 || !Number.isFinite(waktu)) return false;
+  try {
+    simpan.setItem(KUNCI_FOTO_TERTUNDA, JSON.stringify({ laporan_id: laporanId, waktu }));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function hapusFotoTertunda(simpan) {
+  try { simpan?.removeItem(KUNCI_FOTO_TERTUNDA); } catch { /* penyimpanan diblokir */ }
+}
+
+export function bacaFotoTertunda(simpan, sekarang = Date.now()) {
+  let mentah = null;
+  try { mentah = simpan?.getItem(KUNCI_FOTO_TERTUNDA) ?? null; } catch { return null; }
+  if (!mentah) return null;
+  let data;
+  try { data = JSON.parse(mentah); } catch { hapusFotoTertunda(simpan); return null; }
+  const id = data?.laporan_id;
+  const waktu = data?.waktu;
+  const berlaku = Number.isSafeInteger(id) && id > 0 && typeof waktu === 'number' && Number.isFinite(waktu)
+    && waktu <= sekarang + 120_000
+    && sekarang - waktu <= BATAS_FOTO.menitSetelahLapor * 60_000;
+  if (!berlaku) { hapusFotoTertunda(simpan); return null; }
+  return { laporanId: id, waktu };
+}
+
 // JPEG: FF D8 … Segmen APP1 (Exif/XMP: lokasi GPS, waktu, kamera), APP13 (IPTC), dan COM (komentar) dibuang;
 // APP0 (JFIF) & APP14 (Adobe, warna) dipertahankan. Mengembalikan Uint8Array baru, atau null bila bukan JPEG sah.
 const DIBUANG = new Set([0xe1, 0xed, 0xfe]);

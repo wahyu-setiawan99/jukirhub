@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buangMetadataJpeg } from '../supabase/functions/_shared/foto.js';
+import {
+  KUNCI_FOTO_TERTUNDA, bacaFotoTertunda, barisSumberFoto, buangMetadataJpeg, hapusFotoTertunda, tulisFotoTertunda, umurFileDetik
+} from '../supabase/functions/_shared/foto.js';
+import { KUNCI_FOTO_TERTUNDA as KUNCI_FOTO_WEB } from '../web/src/lib/foto-kunci.js';
 import { prosesFoto } from '../supabase/functions/foto/proses.js';
 import { sha256 } from '../supabase/functions/lapor/proses.js';
 import {
@@ -71,6 +74,52 @@ test('keterangan foto: "tidak ada jukir" dan peringatan GPS mencurigakan untuk p
   assert.match(keteranganFoto({ id: 1, nama: 'A&B', ada_jukir: false }), /Tidak ada jukir/);
   assert.match(keteranganFoto({ id: 1, nama: 'A&B', ada_jukir: false }), /A&amp;B/);
   assert.match(keteranganFoto({ id: 1, nama: 'X', ada_jukir: true, bobot_manual: 0.2 }), /mencurigakan/);
+  assert.doesNotMatch(keteranganFoto({ id: 1, nama: 'X', ada_jukir: true }), /Diambil dari kamera|Dari galeri/);
+});
+
+test('foto: sumber kamera/galeri hanya petunjuk di keterangan; nilai lain diabaikan', async () => {
+  const garam = { reporter: 'r' };
+  const key = await sha256('r:perangkat-uji-1');
+  const sekarang = Date.parse('2026-10-02T04:00:00Z');
+  const lap = (id) => ({ id, reporter_key: key, dibuat: new Date(sekarang - 5 * 60_000).toISOString(),
+    bobot_manual: 1, ada_jukir: true, kendaraan: 'motor', bayar: 2000, pungli: [], bintang: 4, nama: 'Cafe' });
+  const db = dbFoto([lap(1), lap(2), lap(3)]);
+  const terkirim = [];
+  const tg = { async kirimFoto(_jpeg, ket) { terkirim.push(ket); return true; } };
+  const kirim = (laporan_id, ekstra) => prosesFoto({
+    body: { perangkat: 'perangkat-uji-1', laporan_id, foto: base64(JPEG), ...ekstra }, garam, db, tg, sekarang
+  });
+
+  assert.equal((await kirim(1, { sumber: 'kamera', umur_detik: 4 })).status, 200);
+  assert.match(terkirim[0], /Diambil dari kamera/);
+  assert.doesNotMatch(terkirim[0], /hari lalu/);
+  assert.equal((await kirim(2, { sumber: 'galeri', umur_detik: 3 * 86400 })).status, 200);
+  assert.match(terkirim[1], /Dari galeri, file ±3 hari lalu/);
+  assert.equal((await kirim(3, { sumber: 'exif', umur_detik: -5 })).status, 200);
+  assert.doesNotMatch(terkirim[2], /Diambil dari kamera|Dari galeri/);
+  assert.equal(barisSumberFoto('galeri', 30), '🖼 Dari galeri, file baru saja');
+  assert.equal(barisSumberFoto('lain', 30), null);
+  assert.equal(umurFileDetik(sekarang - 3 * 86400 * 1000, sekarang), 3 * 86400);
+  assert.equal(umurFileDetik(0, sekarang), null);
+});
+
+test('foto tertunda: kartu diingat 30 menit, lalu dihapus', () => {
+  const m = new Map();
+  const simpan = {
+    getItem: k => m.get(k) ?? null,
+    setItem: (k, v) => m.set(k, v),
+    removeItem: k => m.delete(k)
+  };
+  const t = Date.parse('2026-10-02T04:00:00Z');
+  assert.equal(tulisFotoTertunda(simpan, 12, t), true);
+  assert.equal(tulisFotoTertunda(simpan, null, t), false);
+  assert.deepEqual(bacaFotoTertunda(simpan, t + 29 * 60_000), { laporanId: 12, waktu: t });
+  assert.equal(bacaFotoTertunda(simpan, t + 31 * 60_000), null);
+  assert.equal(m.size, 0);
+  tulisFotoTertunda(simpan, 9, t);
+  hapusFotoTertunda(simpan);
+  assert.equal(bacaFotoTertunda(simpan, t), null);
+  assert.equal(KUNCI_FOTO_WEB, KUNCI_FOTO_TERTUNDA);
 });
 
 // ------------------------------------------------ kabupaten / daerah

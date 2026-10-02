@@ -13,13 +13,13 @@ nama (`adami_` → `jukirhub_`), jangan pernah mengubah file di sana, dan **jang
 **Mulai dari bagian 1.2 (Prioritas dasar).** Itu inti produk yang dikerjakan lebih dulu. Kalau bagian lain
 bertentangan dengan 1.2, **1.2 yang berlaku**; fitur di luar 1.2 hanya dikerjakan bila pemilik memintanya.
 
-Terakhir diperbarui: 1 Okt 2026.
+Terakhir diperbarui: 2 Okt 2026.
 
 ---
 
-## Serah terima (status terkini, 1 Okt 2026) — baca ini dulu
+## Serah terima (status terkini, 2 Okt 2026) — baca ini dulu
 
-**Tayang di https://jukirhub.site** (domain utama; commit `17c4910`, semua sudah di-push). `jukirhub.vercel.app` &
+**Tayang di https://jukirhub.site** (domain utama). `jukirhub.vercel.app` &
 `www.jukirhub.site` dialihkan 308 ke `jukirhub.site` (diuji, termasuk halaman depan). Isi: M0–M6 lengkap.
 - Peta & lapor (1.2), riwayat + komentar (1.3.1), koin + tab Saya + foto bukti (1.4).
 - Berita parkir per daerah + halaman `/berita` (1.3.2), zonasi pulau Sulawesi N2 (1.5).
@@ -50,7 +50,15 @@ root berisi token OIDC: di-gitignore, jangan dibaca/di-commit).
    cetak ulang poster dengan QR baru (`docs/peluncuran/qr-jukirhub.svg`).
 
 **Belum diputuskan / calon pekerjaan berikutnya:** bagian 11 "Belum diputuskan" (fase N3, moderator per zona,
-imbauan manual, skrip iklan AdSense, og.png masih memuat tagline, `ads.txt`, halaman tempat diperbarui otomatis). **Disetujui, belum dikerjakan:** foto langsung dari kamera + keterangan sumber foto (bagian 1.4; berikutnya mockup).
+imbauan manual, skrip iklan AdSense, og.png masih memuat tagline, `ads.txt`, halaman tempat diperbarui otomatis).
+
+**Foto langsung dari kamera (1.4, dikerjakan 2 Okt):** dua tombol di HP (Ambil foto / Pilih dari galeri), satu tombol
+di komputer, kartu pulih dari `sessionStorage` bila tab ditutup saat kamera terbuka, keterangan sumber di Telegram.
+Web ikut commit ini. **Menunggu pemilik** (tanpa migrasi, tanpa secret baru) supaya baris sumber benar-benar terkirim:
+
+```bash
+npx supabase functions deploy foto
+```
 
 **Cara memeriksa tanpa alat khusus Claude:**
 - Tes & build: `npm test` dan `npm run build --prefix web` (wajib lolos sebelum commit).
@@ -303,15 +311,15 @@ pemilik**. Pola Adami 10.4 fase A.
   laporan, peringatan bila lokasi pelapor mencurigakan). **Tidak tampil publik dan tidak disimpan di server JukirHub.**
   Syarat: laporan milik HP itu, ≤ 30 menit setelah lapor, satu foto per laporan, maks. 3 foto per HP per 24 jam. Tabel
   `foto_laporan` hanya mencatat batas (migrasi `20261001000004_foto.sql`, dihapus > 30 hari).
-- **Rencana: foto langsung dari kamera** (permintaan pemilik 2 Okt 2026; **disetujui pemilik 2 Okt: Opsi A + keterangan
-  sumber foto**; belum dikerjakan, langkah berikut mockup).
-  Sekarang hanya ada satu `<input type="file" accept="image/*">`; di Android baru (Chrome + pemilih foto Android 13+)
+- **Foto langsung dari kamera** (permintaan pemilik 2 Okt 2026; **disetujui & dikerjakan 2 Okt: Opsi A + keterangan
+  sumber foto**). Sisa: pemilik menjalankan `npx supabase functions deploy foto` (tanpa migrasi, tanpa secret baru).
+  Sebelumnya hanya ada satu `<input type="file" accept="image/*">`; di Android baru (Chrome + pemilih foto Android 13+)
   yang muncul sering hanya galeri, tanpa pilihan kamera.
   - **Opsi A (DIPILIH pemilik):** dua tombol di `TambahFoto.jsx`: **"Ambil foto"** (input kedua dengan
     `capture="environment"` → aplikasi kamera HP langsung terbuka, kamera belakang) dan **"Pilih dari galeri"** (input
     lama). Di layar tanpa sentuh (`matchMedia('(pointer: coarse)')` salah = komputer) hanya satu tombol "Pilih foto".
     Alur setelahnya sama persis: `kecilkanFoto` (kanvas membuang EXIF/GPS) → Edge Function `foto` → Telegram pemilik.
-    Tanpa izin kamera di browser, tanpa JS tambahan berarti, server tidak berubah.
+    Tanpa izin kamera di browser. Server hanya menambah baris sumber di keterangan (tidak disimpan).
   - **Opsi B (ditolak):** kamera di dalam halaman (`getUserMedia` + jendela bidik sendiri). Lebih banyak kode,
     minta izin kamera, boros baterai, rawan beda perilaku antar-HP; manfaatnya kecil untuk foto karcis/papan tarif.
   - **Jaga-jaga HP RAM kecil:** saat aplikasi kamera terbuka, Android bisa menutup tab browser; kembali ke JukirHub,
@@ -326,8 +334,8 @@ pemilik**. Pola Adami 10.4 fase A.
   - Teks peringatan tetap ("Jangan memotret wajah orang atau pelat nomor"), lebih penting saat memotret langsung.
   - **Uji:** `npm test` + build; browser pane hanya bisa memeriksa tampilan (375×812, 360×640, 1280×800, gelap & terang),
     kamera sungguhan **diuji pemilik** di HP Android (Chrome) dan iPhone (Safari), termasuk kasus tab dimuat ulang.
-  - **Urutan kerja setelah disetujui:** mockup 2 tombol ke pemilik → kode `TambahFoto.jsx` (+ `sessionStorage`) → uji →
-    commit → pemilik: `npx supabase functions deploy foto` (tanpa migrasi, tanpa secret baru) → push.
+  - **Urutan kerja:** kode `TambahFoto.jsx` (+ `sessionStorage`) dan keterangan Telegram sudah dibuat 2 Okt.
+    Sisa: pemilik `npx supabase functions deploy foto` (tanpa migrasi, tanpa secret baru). Kamera sungguhan diuji di HP.
 - **Akun (username/sandi) belum dibuat.** Bila nanti diminta: ikuti catatan "Akun opsional" di Adami AGENTS.md 10.4.
 
 ### 1.5 Seluruh Indonesia dengan zonasi pulau / provinsi (rencana; fase N2 pulau Sulawesi dibuat 1 Okt 2026)
@@ -813,7 +821,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M3 Rilis** | Commit & push, Vercel, proyek Supabase cloud, domain, uji di HP sungguhan, materi ajakan. *Materi siap 30 Sept: `docs/peluncuran/` (checklist, poster A5 ×2, teks WhatsApp, QR `npm run qr`). Domain `jukirhub.site` aktif 1 Okt. Sisa: uji HP lapangan & cold start oleh pemilik. Rencana iklan FB/IG/TikTok + pengukuran UTM siap 1 Okt (`docs/peluncuran/iklan.md`).* |
 | **M4 Riwayat & komentar** | Riwayat laporan di lembar tempat, komentar opsional di form, saringan server + pemeriksaan AI + aduan (bagian 1.3.1) *Selesai 1 Okt (moderasi lewat Telegram; pemeriksaan AI dibuat 1 Okt sore).* |
 | **M5 Berita parkir** | Berita parkir per daerah pengguna (kartu Beranda + halaman `/berita`): RSS media Sulawesi + ringkasan Gemini + kab/kota & provinsi yang disebut (bagian 1.3.2) *Selesai & aktif 1 Okt.* |
-| **M6 Koin & tab Saya** | Koin tanpa nilai uang, lencana, seri, peringkat per kabupaten, tab Saya, foto bukti ke Telegram pemilik (bagian 1.4) *Dibuat 1 Okt. Disetujui 2 Okt: tombol "Ambil foto" (kamera langsung) di samping galeri + sumber foto di Telegram, belum dikerjakan.* |
+| **M6 Koin & tab Saya** | Koin tanpa nilai uang, lencana, seri, peringkat per kabupaten, tab Saya, foto bukti ke Telegram pemilik (bagian 1.4) *Dibuat 1 Okt. Tombol "Ambil foto" + sumber foto di Telegram dikerjakan 2 Okt; deploy fungsi `foto` menunggu pemilik.* |
 | **M7 Nasional** | Zonasi pulau / provinsi / kab-kota, imbauan parkir per zona, halaman wilayah (bagian 1.5), per fase N1–N4 *N2 pulau Sulawesi dibuat 1 Okt (pilihan pemilik); N3–N4 rencana.* |
 
 **Ditunda (hanya bila pemilik meminta setelah M3):** estimasi pendapatan / mode amati, tab Data & dashboard per

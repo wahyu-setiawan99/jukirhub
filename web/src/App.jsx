@@ -13,6 +13,7 @@ import { Ikon } from './components/Ikon.jsx';
 import CariTempat from './components/CariTempat.jsx';
 import PilihZona from './components/PilihZona.jsx';
 import LembarTempat from './components/LembarTempat.jsx';
+import { ACARA_FOTO_TERTUNDA, KUNCI_FOTO_TERTUNDA } from './lib/foto-kunci.js';
 import { LegendaIndikasi } from './components/Legenda.jsx';
 
 // Halaman & layar yang tidak dibutuhkan saat app dibuka dimuat terpisah (unduhan awal lebih kecil),
@@ -108,6 +109,8 @@ export default function App() {
         )}
       </div>
 
+      <GerbangFotoTertunda diPeta={pathname === '/peta'} />
+
       <nav className="bawah" aria-label="Navigasi utama">
         {/* Ikon + label teks (ikon saja sulit ditebak pengguna baru dan pembaca layar). */}
         {MENU_BAWAH.map(([ke, label, ikon]) => (
@@ -119,6 +122,33 @@ export default function App() {
       </nav>
     </div>
   );
+}
+
+// Kartu foto hanya diunduh bila sessionStorage masih menyimpan laporan (tab ditutup saat kamera terbuka)
+// atau pengguna baru menekan "Ambil foto". Selain itu bundel awal tidak berubah.
+function GerbangFotoTertunda({ diPeta }) {
+  const [Kartu, setKartu] = useState(null);
+  useEffect(() => {
+    let batal = false;
+    const muat = () => {
+      import('./components/TambahFoto.jsx').then(m => {
+        if (!batal) setKartu(() => m.KartuFotoTertunda);
+      });
+    };
+    const muatJikaAda = () => {
+      try {
+        if (sessionStorage.getItem(KUNCI_FOTO_TERTUNDA)) muat();
+      } catch { /* penyimpanan diblokir */ }
+    };
+    muatJikaAda();
+    window.addEventListener(ACARA_FOTO_TERTUNDA, muatJikaAda);
+    return () => {
+      batal = true;
+      window.removeEventListener(ACARA_FOTO_TERTUNDA, muatJikaAda);
+    };
+  }, []);
+  if (!Kartu) return null;
+  return <Kartu diPeta={diPeta} />;
 }
 
 function BannerOffline() {

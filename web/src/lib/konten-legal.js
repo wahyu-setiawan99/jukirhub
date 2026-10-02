@@ -87,7 +87,8 @@ export const ISI_LEGAL = {
           'Koin dan peringkat: nama samaran acak (mis. "Anoa Makassar") dan statistik laporan. Anda bisa mengganti nama ' +
           'samaran atau menyembunyikan diri dari peringkat di tab Saya.',
           'Foto bukti (opsional): data lokasi di dalam foto dibuang, lalu foto diteruskan langsung ke Telegram pengelola. ' +
-          'Foto tidak ditampilkan di JukirHub dan tidak disimpan di server JukirHub.',
+          'Keterangan untuk pengelola dapat menyebut apakah foto diambil dari kamera atau galeri, plus perkiraan umur ' +
+          'file. Itu hanya petunjuk, tidak disimpan di server. Foto tidak ditampilkan di JukirHub dan tidak disimpan di server JukirHub.',
           'Kode kampanye iklan (bila Anda datang dari tautan iklan kami): nama kampanye saja, tanpa identitas, untuk ' +
           'mengukur iklan mana yang berguna.',
           'Pesan formulir kontak: diteruskan ke Telegram pengelola. Server hanya mencatat hash IP dan waktu kirim untuk ' +

@@ -2,7 +2,8 @@
 // (sisi terpanjang 1280 px, JPEG ±70%): hemat kuota, dan kanvas tidak menyalin EXIF (lokasi GPS, kamera) ke file
 // baru. Server membuangnya lagi. Pola lib/foto.js Adami.
 
-import { BATAS_FOTO } from '@shared/foto.js';
+import { BATAS_FOTO, bacaFotoTertunda, hapusFotoTertunda, tulisFotoTertunda, umurFileDetik } from '@shared/foto.js';
+import { ACARA_FOTO_TERTUNDA } from './foto-kunci.js';
 import { KONFIGURASI } from '../state.jsx';
 import { kunciPerangkat, panggilFungsi } from './fungsi.js';
 
@@ -61,5 +62,37 @@ export async function kecilkanFoto(file) {
   return null;
 }
 
-export const unggahFoto = (laporanId, fotoBase64) =>
-  panggilFungsi(fetch, KONFIGURASI, 'foto', { perangkat: kunciPerangkat(), laporan_id: laporanId, foto: fotoBase64 });
+export const umurDariFile = (file, sekarang = Date.now()) => umurFileDetik(file?.lastModified, sekarang);
+
+const kabariFoto = () => { try { window.dispatchEvent(new Event(ACARA_FOTO_TERTUNDA)); } catch { /* tanpa window */ } };
+
+export function simpanFotoTertunda(laporanId, waktu = Date.now()) {
+  const ok = tulisFotoTertunda(sessionStorage, laporanId, waktu);
+  if (ok) kabariFoto();
+  return ok;
+}
+
+export function lupakanFotoTertunda() {
+  hapusFotoTertunda(sessionStorage);
+  kabariFoto();
+}
+
+export const fotoTertundaSekarang = (sekarang = Date.now()) => bacaFotoTertunda(sessionStorage, sekarang);
+
+export function pantauFotoTertunda(fn) {
+  const segar = () => fn(fotoTertundaSekarang());
+  window.addEventListener(ACARA_FOTO_TERTUNDA, segar);
+  document.addEventListener('visibilitychange', segar);
+  return () => {
+    window.removeEventListener(ACARA_FOTO_TERTUNDA, segar);
+    document.removeEventListener('visibilitychange', segar);
+  };
+}
+
+// `sumber` dan `umurDetik` hanya petunjuk untuk keterangan Telegram. Nilai lain tidak dikirim.
+export function unggahFoto(laporanId, fotoBase64, { sumber, umurDetik } = {}) {
+  const body = { perangkat: kunciPerangkat(), laporan_id: laporanId, foto: fotoBase64 };
+  if (sumber === 'kamera' || sumber === 'galeri') body.sumber = sumber;
+  if (umurDetik != null) body.umur_detik = umurDetik;
+  return panggilFungsi(fetch, KONFIGURASI, 'foto', body);
+}

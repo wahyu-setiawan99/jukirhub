@@ -1,9 +1,10 @@
-// Alur Edge Function `foto` (foto bukti, hanya untuk pemilik): { perangkat, laporan_id, foto: <base64 JPEG> }.
+// Alur Edge Function `foto` (foto bukti, hanya untuk pemilik): { perangkat, laporan_id, foto: <base64 JPEG>,
+// sumber?: 'kamera'|'galeri', umur_detik?: number }. Sumber yang tidak dikenal diabaikan (bukan alasan menolak).
 // Syarat: laporan milik perangkat ini (hash sama dengan `lapor`), dikirim ≤ 30 menit lalu, satu foto per laporan,
 // maks. 3 foto per perangkat per 24 jam, ≤ 500 KB. Metadata JPEG dibuang lagi di server, lalu foto diteruskan ke
 // Telegram pemilik. File tidak disimpan di JukirHub. JavaScript murni: db & Telegram disuntikkan supaya bisa dites.
 
-import { BATAS_FOTO, buangMetadataJpeg, dariBase64 } from '../_shared/foto.js';
+import { BATAS_FOTO, bacaPetunjukFoto, buangMetadataJpeg, dariBase64 } from '../_shared/foto.js';
 import { keteranganFoto } from '../_shared/kabar-pemilik.js';
 import { sha256 } from '../lapor/proses.js';
 
@@ -44,7 +45,8 @@ export async function prosesFoto({ body, garam, db, tg, sekarang = Date.now() })
     return tolak(429, 'batas_harian', `Batas ${BATAS_FOTO.maksPerHari} foto per hari sudah tercapai. Laporan Anda tetap tercatat.`);
   }
 
-  const terkirim = await tg.kirimFoto(bersih, keteranganFoto(lap)).catch(() => false);
+  const petunjuk = bacaPetunjukFoto(b);
+  const terkirim = await tg.kirimFoto(bersih, keteranganFoto({ ...lap, ...petunjuk })).catch(() => false);
   if (!terkirim) return tolak(503, 'telegram', 'Foto belum bisa dikirim. Coba lagi sebentar lagi.');
   await db.simpanFoto({ laporan_id: lap.id, reporter_key: key, terkirim: true });
   return { status: 200, body: { ok: true, pesan: PESAN_FOTO } };
