@@ -41,13 +41,16 @@ Vercel: record bisa ditambah AI lewat `npx vercel dns add jukirhub.site …`). D
 root berisi token OIDC: di-gitignore, jangan dibaca/di-commit).
 
 **Menunggu pemilik (urut):**
-1. Google Search Console: buat properti **Domain** `jukirhub.site`, salin nilai TXT `google-site-verification=…` →
-   AI menambahkannya: `npx vercel dns add jukirhub.site @ TXT "google-site-verification=…"`. Lalu kirim sitemap
-   `https://jukirhub.site/sitemap.xml`.
+1. Google Search Console: verifikasi **sudah** (meta tag ditulis pemilik langsung di `web/index.html`, 1 Okt). Sisa:
+   kirim sitemap `https://jukirhub.site/sitemap.xml` di Search Console.
 2. Google AdSense: daftar dengan `jukirhub.site`. Kode `ca-pub-…` diisi di env Vercel `VITE_ADSENSE_CLIENT` (AI bisa lewat
    `npx vercel env add`), lalu build ulang (meta verifikasi & `ads.txt` otomatis, bagian 1.6). Skrip iklan belum dipasang.
 3. Lapangan: uji laporan sungguhan dari HP (koin, foto bukti ke Telegram), ganti tautan di FB/IG/TikTok ke jukirhub.site,
    cetak ulang poster dengan QR baru (`docs/peluncuran/qr-jukirhub.svg`).
+
+**Rencana berikutnya (dipilih pemilik 3 Okt, BELUM dikerjakan):** bagian 1.8: A aturan indeks halaman tempat
+(≥ 2 perangkat), B halaman wilayah, C tarif resmi per kota. Usulan yang tidak dipilih: tombol Bagikan & "butuh N
+laporan lagi" (boleh diangkat lagi nanti).
 
 **Belum diputuskan / calon pekerjaan berikutnya:** bagian 11 "Belum diputuskan" (fase N3, moderator per zona,
 imbauan manual, skrip iklan AdSense, og.png masih memuat tagline, `ads.txt`, halaman tempat diperbarui otomatis).
@@ -206,8 +209,8 @@ Peta ──► pilih tempat (ketuk di peta / cari nama) ──► lembar tempat 
 jukir/pelapor (bagian 4), indikasi bukan tuduhan (1.1), ambang tampil level pungli (6.2).
 
 **Ditunda (jangan dikerjakan sebelum 1.2 selesai dan pemilik meminta):** estimasi pendapatan / mode amati, tab Data
-dan dashboard per wilayah, rincian kerja jukir, atribut resmi, tag sikap, foto publik, notifikasi, halaman statis per
-tempat. (Koin, tab Saya, dan foto bukti untuk pemilik dibuat 1 Okt atas permintaan pemilik, bagian 1.4.)
+dan dashboard per wilayah, rincian kerja jukir, atribut resmi, tag sikap, foto publik, notifikasi. (Halaman per tempat
+dibuat 1 Okt, bagian 1.7. Koin, tab Saya, dan foto bukti untuk pemilik dibuat 1 Okt atas permintaan pemilik, bagian 1.4.)
 
 ### 1.3 Setelah alur dasar jalan: riwayat + komentar, dan berita parkir
 
@@ -463,10 +466,68 @@ Permintaan pemilik: siapkan halaman yang dibutuhkan untuk daftar AdSense sesuai 
   membaca `titik_publik` + `ringkasan_titik_publik` dengan kunci anon dari env build, menulis `dist/tempat/<slug>.html`
   (judul ≤ 70, deskripsi kalimat utuh ≤ 160, isi ringkasan), daftar tautan di `daftar.html`, dan sitemap. Tanpa env
   Supabase build tetap lolos (0 halaman tempat).
-- **Indeks hanya bila ≥ 3 laporan** (`MIN_LAPORAN_INDEKS`, disetujui pemilik 1 Okt 2026): di bawah itu `noindex, follow` dan tidak masuk sitemap
+- **Indeks hanya bila ≥ 3 laporan** (`MIN_LAPORAN_INDEKS`, disetujui pemilik 1 Okt 2026; **akan diperketat jadi ≥ 3
+  laporan dari ≥ 2 perangkat**, rencana 1.8 A, disetujui 3 Okt): di bawah itu `noindex, follow` dan tidak masuk sitemap
   (halaman tipis merugikan SEO & AdSense). Tanpa menuduh: kalimat sama dengan lembar (bagian 6.2).
 - Keterbatasan: HTML statis hanya diperbarui saat deploy (halaman React selalu terbaru). Bila perlu: Vercel Deploy
   Hook + pg_cron harian ±02:00 WITA (diusulkan 1 Okt, belum diputuskan pemilik).
+
+### 1.8 Rencana berikutnya (dipilih pemilik 3 Okt 2026, belum dikerjakan)
+
+Hasil review AGENTS.md 3 Okt. Kerjakan berurutan A → B → C. Tiap bagian: tes + build, cek tampilan (375×812,
+360×640, 1280×800, gelap & terang), mockup dulu untuk tampilan baru, lalu tawarkan commit / commit & push.
+
+**A. Aturan indeks halaman tempat (perbaikan, kecil)**
+- Masalah: `layakIndeks` (`lib/halaman-tempat.js`) hanya memeriksa `jumlah ≥ 3`, padahal bagian 6.2 & 7 mensyaratkan
+  ≥ 2 perangkat. Satu orang yang melapor 3× bisa membuat halaman tempat masuk Google.
+- Rencana: migrasi baru menambah kolom boolean `layak_indeks` di view `ringkasan_titik_publik`
+  (= `jumlah_laporan >= 3 and jumlah_perangkat >= 2`, tanpa membuka angka perangkat mentah). Web membaca kolom itu
+  (`lib/data.js` → `ringkasan.layakIndeks`); `layakIndeks(t)` memakainya, dengan cadangan `false` bila kolom belum ada.
+  Halaman React, HTML statis, dan sitemap otomatis ikut. Tempat yang semua laporannya "tanpa jukir" tetap boleh
+  diindeks bila syarat terpenuhi (isinya informatif, tidak menuduh).
+- Uji: `tests/halaman-tempat.test.js` (3 laporan dari 1 perangkat → noindex), PGlite (view; anon hanya baca).
+- Pemilik: `npx supabase db push`, lalu push web.
+
+**B. Halaman wilayah (SEO lokal; bagian 1.5 "Halaman wilayah statis")**
+- Alamat: `/wilayah/<provinsi>` (6 provinsi Sulawesi) dan `/wilayah/<provinsi>/<kab-kota>` (81 kab/kota), slug dari
+  `_shared/wilayah.js` (mis. `/wilayah/sulawesi-selatan/kota-makassar`). Modul murni `lib/halaman-wilayah.js` (slug,
+  judul, deskripsi, ringkasan, aturan indeks) dipakai halaman React `pages/Wilayah.jsx`, HTML statis saat build
+  (`seoHalaman` di `vite.config.js`, seperti 1.7), dan sitemap.
+- Isi (semua agregat, tanpa orang): jumlah tempat & laporan (30 hari dan total), indikasi terbanyak (kalimat imbauan
+  1.5 yang sudah ada), bayar median motor/mobil, tarif resmi bila ada (C), daftar tempat **diurutkan menurut jumlah
+  laporan, bukan menurut indikasi pungli** (bukan daftar "terburuk"), berita terbaru wilayah itu, tautan ke kab/kota
+  lain di provinsi yang sama. Tempat ditautkan ke halaman 1.7.
+- Data kab/kota tempat: `titik_parkir.kota` (sudah diisi lewat Nominatim, N2); tempat tanpa `kota` hanya masuk halaman
+  provinsi (perkiraan kotak provinsi).
+- **Aturan indeks** (cegah halaman tipis untuk AdSense): kab/kota diindeks bila ≥ 10 laporan dari ≥ 3 perangkat
+  **atau** ≥ 2 tempat yang lolos aturan A; provinsi bila ≥ 1 kab/kota-nya terindeks. Selain itu `noindex, follow`, tidak
+  masuk sitemap, tetap bisa dibuka (tautan dari Daftar). Judul ≤ 70: "Parkir & juru parkir di Kota Makassar · JukirHub".
+- Tautan masuk: Daftar (judul per kab/kota), Beranda (zona aktif → halaman provinsi), halaman tempat (remah roti
+  Beranda › Sulawesi Selatan › Kota Makassar › tempat, + JSON-LD `BreadcrumbList`).
+- Pelengkap yang disarankan: **build ulang harian** supaya halaman wilayah, tempat, dan sitemap tidak menunggu deploy.
+  Pemilik membuat Vercel Deploy Hook sekali dan menyimpannya di Vault (`deploy_hook_url`); pg_cron `bangun-ulang`
+  ±02:00 WITA memanggilnya lewat pg_net (≈ 1 build/hari, dalam batas Vercel Hobby). Perlu persetujuan pemilik
+  tersendiri; URL hook = rahasia, AI tidak melihatnya.
+- Uji: `tests/halaman-wilayah.test.js` (87 slug unik, aturan indeks, deskripsi kalimat utuh ≤ 160), build menulis
+  `dist/wilayah/**.html`, Lighthouse halaman wilayah ≥ 90 (bagian 7).
+
+**C. Tarif resmi per kota (bagian 5; angka hanya dari pemilik, 1.1)**
+- Tabel `tarif_resmi` (skema awal) masih kosong dan **belum dipakai server**: `ringkasTempat` (`_shared/skor-pungli.js`)
+  menerima satu `tarifResmi`, tetapi `lapor` tidak pernah mengirimnya, dan tarif motor ≠ mobil.
+- Langkah 1 (AI): lembar isian `scripts/data/tarif-resmi.json` untuk 24 kab/kota Sulsel (mulai Kota Makassar, Gowa,
+  Maros, Parepare, Palopo, Soppeng, Bone): `kota` (label `wilayah.js`), `kendaraan`, `tarif: null`, `jenis`
+  (`tepi_jalan_umum`), `dasar_hukum`, `sumber_url` (JDIH/Perda/Perwali yang ditemukan), `berlaku_sejak`,
+  `diperiksa_pemilik: false`, `catatan`. **AI hanya mengisi sumber, tidak mengisi angka.**
+- Langkah 2 (pemilik): buka sumber, isi `tarif`, ubah `diperiksa_pemilik: true`.
+- Langkah 3 (AI): `npm run tarif` (`scripts/tarif.js`) membuat file migrasi data dari baris yang sudah diperiksa saja;
+  view `tarif_resmi_publik` (hanya `diperiksa_pemilik`); `ringkasTempat` menerima `{ motor, mobil }` sesuai kendaraan
+  laporan; `lapor` memuat tarif kota tempat saat menghitung ulang ringkasan; tempat lama dihitung ulang sekali.
+  Indikasi "kemahalan" = bayar di atas tarif resmi (selain aturan lama), tetap disebut indikasi.
+- Tampilan: lembar & halaman tempat "Tarif resmi Kota Makassar: Rp 2.000 (motor) · Perwali No. … [sumber]", halaman
+  wilayah (B), dan Info. Disclaimer: "Tarif bisa berbeda di lokasi tertentu; cek papan resmi."
+- Uji: `tests/skor-pungli.test.js` (motor vs mobil), tes skrip (baris belum diperiksa tidak masuk), PGlite.
+- Pemilik: isi angka, `npx supabase db push`, `npx supabase functions deploy lapor`.
+
 
 ---
 
@@ -653,7 +714,7 @@ laporan motor"). Bila tarif resmi daerah sudah diperiksa pemilik, tampil berdamp
   - Di jendela yang tersembunyi MapLibre berhenti menggambar (penanda belum muncul); uji lewat DOM +
     `window.__peta` (hanya dev), atau picu screenshot dulu.
 - **Lembar tempat** (setengah layar) sesuai bagian 1.2 poin 2; **tombol Laporkan parkir & Petunjuk arah tepat di bawah
-  nama** (terlihat tanpa gulir di 360×640), lalu ringkasan. Halaman statis per tempat ditunda.
+  nama** (terlihat tanpa gulir di 360×640), lalu ringkasan, lalu tautan "Buka halaman tempat ini" (bagian 1.7).
 - **Daftar:** tempat yang sudah dilaporkan, terdekat dulu bila lokasi diizinkan; ketuk → Peta + lembar tempat.
 - **Ciri Radar:** latar hitam-biru, aksen **cyan**, grid tipis di atas peta (`.peta-wadah::after`, tidak menangkap
   ketukan), cincin tipis di sekitar penanda, **angka & label data monospace** (`.angka`, `.label-data`), indeks
@@ -752,8 +813,10 @@ Adami), judul ≤ 70 karakter, deskripsi 70–170 karakter yang unik, canonical,
 Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 
 - Halaman statis versi pertama: `/`, `/peta`, `/daftar`, `/info`.
-- Nanti (ditunda): `/titik/<kota>/<slug>` dan `/data/<kota>`. Halaman tempat baru diindeks bila ≥ 3 laporan dari
-  ≥ 2 perangkat; sebelum itu `noindex` (hindari konten tipis dan kesan tuduhan dari satu laporan).
+- Halaman per tempat `/tempat/<nama>-<id>` sudah dibuat (bagian 1.7). Aturan indeksnya **harus** ≥ 3 laporan dari
+  ≥ 2 perangkat; sebelum itu `noindex` (hindari konten tipis dan kesan tuduhan dari satu laporan). Kode sekarang baru
+  memeriksa ≥ 3 laporan → diperbaiki di rencana 1.8 A.
+- Rencana: halaman wilayah `/wilayah/<provinsi>/<kab-kota>` (rencana 1.8 B). Dashboard/CSV `/data/<kota>` tetap ditunda.
 
 ---
 
@@ -827,6 +890,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M5 Berita parkir** | Berita parkir per daerah pengguna (kartu Beranda + halaman `/berita`): RSS media Sulawesi + ringkasan Gemini + kab/kota & provinsi yang disebut (bagian 1.3.2) *Selesai & aktif 1 Okt.* |
 | **M6 Koin & tab Saya** | Koin tanpa nilai uang, lencana, seri, peringkat per kabupaten, tab Saya, foto bukti ke Telegram pemilik (bagian 1.4) *Dibuat 1 Okt. Tombol "Ambil foto" + sumber foto di Telegram dikerjakan 2 Okt; deploy fungsi `foto` menunggu pemilik.* |
 | **M7 Nasional** | Zonasi pulau / provinsi / kab-kota, imbauan parkir per zona, halaman wilayah (bagian 1.5), per fase N1–N4 *N2 pulau Sulawesi dibuat 1 Okt (pilihan pemilik); N3–N4 rencana.* |
+| **M8 Rapikan & SEO lokal** | Aturan indeks tempat ≥ 2 perangkat, halaman wilayah, tarif resmi per kota (bagian 1.8) *Dipilih pemilik 3 Okt; belum dikerjakan.* |
 
 **Ditunda (hanya bila pemilik meminta setelah M3):** estimasi pendapatan / mode amati, tab Data & dashboard per
 wilayah + CSV, rincian kerja jukir, atribut resmi, tag sikap, foto publik, notifikasi, bot
