@@ -6,12 +6,13 @@ import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 import { SITUS } from './src/lib/konten-beranda.js';
 import {
-  JALUR_STATIS, buatDaftarTautanTempat, buatIsiStatis, buatIsiTempat, buatKepalaSeo, buatRobots, buatSitemap, khususTempat,
-  kodeAdsenseSah
+  JALUR_STATIS, buatDaftarTautanTempat, buatDaftarTautanWilayah, buatIsiStatis, buatIsiTempat, buatIsiWilayah, buatKepalaSeo,
+  buatRobots, buatSitemap, khususTempat, khususWilayah, kodeAdsenseSah
 } from './src/lib/seo.js';
-import { KOLOM_RINGKASAN, KOLOM_TITIK, ambilView, konfigurasiData } from './src/lib/data.js';
+import { KOLOM_IMBAUAN, KOLOM_RINGKASAN, KOLOM_TITIK, ambilView, konfigurasiData } from './src/lib/data.js';
 import { gabungTempat, jarakM } from './src/lib/tempat.js';
 import { jalurTempat } from './src/lib/halaman-tempat.js';
+import { ringkasWilayah, semuaWilayah } from './src/lib/halaman-wilayah.js';
 
 // Modul skoring & konstanta hidup di supabase/functions/_shared agar ikut ter-deploy
 // ke Edge Function. Web mengimpornya lewat alias ini — satu file, tidak disalin.
@@ -27,7 +28,8 @@ function commitSekarang() {
 // SEO: app dirender JavaScript, jadi HTML awalnya kosong bagi mesin pencari & pratinjau tautan.
 // Plugin ini menanam meta, JSON-LD, dan konten statis ke index.html (Beranda), lalu membuat HTML
 // statis untuk /peta, /daftar, /info (disajikan lewat cleanUrls di vercel.json), robots.txt, sitemap.xml,
-// versi.json. Alamat situs dari VITE_SITE_URL. Halaman per tempat ditunda (AGENTS.md 1.2).
+// versi.json. Alamat situs dari VITE_SITE_URL. Juga halaman per tempat (AGENTS.md 1.7) dan per wilayah (1.8 B) dari data
+// Supabase saat build; build ulang harian (pg_cron `bangun-ulang`) menyegarkannya.
 function seoHalaman() {
   let url = SITUS.urlBawaan;
   let supabaseUrl = '';
@@ -76,6 +78,7 @@ function seoHalaman() {
       // Halaman per tempat (/tempat/<slug>-<id>): data dari view publik Supabase saat build. Gagal / tanpa env → dilewati
       // (halaman tetap bisa dibuka lewat React). Data baru tampil di HTML statis pada build berikutnya.
       let tempat = [];
+      let barisImbauan = [];
       if (konfigData) {
         try {
           const [titik, ringkasan] = await Promise.all([
@@ -86,6 +89,11 @@ function seoHalaman() {
         } catch (err) {
           console.warn('[seo] halaman tempat dilewati:', err.message);
         }
+        // Angka 30 hari per kab/kota (imbauan & aturan indeks wilayah). Gagal → halaman wilayah tanpa angka 30 hari.
+        barisImbauan = await ambilView(fetch, konfigData, 'imbauan_publik', KOLOM_IMBAUAN).catch((err) => {
+          console.warn('[seo] imbauan_publik dilewati:', err.message);
+          return [];
+        });
       }
       fs.mkdirSync(path.join(options.dir, 'tempat'), { recursive: true });
       for (const t of tempat) {
@@ -96,11 +104,23 @@ function seoHalaman() {
           .replace(isiBeranda, () => buatIsiTempat(t, sekitar));
         fs.writeFileSync(path.join(options.dir, `${jalur.slice(1)}.html`), html);
       }
-      // /daftar statis memuat tautan ke semua tempat; sitemap memuat tempat yang layak diindeks.
+      // Halaman wilayah: selalu 87 (6 provinsi + 81 kab/kota Sulawesi); yang datanya tipis tetap dibuat tetapi noindex.
+      const wilayah = semuaWilayah().map(w => ringkasWilayah(tempat, w, barisImbauan));
+      for (const r of wilayah) {
+        const jalur = r.wilayah.jalur;
+        fs.mkdirSync(path.dirname(path.join(options.dir, `${jalur.slice(1)}.html`)), { recursive: true });
+        const html = index
+          .replace(kepalaBeranda, () => buatKepalaSeo(url, { supabaseUrl, jalur, adsense, khusus: khususWilayah(r) }))
+          .replace(isiBeranda, () => buatIsiWilayah(r));
+        fs.writeFileSync(path.join(options.dir, `${jalur.slice(1)}.html`), html);
+      }
+      // /daftar statis memuat tautan ke semua tempat & wilayah berlaporan; sitemap memuat yang layak diindeks.
       const fileDaftar = path.join(options.dir, 'daftar.html');
-      fs.writeFileSync(fileDaftar, fs.readFileSync(fileDaftar, 'utf8').replace('<p class="disclaimer">', () => `${buatDaftarTautanTempat(tempat)}\n        <p class="disclaimer">`));
-      fs.writeFileSync(path.join(options.dir, 'sitemap.xml'), buatSitemap(url, new Date(), undefined, tempat));
+      fs.writeFileSync(fileDaftar, fs.readFileSync(fileDaftar, 'utf8').replace('<p class="disclaimer">',
+        () => `${buatDaftarTautanWilayah(wilayah)}\n        ${buatDaftarTautanTempat(tempat)}\n        <p class="disclaimer">`));
+      fs.writeFileSync(path.join(options.dir, 'sitemap.xml'), buatSitemap(url, new Date(), undefined, tempat, wilayah));
       if (tempat.length) console.log(`[seo] ${tempat.length} halaman tempat dibuat`);
+      console.log(`[seo] ${wilayah.length} halaman wilayah dibuat (${wilayah.filter(r => r.indeks).length} diindeks)`);
     }
   };
 }

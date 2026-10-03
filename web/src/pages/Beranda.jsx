@@ -1,10 +1,11 @@
 import { useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LABEL_KENDARAAN } from '@shared/konstanta.js';
 import { useApp } from '../state.jsx';
 import { CATATAN_KAKI, FAQ, HERO, LANGKAH, TENTANG, WILAYAH } from '../lib/konten-beranda.js';
 import { dataProvinsi } from '@shared/wilayah.js';
 import { tempatDiZona, urutkanTempat } from '../lib/tempat.js';
+import { jalurProvinsi } from '../lib/halaman-wilayah.js';
 import { pramuatPetaSaatSenggang } from '../lib/koneksi.js';
 import BarisTempat from '../components/BarisTempat.jsx';
 import KartuBerita from '../components/KartuBerita.jsx';
@@ -39,6 +40,9 @@ export default function Beranda() {
             : `Belum ada tempat parkir yang dilaporkan di ${namaZona}.`)}
         </p>
         <PilihZona />
+        {statusData === 'siap' && daftar.length > 0 && (
+          <Link className="tautan tautan-kiri" to={jalurProvinsi(zona)}>Ringkasan parkir di {namaZona}</Link>
+        )}
       </section>
 
       <section className="kartu-beranda" aria-labelledby="judul-sorotan">

@@ -1,19 +1,21 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../state.jsx';
-import { CATATAN_KAKI, SITUS } from '../lib/konten-beranda.js';
+import { CATATAN_KAKI } from '../lib/konten-beranda.js';
 import { deskripsiTempat, idDariJalur, jalurTempat, judulTempat, layakIndeks } from '../lib/halaman-tempat.js';
+import { remahTempat } from '../lib/halaman-wilayah.js';
+import { useMetaHalaman } from '../lib/meta-halaman.js';
+import Remah from '../components/Remah.jsx';
 import { jarakM } from '../lib/util.js';
 import RingkasanTempat from '../components/RingkasanTempat.jsx';
 import Riwayat from '../components/Riwayat.jsx';
 import TautanSitus from '../components/TautanSitus.jsx';
 
-const URL_SITUS = (import.meta.env.VITE_SITE_URL || SITUS.urlBawaan).replace(/\/+$/, '');
 const FORMAT_TANGGAL = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Makassar' });
 
 // Halaman satu tempat (/tempat/<slug>-<id>, permintaan pemilik 1 Okt 2026): ringkasan & riwayat yang sama dengan
 // lembar tempat di peta, untuk mesin pencari dan dibagikan. HTML statisnya dibuat saat build (lib/seo.js); halaman ini
-// menggantinya dengan data terbaru. Tempat dengan < 3 laporan: noindex (halaman tipis).
+// menggantinya dengan data terbaru. Noindex sampai ≥ 3 laporan dari ≥ 2 perangkat (layak_indeks dari server).
 export default function Tempat() {
   const { slug } = useParams();
   const { daftar, statusData, kendaraan } = useApp();
@@ -26,7 +28,7 @@ export default function Tempat() {
     ? daftar.filter(x => x.id !== t.id).map(x => ({ ...x, jarak: jarakM(t, x) })).sort((a, b) => a.jarak - b.jarak).slice(0, 5)
     : []), [daftar, t]);
 
-  useMetaTempat(t);
+  useMetaHalaman(t ? { judul: judulTempat(t), deskripsi: deskripsiTempat(t), jalur: jalurTempat(t), indeks: layakIndeks(t) } : null);
 
   if (!t) {
     return (
@@ -47,6 +49,7 @@ export default function Tempat() {
   const urlArah = `https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}`;
   return (
     <div className="halaman halaman-tempat">
+      <Remah remah={remahTempat(t)} />
       <section className="kepala-halaman">
         <h1>Parkir di {t.nama}</h1>
         <p className="redup">
@@ -88,19 +91,3 @@ export default function Tempat() {
   );
 }
 
-// Judul, deskripsi, canonical, dan robots mengikuti tempat yang dibuka (sama dengan HTML statis).
-function useMetaTempat(t) {
-  useEffect(() => {
-    if (!t) return undefined;
-    const set = (sel, attr, nilai) => document.querySelector(sel)?.setAttribute(attr, nilai);
-    const url = `${URL_SITUS}${jalurTempat(t)}`;
-    document.title = judulTempat(t);
-    set('meta[name="description"]', 'content', deskripsiTempat(t));
-    set('link[rel="canonical"]', 'href', url);
-    set('meta[property="og:url"]', 'content', url);
-    const robots = document.querySelector('meta[name="robots"]');
-    const lama = robots?.getAttribute('content');
-    if (!layakIndeks(t)) robots?.setAttribute('content', 'noindex, follow');
-    return () => { if (robots && lama) robots.setAttribute('content', lama); };
-  }, [t]);
-}

@@ -24,6 +24,7 @@ const Saya = lazy(muatBagian.saya);
 const Berita = lazy(muatBagian.berita);
 const Legal = lazy(muatBagian.legal);
 const Tempat = lazy(muatBagian.tempat);
+const Wilayah = lazy(muatBagian.wilayah);
 const LaporLayar = lazy(muatBagian.lapor);
 
 // Pustaka peta (MapLibre + worker + CSS) jauh lebih besar dari sisa app: dimuat terpisah saat tab Peta dibuka.
@@ -48,8 +49,8 @@ export default function App() {
 
   useEffect(() => {
     const h = HALAMAN[pathname];
-    // Halaman dinamis (mis. /tempat/…) mengatur judulnya sendiri.
-    if (h || !pathname.startsWith('/tempat/')) document.title = h?.judul ?? SITUS.nama;
+    // Halaman dinamis (/tempat/…, /wilayah/…) mengatur judulnya sendiri.
+    if (h || !/^\/(tempat|wilayah)\//.test(pathname)) document.title = h?.judul ?? SITUS.nama;
     // Selaras dengan HTML statis per halaman: deskripsi, canonical, og:url ikut berganti saat berpindah halaman.
     if (h) {
       const url = `${URL_SITUS}${pathname === '/' ? '/' : pathname}`;
@@ -91,6 +92,8 @@ export default function App() {
               <Route path="/berita" element={<Berita />} />
               {['/tentang', '/privasi', '/syarat', '/kontak'].map(j => <Route key={j} path={j} element={<Legal />} />)}
               <Route path="/tempat/:slug" element={<Tempat />} />
+              <Route path="/wilayah/:provinsi" element={<Wilayah />} />
+              <Route path="/wilayah/:provinsi/:kabupaten" element={<Wilayah />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>

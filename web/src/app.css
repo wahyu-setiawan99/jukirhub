@@ -1210,6 +1210,22 @@ a { color: var(--aksen); }
 .daftar-sekitar a { color: var(--aksen); font-weight: 600; }
 .jarak-sekitar::before { content: '·'; margin-inline: 6px; }
 
+/* Remah roti halaman tempat & wilayah (Beranda › Sulawesi Selatan › Makassar). */
+.remah { line-height: 1.6; }
+.remah a { color: var(--redup); text-decoration: underline; text-underline-offset: 2px; }
+.remah [aria-current] { color: var(--teks); }
+
+/* Halaman wilayah (/wilayah/…, AGENTS.md 1.8 B). */
+.halaman-wilayah { display: grid; align-content: start; gap: 12px; padding-bottom: 24px; }
+.halaman-wilayah > * { width: 100%; max-width: var(--lebar-kolom); margin-inline: auto; }
+.angka-wilayah { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.angka-wilayah div { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--garis); border-radius: 12px; background: var(--permukaan); }
+.angka-wilayah dt { color: var(--redup); font-size: 0.8rem; }
+.angka-wilayah dd { margin: 0; font-family: var(--font-angka); font-size: 1.25rem; font-weight: 500; }
+@media (min-width: 760px) { .angka-wilayah { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tautan-wilayah { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+.tautan-wilayah a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid var(--garis); border-radius: 999px; color: var(--aksen); font-weight: 600; text-decoration: none; }
+
 .halaman-legal { display: grid; align-content: start; gap: 12px; padding-bottom: 24px; }
 .halaman-legal > * { width: 100%; max-width: var(--lebar-kolom); margin-inline: auto; }
 .tautan-situs { display: flex; flex-wrap: wrap; gap: 0 16px; padding-top: 12px; border-top: 1px solid var(--garis); }

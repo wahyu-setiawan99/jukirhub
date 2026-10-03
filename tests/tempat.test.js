@@ -12,7 +12,7 @@ const titik = [
 ];
 const ringkasan = [
   {
-    titik_id: 1, jumlah_laporan: 4, data_cukup: true, level_pungli: 'tinggi', alasan_pungli: '3 dari 4 laporan tidak diberi karcis',
+    titik_id: 1, jumlah_laporan: 4, data_cukup: true, layak_indeks: true, level_pungli: 'tinggi', alasan_pungli: '3 dari 4 laporan tidak diberi karcis',
     bantu_datang_ya: 1, bantu_pergi_ya: 4, bayar_median_motor: 2000, jumlah_motor: 3, bayar_median_mobil: 5000,
     jumlah_mobil: 1, bintang_rata: 2.46, laporan_terakhir: '2026-09-28T10:00:00Z'
   },
@@ -32,6 +32,10 @@ test('gabungTempat menggabungkan titik & ringkasan, membuang baris rusak, tidak 
   assert.equal(labelLevel(daftar[1].ringkasan), 'Data belum cukup (1 laporan)');
   const tanpaRingkasan = gabungTempat([titik[1]], []);
   assert.equal(tanpaRingkasan[0].ringkasan.jumlah, 0);
+  // layak_indeks (halaman tempat boleh diindeks) hanya dari server; tanpa kolom → false
+  assert.equal(daftar[0].ringkasan.layakIndeks, true);
+  assert.equal(daftar[1].ringkasan.layakIndeks, false);
+  assert.equal(tanpaRingkasan[0].ringkasan.layakIndeks, false);
 });
 
 test('kalimat membantu selalu dengan jumlahnya', () => {

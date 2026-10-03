@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../state.jsx';
 import { CATATAN_KAKI, HALAMAN } from '../lib/konten-beranda.js';
 import { dataProvinsi } from '@shared/wilayah.js';
 import { tempatDiZona, urutkanTempat } from '../lib/tempat.js';
+import { ringkasWilayah, wilayahProv } from '../lib/halaman-wilayah.js';
 import { pesanGalatLokasi } from '../lib/lokasi.js';
 import BarisTempat from '../components/BarisTempat.jsx';
 import PilihZona from '../components/PilihZona.jsx';
@@ -16,6 +17,11 @@ export default function Daftar() {
   const navigate = useNavigate();
   const h = HALAMAN['/daftar'];
   const urut = useMemo(() => urutkanTempat(daftar, posisi), [daftar, posisi]);
+  // Tautan ke halaman wilayah: provinsi zona aktif + kab/kota yang sudah punya laporan.
+  const daerah = useMemo(() => {
+    const prov = ringkasWilayah(semua, wilayahProv(zona));
+    return prov.jumlahLaporan ? [prov, ...prov.kabupaten.filter(k => k.jumlahLaporan > 0)] : [];
+  }, [semua, zona]);
 
   return (
     <div className="halaman daftar">
@@ -52,6 +58,19 @@ export default function Daftar() {
           </button>
         </div>
       ))}
+      {statusData === 'siap' && daerah.length > 0 && (
+        <section className="kartu" aria-labelledby="judul-daerah">
+          <h2 id="judul-daerah">Ringkasan per daerah</h2>
+          <ul className="daftar-sekitar">
+            {daerah.map(r => (
+              <li key={r.wilayah.jalur}>
+                <Link to={r.wilayah.jalur}>{r.wilayah.nama}</Link>
+                <span className="redup kecil jarak-sekitar">{r.jumlahLaporan} laporan</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <TautanSitus />
       <p className="disclaimer">{CATATAN_KAKI}</p>
     </div>

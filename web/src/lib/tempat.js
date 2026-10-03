@@ -33,6 +33,8 @@ export function gabungTempat(titik, ringkasan) {
           jumlah: angka(r.jumlah_laporan) ?? 0,
           tanpaJukir: angka(r.jumlah_tanpa_jukir) ?? 0,
           dataCukup: r.data_cukup === true,
+          // Boleh diindeks Google: >= 3 laporan dari >= 2 perangkat (view, migrasi 20261003000001; false bila view lama).
+          layakIndeks: r.layak_indeks === true,
           level: r.data_cukup === true ? (r.level_pungli ?? null) : null,
           // Indeks pungli 0–100 (tampilan Radar); null bila data belum cukup atau view lama.
           indeks: r.data_cukup === true ? angka(r.indeks_pungli) : null,

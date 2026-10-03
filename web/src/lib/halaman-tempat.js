@@ -6,8 +6,9 @@ import {
   jumlahAdaJukir, kalimatBantu, kalimatTanpaJukir, labelLevel, teksBintang, teksTarif
 } from './tempat.js';
 
-// Tempat dengan laporan sesedikit ini tetap bisa dibuka, tapi "noindex" & tidak masuk sitemap: halaman tipis
-// merugikan SEO dan penilaian AdSense ("konten bernilai rendah").
+// Di bawah ambang ini halaman tetap bisa dibuka, tapi "noindex" & tidak masuk sitemap: halaman tipis merugikan SEO
+// dan penilaian AdSense ("konten bernilai rendah"), dan satu perangkat tidak boleh membuat tempat terindeks.
+// Syarat lengkap (>= 3 laporan dari >= 2 perangkat) dihitung server: kolom layak_indeks di ringkasan_titik_publik.
 export const MIN_LAPORAN_INDEKS = 3;
 
 // "Indomaret Jl. Perintis (24 Jam)" → "indomaret-jl-perintis-24-jam". Aksen dibuang, maks. 60 huruf.
@@ -27,7 +28,7 @@ export function idDariJalur(jalur) {
   return m ? Number(m[1]) : null;
 }
 
-export const layakIndeks = (t) => (t?.ringkasan?.jumlah ?? 0) >= MIN_LAPORAN_INDEKS;
+export const layakIndeks = (t) => t?.ringkasan?.layakIndeks === true && (t.ringkasan.jumlah ?? 0) >= MIN_LAPORAN_INDEKS;
 
 // Judul ≤ 70 karakter: "Parkir di Indomaret Perintis, Makassar · JukirHub" (nama dipotong bila terlalu panjang).
 export function judulTempat(t) {

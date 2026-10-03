@@ -1,12 +1,15 @@
 // Pembuat bagian SEO yang ditanam ke HTML saat build (lihat plugin di vite.config.js, pola Adami):
 // meta & Open Graph, data terstruktur JSON-LD, konten statis per halaman, robots.txt, sitemap.xml.
 // Setiap halaman (/, /peta, /daftar, /info) punya HTML statis sendiri: judul, deskripsi, canonical, dan isi
-// yang bisa dibaca tanpa JavaScript. Halaman per tempat ditunda (AGENTS.md 1.2). Fungsi murni tanpa DOM supaya bisa
-// dites dengan node:test.
+// yang bisa dibaca tanpa JavaScript, termasuk halaman per tempat (AGENTS.md 1.7) dan per wilayah (1.8 B). Fungsi murni
+// tanpa DOM supaya bisa dites dengan node:test.
 
 import { CATATAN_KAKI, FAQ, HALAMAN, HERO, LANGKAH, SITUS, TAUTAN_SITUS, TENTANG, WILAYAH } from './konten-beranda.js';
 import { BERLAKU_SEJAK, ISI_LEGAL } from './konten-legal.js';
 import { barisRingkasTempat, deskripsiTempat, jalurTempat, judulTempat, layakIndeks } from './halaman-tempat.js';
+import {
+  angkaWilayah, deskripsiWilayah, judulWilayah, remahTempat, remahWilayah, tetangga
+} from './halaman-wilayah.js';
 import { svgLogoInline } from './logo.js';
 
 // Halaman selain Beranda yang dibuatkan HTML statis sendiri (daftar.html, dst. — lihat cleanUrls di vercel.json).
@@ -58,10 +61,10 @@ export function buatDataTerstruktur(url, jalur = '/', khusus = null) {
       {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Beranda', item: `${dasar}/` },
-          { '@type': 'ListItem', position: 2, name: h.nama, item: urlHalaman(dasar, jalur) }
-        ]
+        // `khusus.remah` = [[nama, jalur], …] untuk halaman bertingkat (wilayah, tempat); selain itu Beranda › halaman.
+        itemListElement: [['Beranda', '/'], ...(khusus?.remah ?? [[h.nama, jalur]])].map(([nama, j], i) => (
+          { '@type': 'ListItem', position: i + 1, name: nama, item: urlHalaman(dasar, j) }
+        ))
       }
     ];
   }
@@ -108,7 +111,7 @@ export function buatDataTerstruktur(url, jalur = '/', khusus = null) {
 // Kode penerbit AdSense ca-pub-<16 angka> (env VITE_ADSENSE_CLIENT); selain itu diabaikan.
 export const kodeAdsenseSah = (k) => (typeof k === 'string' && /^ca-pub-\d{16}$/.test(k) ? k : null);
 
-// `khusus` = { nama, judul, deskripsi, indeks } untuk halaman dinamis (mis. /tempat/…), menggantikan HALAMAN[jalur].
+// `khusus` = { nama, judul, deskripsi, indeks, remah? } untuk halaman dinamis (mis. /tempat/…), menggantikan HALAMAN[jalur].
 export function buatKepalaSeo(url, { supabaseUrl, jalur = '/', adsense = null, khusus = null } = {}) {
   const dasar = rapikanUrl(url);
   const h = khusus ?? halaman(jalur);
@@ -241,9 +244,19 @@ export function buatIsiStatis(jalur = '/') {
     </div>`;
 }
 
+// Remah roti tampak: Beranda › … › halaman ini (item terakhir bukan tautan).
+export function remahStatis(remah) {
+  const e = escHtml;
+  const isi = [['Beranda', '/'], ...remah].map(([nama, j], i, a) => (i === a.length - 1
+    ? `<span aria-current="page">${e(nama)}</span>` : `<a href="${e(j)}">${e(nama)}</a>`)).join(' › ');
+  return `<nav class="remah redup kecil" aria-label="Remah roti">${isi}</nav>`;
+}
+
 // ------------------------------------------------------------------ halaman per tempat (/tempat/<slug>-<id>)
 
-export const khususTempat = (t) => ({ nama: t.nama, judul: judulTempat(t), deskripsi: deskripsiTempat(t), indeks: layakIndeks(t) });
+export const khususTempat = (t) => ({
+  nama: t.nama, judul: judulTempat(t), deskripsi: deskripsiTempat(t), indeks: layakIndeks(t), remah: remahTempat(t)
+});
 
 export function buatIsiTempat(t, sekitar = []) {
   const e = escHtml;
@@ -255,6 +268,7 @@ export function buatIsiTempat(t, sekitar = []) {
   return `<div class="statis">
       ${kepalaStatis()}
       <main class="halaman halaman-tempat">
+        ${remahStatis(remahTempat(t))}
         <section class="kepala-halaman">
           <h1>Parkir di ${e(t.nama)}</h1>
           <p class="redup">${e([t.kota, `${t.ringkasan.jumlah} laporan warga`].filter(Boolean).join(' · '))}</p>
@@ -275,14 +289,70 @@ export function buatDaftarTautanTempat(tempat) {
     .map(t => `<li><a href="${jalurTempat(t)}">${escHtml(t.nama)}</a></li>`).join('')}</ul></section>`;
 }
 
+// ------------------------------------------------------------------ halaman wilayah (/wilayah/<provinsi>[/<kab-kota>])
+
+export const khususWilayah = (r) => ({
+  nama: r.wilayah.nama, judul: judulWilayah(r.wilayah), deskripsi: deskripsiWilayah(r), indeks: r.indeks,
+  remah: remahWilayah(r.wilayah)
+});
+
+const MAKS_TEMPAT_WILAYAH = 20;
+
+export function buatIsiWilayah(r) {
+  const e = escHtml;
+  const w = r.wilayah;
+  const angka = angkaWilayah(r).map(([k, v]) => `<div><dt>${e(k)}</dt><dd>${e(v)}</dd></div>`).join('');
+  const imbauan = r.imbauan
+    ? `<section class="kartu imbauan"><h2>${e(r.imbauan.judul)}</h2><ul class="poin">${r.imbauan.kalimat.map(k => `<li>${e(k)}</li>`).join('')}</ul></section>`
+    : '';
+  const tempat = r.tempat.length
+    ? `<section class="kartu"><h2>Tempat paling banyak dilaporkan</h2><ul class="daftar-sekitar">${r.tempat.slice(0, MAKS_TEMPAT_WILAYAH)
+      .map(t => `<li><a href="${jalurTempat(t)}">${e(t.nama)}</a><span class="redup kecil jarak-sekitar">${t.ringkasan.jumlah} laporan</span></li>`).join('')}</ul></section>`
+    : `<section class="kartu"><p>Belum ada tempat parkir yang dilaporkan di ${e(w.nama)}. Tempat muncul setelah warga melapor dari lokasi.</p></section>`;
+  const ada = (r.kabupaten ?? []).filter(k => k.jumlahLaporan);
+  const belum = (r.kabupaten ?? []).filter(k => !k.jumlahLaporan);
+  const kab = r.kabupaten
+    ? `<section class="kartu"><h2>Kabupaten/kota</h2>${ada.length ? `<ul class="daftar-sekitar">${ada
+      .map(k => `<li><a href="${k.wilayah.jalur}">${e(k.wilayah.nama)}</a><span class="redup kecil jarak-sekitar">${k.jumlahTempat} tempat · ${k.jumlahLaporan} laporan</span></li>`).join('')}</ul>` : ''}` +
+      `${belum.length ? `<p class="redup kecil">Belum ada laporan:</p><p class="tautan-wilayah">${belum.map(k => `<a href="${k.wilayah.jalur}">${e(k.wilayah.nama)}</a>`).join(' ')}</p>` : ''}</section>`
+    : `<section class="kartu"><h2>Daerah lain di ${e(remahWilayah(w)[0][0])}</h2><p class="tautan-wilayah">${tetangga(w)
+      .map(x => `<a href="${x.jalur}">${e(x.nama)}</a>`).join(' ')}</p></section>`;
+  return `<div class="statis">
+      ${kepalaStatis()}
+      <main class="halaman halaman-wilayah">
+        ${remahStatis(remahWilayah(w))}
+        <section class="kepala-halaman">
+          <h1>${e(judulWilayah(w).replace(/ · .*$/, ''))}</h1>
+          <p class="redup">${e(deskripsiWilayah(r))}</p>
+        </section>
+        <dl class="angka-wilayah">${angka}</dl>
+        ${imbauan}
+        ${tempat}
+        ${kab}
+        <nav class="aksi-beranda" aria-label="Menu"><a class="tombol-sekunder" href="/peta">Peta</a><a class="tombol-sekunder" href="/daftar">Daftar tempat</a><a class="tombol-sekunder" href="/berita">Berita parkir</a></nav>
+        ${tautanSitusStatis()}
+        <p class="disclaimer">Laporan warga, belum diverifikasi pihak berwenang. Indikasi bukan tuduhan. ${e(CATATAN_KAKI)}</p>
+      </main>
+    </div>`;
+}
+
+// Tautan ke halaman wilayah yang sudah punya laporan (provinsi & kab/kota), ditanam di HTML statis /daftar.
+export function buatDaftarTautanWilayah(ringkasan) {
+  const ada = ringkasan.filter(r => r.jumlahLaporan > 0);
+  if (!ada.length) return '';
+  return `<section class="kartu"><h2>Ringkasan per daerah</h2><ul class="daftar-sekitar">${ada
+    .map(r => `<li><a href="${r.wilayah.jalur}">${escHtml(r.wilayah.nama)}</a><span class="redup kecil jarak-sekitar">${r.jumlahLaporan} laporan</span></li>`).join('')}</ul></section>`;
+}
+
 export function buatRobots(url) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${rapikanUrl(url)}/sitemap.xml\n`;
 }
 
 const PRIORITAS = { '/': '1.0', '/peta': '0.8', '/daftar': '0.8', '/info': '0.6' };
 
-// `tempat` = tempat terlapor; hanya yang layak diindeks (≥ 3 laporan) masuk sitemap, lastmod = laporan terakhir.
-export function buatSitemap(url, tanggal = new Date(), jalur = ['/', ...JALUR_STATIS], tempat = []) {
+// `tempat` = tempat terlapor, `wilayah` = ringkasan wilayah; hanya yang layak diindeks masuk sitemap,
+// lastmod = laporan terakhir.
+export function buatSitemap(url, tanggal = new Date(), jalur = ['/', ...JALUR_STATIS], tempat = [], wilayah = []) {
   const dasar = escHtml(rapikanUrl(url));
   const lastmod = tanggal.toISOString().slice(0, 10);
   const baris = jalur.map(j =>
@@ -291,6 +361,10 @@ export function buatSitemap(url, tanggal = new Date(), jalur = ['/', ...JALUR_ST
   for (const t of tempat.filter(layakIndeks)) {
     const ubah = t.ringkasan.terakhir ? String(t.ringkasan.terakhir).slice(0, 10) : lastmod;
     baris.push(`  <url><loc>${dasar}${escHtml(jalurTempat(t))}</loc><lastmod>${ubah}</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>`);
+  }
+  for (const r of wilayah.filter(x => x.indeks)) {
+    const ubah = r.terakhir ? String(r.terakhir).slice(0, 10) : lastmod;
+    baris.push(`  <url><loc>${dasar}${escHtml(r.wilayah.jalur)}</loc><lastmod>${ubah}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
   }
   return '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +

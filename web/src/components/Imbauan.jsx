@@ -30,6 +30,11 @@ export default function Imbauan() {
   }, [baris, kabupatenSaya, zona]);
 
   if (!imbauan) return null;
+  return <KartuImbauan imbauan={imbauan} />;
+}
+
+// Tampilan satu imbauan ({ judul, kalimat[], laporan } dari imbauanWilayah), dipakai juga halaman wilayah.
+export function KartuImbauan({ imbauan }) {
   return (
     <section className="kartu-beranda imbauan" aria-labelledby="judul-imbauan">
       <h2 id="judul-imbauan"><Ikon nama="perisai" ukuran={18} /> {imbauan.judul}</h2>

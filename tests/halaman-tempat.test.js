@@ -8,7 +8,7 @@ import { buatIsiTempat, buatKepalaSeo, buatSitemap, khususTempat } from '../web/
 const tempat = (o = {}) => ({
   id: 12, nama: 'Indomaret Jl. Perintis (24 Jam)', kota: 'Makassar', lat: -5.135, lng: 119.49,
   ringkasan: {
-    jumlah: 5, tanpaJukir: 1, dataCukup: true, level: 'sedang', alasan: '2 dari 4 laporan tidak diberi karcis',
+    jumlah: 5, tanpaJukir: 1, dataCukup: true, layakIndeks: true, level: 'sedang', alasan: '2 dari 4 laporan tidak diberi karcis',
     bantuDatangYa: 3, bantuPergiYa: 1, bayar: { motor: { median: 2000, jumlah: 4 }, mobil: { median: null, jumlah: 0 } },
     bintang: 3.25, terakhir: '2026-10-01T03:00:00Z', ...o.ringkasan
   },
@@ -37,17 +37,24 @@ test('judul ≤ 70 karakter, deskripsi kalimat utuh ≤ 160, tidak menuduh', () 
   assert.ok(!/pelaku|preman|pemeras/i.test(d));
 });
 
-test('hanya tempat dengan ≥ 3 laporan yang diindeks & masuk sitemap', () => {
+test('hanya tempat dengan ≥ 3 laporan dari ≥ 2 perangkat yang diindeks & masuk sitemap', () => {
   assert.equal(MIN_LAPORAN_INDEKS, 3);
   const banyak = tempat();
-  const sedikit = tempat({ id: 13, nama: 'Warung Sepi', ringkasan: { jumlah: 1, tanpaJukir: 0, dataCukup: false } });
+  const sedikit = tempat({ id: 13, nama: 'Warung Sepi', ringkasan: { jumlah: 1, tanpaJukir: 0, dataCukup: false, layakIndeks: false } });
+  // 3 laporan tapi dari satu perangkat: server mengirim layak_indeks = false.
+  const satuPerangkat = tempat({ id: 14, nama: 'Kios Satu', ringkasan: { jumlah: 3, layakIndeks: false } });
+  // View lama (kolom belum ada) → tidak diindeks.
+  const viewLama = tempat({ id: 15, nama: 'Kios Lama', ringkasan: { jumlah: 9, layakIndeks: undefined } });
   assert.equal(layakIndeks(banyak), true);
   assert.equal(layakIndeks(sedikit), false);
+  assert.equal(layakIndeks(satuPerangkat), false);
+  assert.equal(layakIndeks(viewLama), false);
   assert.match(buatKepalaSeo('https://jukirhub.site', { jalur: jalurTempat(sedikit), khusus: khususTempat(sedikit) }), /noindex, follow/);
   assert.match(buatKepalaSeo('https://jukirhub.site', { jalur: jalurTempat(banyak), khusus: khususTempat(banyak) }), /index, follow, max-image/);
-  const sm = buatSitemap('https://jukirhub.site', new Date('2026-10-01'), undefined, [banyak, sedikit]);
+  const sm = buatSitemap('https://jukirhub.site', new Date('2026-10-01'), undefined, [banyak, sedikit, satuPerangkat]);
   assert.ok(sm.includes('https://jukirhub.site/tempat/indomaret-jl-perintis-24-jam-12</loc><lastmod>2026-10-01'));
   assert.ok(!sm.includes('warung-sepi'));
+  assert.ok(!sm.includes('kios-satu'));
 });
 
 test('HTML statis halaman tempat: satu h1, ringkasan, tautan tempat sekitar, tanpa script', () => {

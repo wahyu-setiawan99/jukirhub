@@ -17,7 +17,7 @@ Terakhir diperbarui: 2 Okt 2026.
 
 ---
 
-## Serah terima (status terkini, 2 Okt 2026) — baca ini dulu
+## Serah terima (status terkini, 3 Okt 2026) — baca ini dulu
 
 **Tayang di https://jukirhub.site** (domain utama). `jukirhub.vercel.app` &
 `www.jukirhub.site` dialihkan 308 ke `jukirhub.site` (diuji, termasuk halaman depan). Isi: M0–M6 lengkap.
@@ -48,12 +48,23 @@ root berisi token OIDC: di-gitignore, jangan dibaca/di-commit).
 3. Lapangan: uji laporan sungguhan dari HP (koin, foto bukti ke Telegram), ganti tautan di FB/IG/TikTok ke jukirhub.site,
    cetak ulang poster dengan QR baru (`docs/peluncuran/qr-jukirhub.svg`).
 
-**Rencana berikutnya (dipilih pemilik 3 Okt, BELUM dikerjakan):** bagian 1.8: A aturan indeks halaman tempat
-(≥ 2 perangkat), B halaman wilayah, C tarif resmi per kota. Usulan yang tidak dipilih: tombol Bagikan & "butuh N
-laporan lagi" (boleh diangkat lagi nanti).
+**Rencana 1.8 (dipilih pemilik 3 Okt):** A aturan indeks tempat ≥ 2 perangkat **dibuat 3 Okt**, B halaman wilayah +
+build ulang harian **dibuat 3 Okt**, C tarif resmi per kota **belum** (berikutnya). A & B **belum di-commit** (pemilik
+yang commit/push). Langkah tayang A & B (urut):
+1. `npx supabase db push` → migrasi `20261003000001_layak_indeks.sql`, `20261003000002_bangun_ulang.sql`,
+   `20261003022330_isi_kota.sql` (7 tempat pertama → Makassar).
+2. Push web (Vercel build membuat 87 halaman wilayah + sitemap).
+3. Sekali: Vercel → Settings → Git → Deploy Hooks (nama `bangun-ulang`, branch `main`) → `npm run bangun:setup`.
+4. Cek live: `/wilayah/sulawesi-selatan` dan `/wilayah/sulawesi-selatan/makassar` menjawab 200 (pola file + folder
+   bernama sama belum pernah diuji di Vercel `cleanUrls`).
+Usulan yang tidak dipilih: tombol Bagikan & "butuh N laporan lagi" (boleh diangkat lagi nanti).
+**Temuan 3 Okt:** ketujuh tempat pertama `kota` kosong, padahal `lapor` mencoba mengisinya lewat Nominatim (dari
+komputer pemilik Nominatim menjawab "Makassar"; dari server Supabase kemungkinan ditolak/lebih dari 3 detik). Akibatnya
+imbauan per kab/kota & halaman kab/kota kosong. Sementara: `npm run kota:isi` (skrip → file migrasi). Perlu diselidiki
+(log fungsi `lapor` di dasbor Supabase) sebelum data bertambah.
 
 **Belum diputuskan / calon pekerjaan berikutnya:** bagian 11 "Belum diputuskan" (fase N3, moderator per zona,
-imbauan manual, skrip iklan AdSense, og.png masih memuat tagline, `ads.txt`, halaman tempat diperbarui otomatis).
+imbauan manual, skrip iklan AdSense, og.png masih memuat tagline, `ads.txt`).
 
 **Foto langsung dari kamera (1.4, dikerjakan 2 Okt):** dua tombol di HP (Ambil foto / Pilih dari galeri), satu tombol
 di komputer, kartu pulih dari `sessionStorage` bila tab ditutup saat kamera terbuka, keterangan sumber di Telegram.
@@ -466,18 +477,18 @@ Permintaan pemilik: siapkan halaman yang dibutuhkan untuk daftar AdSense sesuai 
   membaca `titik_publik` + `ringkasan_titik_publik` dengan kunci anon dari env build, menulis `dist/tempat/<slug>.html`
   (judul ≤ 70, deskripsi kalimat utuh ≤ 160, isi ringkasan), daftar tautan di `daftar.html`, dan sitemap. Tanpa env
   Supabase build tetap lolos (0 halaman tempat).
-- **Indeks hanya bila ≥ 3 laporan** (`MIN_LAPORAN_INDEKS`, disetujui pemilik 1 Okt 2026; **akan diperketat jadi ≥ 3
-  laporan dari ≥ 2 perangkat**, rencana 1.8 A, disetujui 3 Okt): di bawah itu `noindex, follow` dan tidak masuk sitemap
+- **Indeks hanya bila ≥ 3 laporan dari ≥ 2 perangkat** (disetujui pemilik 1 & 3 Okt 2026; kolom boolean `layak_indeks`
+  di view `ringkasan_titik_publik`, migrasi `20261003000001`; view lama/tanpa kolom → noindex): di bawah itu `noindex, follow` dan tidak masuk sitemap
   (halaman tipis merugikan SEO & AdSense). Tanpa menuduh: kalimat sama dengan lembar (bagian 6.2).
-- Keterbatasan: HTML statis hanya diperbarui saat deploy (halaman React selalu terbaru). Bila perlu: Vercel Deploy
-  Hook + pg_cron harian ±02:00 WITA (diusulkan 1 Okt, belum diputuskan pemilik).
+- HTML statis diperbarui saat deploy dan oleh **build ulang harian** (bagian 1.8 B); halaman React selalu terbaru.
+- Remah roti (`components/Remah.jsx` / `remahStatis`, + JSON-LD `BreadcrumbList`): Beranda › provinsi › kab/kota › tempat.
 
-### 1.8 Rencana berikutnya (dipilih pemilik 3 Okt 2026, belum dikerjakan)
+### 1.8 Rapikan & SEO lokal (dipilih pemilik 3 Okt 2026; A & B dibuat 3 Okt, C belum)
 
 Hasil review AGENTS.md 3 Okt. Kerjakan berurutan A → B → C. Tiap bagian: tes + build, cek tampilan (375×812,
 360×640, 1280×800, gelap & terang), mockup dulu untuk tampilan baru, lalu tawarkan commit / commit & push.
 
-**A. Aturan indeks halaman tempat (perbaikan, kecil)**
+**A. Aturan indeks halaman tempat (perbaikan, kecil)** *Dibuat 3 Okt.*
 - Masalah: `layakIndeks` (`lib/halaman-tempat.js`) hanya memeriksa `jumlah ≥ 3`, padahal bagian 6.2 & 7 mensyaratkan
   ≥ 2 perangkat. Satu orang yang melapor 3× bisa membuat halaman tempat masuk Google.
 - Rencana: migrasi baru menambah kolom boolean `layak_indeks` di view `ringkasan_titik_publik`
@@ -488,7 +499,16 @@ Hasil review AGENTS.md 3 Okt. Kerjakan berurutan A → B → C. Tiap bagian: tes
 - Uji: `tests/halaman-tempat.test.js` (3 laporan dari 1 perangkat → noindex), PGlite (view; anon hanya baca).
 - Pemilik: `npx supabase db push`, lalu push web.
 
-**B. Halaman wilayah (SEO lokal; bagian 1.5 "Halaman wilayah statis")**
+**B. Halaman wilayah (SEO lokal; bagian 1.5 "Halaman wilayah statis")** *Dibuat 3 Okt (mockup disetujui).* Yang
+berbeda dari rencana di bawah: slug = label `wilayah.js` (`/wilayah/sulawesi-selatan/makassar`, bukan `kota-makassar`);
+kotak angka = Tempat terlapor · **Laporan warga (total)** · bayar motor · bayar mobil (angka 30 hari `imbauan_publik`
+hanya menghitung laporan berjukir, jadi dipakai untuk aturan indeks saja); halaman provinsi menampilkan kab/kota berlaporan
+sebagai daftar dan sisanya sebagai deretan tautan "Belum ada laporan". Kode: `lib/halaman-wilayah.js`,
+`pages/Wilayah.jsx`, `lib/meta-halaman.js` (meta bersama tempat & wilayah), `buatIsiWilayah`/`khususWilayah` di
+`lib/seo.js`, `vite.config.js` (87 HTML + sitemap + tautan di `daftar.html`), tautan dari Beranda ("Ringkasan parkir
+di <provinsi>") & Daftar ("Ringkasan per daerah"). Lighthouse lokal `/wilayah/sulawesi-selatan`: performa 95,
+aksesibilitas 100 (SEO 66 hanya karena sengaja noindex). Build ulang harian: fungsi `bangun_ulang_jika_perlu()` +
+pg_cron `bangun-ulang` (migrasi `20261003000002`), `npm run bangun:setup`.
 - Alamat: `/wilayah/<provinsi>` (6 provinsi Sulawesi) dan `/wilayah/<provinsi>/<kab-kota>` (81 kab/kota), slug dari
   `_shared/wilayah.js` (mis. `/wilayah/sulawesi-selatan/kota-makassar`). Modul murni `lib/halaman-wilayah.js` (slug,
   judul, deskripsi, ringkasan, aturan indeks) dipakai halaman React `pages/Wilayah.jsx`, HTML statis saat build
@@ -511,7 +531,7 @@ Hasil review AGENTS.md 3 Okt. Kerjakan berurutan A → B → C. Tiap bagian: tes
 - Uji: `tests/halaman-wilayah.test.js` (87 slug unik, aturan indeks, deskripsi kalimat utuh ≤ 160), build menulis
   `dist/wilayah/**.html`, Lighthouse halaman wilayah ≥ 90 (bagian 7).
 
-**C. Tarif resmi per kota (bagian 5; angka hanya dari pemilik, 1.1)**
+**C. Tarif resmi per kota (bagian 5; angka hanya dari pemilik, 1.1)** *Belum dikerjakan (berikutnya).*
 - Tabel `tarif_resmi` (skema awal) masih kosong dan **belum dipakai server**: `ringkasTempat` (`_shared/skor-pungli.js`)
   menerima satu `tarifResmi`, tetapi `lapor` tidak pernah mengirimnya, dan tarif motor ≠ mobil.
 - Langkah 1 (AI): lembar isian `scripts/data/tarif-resmi.json` untuk 24 kab/kota Sulsel (mulai Kota Makassar, Gowa,
@@ -536,7 +556,7 @@ Hasil review AGENTS.md 3 Okt. Kerjakan berurutan A → B → C. Tiap bagian: tes
 | Folder / file | Isi |
 |---|---|
 | `web/` | Web app: React 19, Vite 8, react-router 7, MapLibre 6 (dimuat belakangan), PWA dengan service worker tulisan tangan |
-| `web/src/pages/` | Beranda, Peta (di `App.jsx` + `components/Peta.jsx`), Daftar, Info, Saya (koin, noindex), Berita, Tempat (1.7), Legal |
+| `web/src/pages/` | Beranda, Peta (di `App.jsx` + `components/Peta.jsx`), Daftar, Info, Saya (koin, noindex), Berita, Tempat (1.7), Wilayah (1.8 B), Legal |
 | `web/src/components/` | Komponen React (nama bahasa Indonesia: `Peta.jsx`, `CariTempat.jsx`, `LembarTempat.jsx`, `LaporLayar.jsx`, `Legenda.jsx`) |
 | `web/src/lib/` | Logika web tanpa React bila memungkinkan: `data.js` (baca view publik lewat `fetch` REST, tanpa supabase-js), `tempat.js` (gabung data, cocokkan tempat, kalimat ringkasan), `lokasi.js`, `cari.js` (Nominatim), `offline.js`, `seo.js`, `tema.js`, `koneksi.js`, `konten-beranda.js`, `util.js` |
 | `web/src/state.jsx` | Context app: data tempat + ringkasan, posisi pengguna, zona aktif (provinsi) & kab/kota pengguna, kendaraan terpilih (motor/mobil) |
@@ -545,7 +565,7 @@ Hasil review AGENTS.md 3 Okt. Kerjakan berurutan A → B → C. Tiap bagian: tes
 | `supabase/functions/_shared/` | Modul bersama. File `.js` = ESM murni, dipakai web (alias `@shared`), Edge Function, dan tes. File `.ts` hanya untuk Edge Function |
 | `supabase/migrations/` | Skema, RLS, view publik, retensi, cron |
 | `supabase/seed.sql` | Data awal lokal. Tarif resmi belum diisi (5, menunggu pemilik) |
-| `scripts/` | `setup-telegram.js`, `setup-berita.js` (rahasia, dijalankan pemilik), `cek-tayang.js`, `buat-ikon.js`, `buat-qr.js`, `kampanye.js` |
+| `scripts/` | `setup-telegram.js`, `setup-berita.js` (rahasia, dijalankan pemilik), `cek-tayang.js`, `buat-ikon.js`, `buat-qr.js`, `kampanye.js`, `setup-bangun-ulang.js` (rahasia, pemilik), `isi-kota.js` (→ file migrasi) |
 | `scripts/data/` | Kosong; nanti `tarif-resmi.json` (diisi/diperiksa pemilik) |
 | `tests/` | `node:test`, satu file per modul |
 | `docs/` | Dokumen pendukung, materi peluncuran |
@@ -565,6 +585,8 @@ Hasil review AGENTS.md 3 Okt. Kerjakan berurutan A → B → C. Tiap bagian: tes
 | `npm run berita:setup` | **Dijalankan pemilik**: kunci Gemini + secret jadwal berita (M5) |
 | `npm run ikon` | Buat ulang favicon, ikon HP, dan `og.png` dari `web/src/lib/logo.js` |
 | `npm run bot:setup` | **Dijalankan pemilik**: token bot Telegram + webhook (rahasia) |
+| `npm run bangun:setup` | **Dijalankan pemilik**: URL Vercel Deploy Hook → Vault (build ulang harian, 1.8 B) |
+| `npm run kota:isi` | Isi kab/kota tempat yang kosong lewat Nominatim → file migrasi data (lalu `db push`) |
 | *(belum ada)* `seed`, `moderasi`, `cloud:secrets`, `pemantauan:setup` | Pola Adami, tidak dibuat di JukirHub; moderasi lewat tombol Telegram (+ AI), rahasia lewat `npx supabase secrets set`, `pemantauan` memakai secret & Vault berita |
 | `npx supabase db push` | Terapkan migrasi baru ke cloud |
 
@@ -851,7 +873,7 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **Cek tipe Edge Function** tanpa memasang Deno: salin `supabase/functions` ke folder sementara berisi
   `deno.json` `{ "nodeModulesDir": "auto" }`, lalu `npx --yes deno@2 check functions/<nama>/index.ts`.
 - **Migrasi:** file baru di `supabase/migrations/` (`YYYYMMDDNNNNNN_nama.sql`), lalu `npx supabase db push`.
-- **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA), `bersihkan-koin-harian` (03:40), `bersihkan-foto-laporan` (03:45), `bersihkan-pesan-kontak` (03:50), `bersihkan-berita` (04:10), `berita` (tiap 3 jam menit ke-20, lewat pg_net + Vault; aktif), `pemantauan` (21:00 WITA, URL fungsi diturunkan dari Vault `berita_url`, header `x-berita-secret`).
+- **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA), `bersihkan-koin-harian` (03:40), `bersihkan-foto-laporan` (03:45), `bersihkan-pesan-kontak` (03:50), `bersihkan-berita` (04:10), `berita` (tiap 3 jam menit ke-20, lewat pg_net + Vault; aktif), `pemantauan` (21:00 WITA, URL fungsi diturunkan dari Vault `berita_url`, header `x-berita-secret`), `bangun-ulang` (02:00 WITA, Vercel Deploy Hook dari Vault `deploy_hook_url`, hanya bila ada laporan/tempat baru 24 jam).
 - Kabar Telegram ke pemilik: tempat baru, komentar baru (dengan hasil AI), komentar diadukan, foto bukti, pesan kontak,
   dan **ringkasan harian 21:00 WITA** (Edge Function `pemantauan` + RPC `ringkasan_pemantauan`, migrasi
   `20261001000008_pemantauan_ai.sql`; `_shared/pemantauan.js`): angka 24 jam (laporan, perangkat, tempat baru, komentar
@@ -890,7 +912,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M5 Berita parkir** | Berita parkir per daerah pengguna (kartu Beranda + halaman `/berita`): RSS media Sulawesi + ringkasan Gemini + kab/kota & provinsi yang disebut (bagian 1.3.2) *Selesai & aktif 1 Okt.* |
 | **M6 Koin & tab Saya** | Koin tanpa nilai uang, lencana, seri, peringkat per kabupaten, tab Saya, foto bukti ke Telegram pemilik (bagian 1.4) *Dibuat 1 Okt. Tombol "Ambil foto" + sumber foto di Telegram dikerjakan 2 Okt; deploy fungsi `foto` menunggu pemilik.* |
 | **M7 Nasional** | Zonasi pulau / provinsi / kab-kota, imbauan parkir per zona, halaman wilayah (bagian 1.5), per fase N1–N4 *N2 pulau Sulawesi dibuat 1 Okt (pilihan pemilik); N3–N4 rencana.* |
-| **M8 Rapikan & SEO lokal** | Aturan indeks tempat ≥ 2 perangkat, halaman wilayah, tarif resmi per kota (bagian 1.8) *Dipilih pemilik 3 Okt; belum dikerjakan.* |
+| **M8 Rapikan & SEO lokal** | Aturan indeks tempat ≥ 2 perangkat, halaman wilayah, tarif resmi per kota (bagian 1.8) *Dipilih pemilik 3 Okt; A & B (+ build ulang harian) dibuat 3 Okt, C berikutnya.* |
 
 **Ditunda (hanya bila pemilik meminta setelah M3):** estimasi pendapatan / mode amati, tab Data & dashboard per
 wilayah + CSV, rincian kerja jukir, atribut resmi, tag sikap, foto publik, notifikasi, bot
