@@ -5,6 +5,7 @@
   "scripts": {
     "test": "node --test \"tests/**/*.test.js\"",
     "ikon": "node scripts/buat-ikon.js",
+    "og": "node scripts/buat-og.js",
     "bot:setup": "node scripts/setup-telegram.js",
     "berita:setup": "node scripts/setup-berita.js",
     "bangun:setup": "node scripts/setup-bangun-ulang.js",

@@ -30,6 +30,10 @@ export function jsonLdAman(obj) {
   return JSON.stringify(obj).replace(/</g, ESCAPE_KURUNG);
 }
 
+// Gambar pratinjau tautan (scripts/buat-og.js). Naikkan versinya tiap gambar diganti: Facebook & WhatsApp menyimpan
+// gambar per alamat, jadi alamat baru memaksa gambar baru diambil.
+export const GAMBAR_OG = '/og.png?v=2';
+
 const rapikanUrl = (url) => String(url).replace(/\/+$/, '');
 const halaman = (jalur) => HALAMAN[jalur] ?? HALAMAN['/'];
 const urlHalaman = (dasar, jalur) => `${dasar}${jalur === '/' ? '/' : jalur}`;
@@ -131,14 +135,14 @@ export function buatKepalaSeo(url, { supabaseUrl, jalur = '/', adsense = null, k
     `<meta property="og:title" content="${t}" />`,
     `<meta property="og:description" content="${d}" />`,
     `<meta property="og:url" content="${kanonik}" />`,
-    `<meta property="og:image" content="${escHtml(dasar)}/og.png" />`,
+    `<meta property="og:image" content="${escHtml(dasar)}${GAMBAR_OG}" />`,
     `<meta property="og:image:width" content="1200" />`,
     `<meta property="og:image:height" content="630" />`,
     `<meta property="og:image:alt" content="${altGambar}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${t}" />`,
     `<meta name="twitter:description" content="${d}" />`,
-    `<meta name="twitter:image" content="${escHtml(dasar)}/og.png" />`,
+    `<meta name="twitter:image" content="${escHtml(dasar)}${GAMBAR_OG}" />`,
     `<meta name="twitter:image:alt" content="${altGambar}" />`,
     `<meta name="application-name" content="${escHtml(SITUS.nama)}" />`,
     // Verifikasi situs Google AdSense lewat meta tag: tanpa memuat skrip iklan (situs tetap cepat).

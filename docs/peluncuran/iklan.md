@@ -199,8 +199,11 @@ JukirHub kecil. Jangan menulis koin bisa ditukar uang, "resmi", atau tarif per j
 Pemakaian:
 - **Iklan FB/IG:** unggah gambar 4:5 / 1:1 langsung di Ads Manager (format Gambar tunggal), URL situs web ber-UTM
   (bagian 4). Seluruh gambar & tombol "Pelajari Selengkapnya" otomatis bisa diklik ke situs; tidak perlu mengubah situs.
-- **Pratinjau tautan saat jukirhub.site dibagikan biasa** (status FB, grup, WhatsApp): versi 1200×630 diserahkan ke AI
-  untuk dipasang sebagai `og.png`, lalu cache Facebook disegarkan di developers.facebook.com/tools/debug (Scrape Again).
+- **Pratinjau tautan saat jukirhub.site dibagikan biasa** (status FB, grup, WhatsApp): sudah diganti 5 Okt dengan ilustrasi
+  buatan AI (`npm run og`): opsi A `og-a.png` "Parkir di sini, bayar berapa?" terpasang, opsi B `og-b.png` "Jukirnya
+  membantu? Kasih bintang." cadangan. Keduanya juga bisa dipakai sebagai gambar iklan 1,91:1. Setelah tayang, segarkan
+  cache Facebook di developers.facebook.com/tools/debug (Scrape Again). Bila nanti ada foto G2 yang lebih bagus,
+  versi 1200×630-nya bisa menggantikan `og.png` (naikkan `GAMBAR_OG` di `web/src/lib/seo.js`).
 
 ### Ide video berikutnya (bila V1–V3 sudah jalan)
 

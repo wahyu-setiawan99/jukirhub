@@ -54,7 +54,10 @@ tayang**: AI (Gemini 2.5 Flash-Lite + Google Search) membaca Perda/berita tiap �
 setelah pemilik menekan ✅ Pakai (lihat 1.8 C). Langkah tayang C (urut): `npx supabase db push` (migrasi
 `20261005000001_tarif_ai.sql`) → `npx supabase functions deploy tarif telegram lapor` → push web → uji sekali (perintah
 `curl` di 1.8 C) → tekan Pakai/Abaikan di Telegram. Tanpa secret baru (kunci Gemini & secret jadwal berita).
-Iklan FB: gambar iklan dibuat ulang pemilik (prompt di `docs/peluncuran/iklan.md`), lalu dipasang sebagai `og.png`.
+Pratinjau tautan (og.png) **diganti 5 Okt** dengan ilustrasi buatan AI (`npm run og`, `scripts/buat-og.js`): opsi A
+"Parkir di sini, bayar berapa?" (layar app) **terpasang**, opsi B "Jukirnya membantu? Kasih bintang." (ilustrasi jukir)
+cadangan (`npm run og -- b`). Alamat `og.png?v=2` (`GAMBAR_OG` di `lib/seo.js`, naikkan tiap ganti gambar). Setelah tayang:
+Facebook Sharing Debugger → Scrape Again. Iklan berbayar: gambar diunggah langsung di Ads Manager (iklan.md G2).
 Langkah tayang A & B (sudah dijalankan):
 1. `npx supabase db push` → migrasi `20261003000001_layak_indeks.sql`, `20261003000002_bangun_ulang.sql`,
    `20261003022330_isi_kota.sql` (7 tempat pertama → Makassar).
@@ -69,7 +72,7 @@ imbauan per kab/kota & halaman kab/kota kosong. Sementara: `npm run kota:isi` (s
 (log fungsi `lapor` di dasbor Supabase) sebelum data bertambah.
 
 **Belum diputuskan / calon pekerjaan berikutnya:** bagian 11 "Belum diputuskan" (fase N3, moderator per zona,
-imbauan manual, skrip iklan AdSense, og.png masih memuat tagline, `ads.txt`).
+imbauan manual, skrip iklan AdSense, `ads.txt`).
 
 **Foto langsung dari kamera (1.4, dikerjakan 2 Okt):** dua tombol di HP (Ambil foto / Pilih dari galeri), satu tombol
 di komputer, kartu pulih dari `sessionStorage` bila tab ditutup saat kamera terbuka, keterangan sumber di Telegram.
@@ -615,7 +618,8 @@ menyetujui lewat Telegram (dibuat 5 Okt, menggantikan pengisian manual langkah 2
 | `npm run qr` | Buat ulang QR poster ke `https://jukirhub.site/peta` |
 | `npm run kampanye` | Laporan & pelapor per kampanye iklan (UTM), dari view `kampanye_publik` (`docs/peluncuran/iklan.md`) |
 | `npm run berita:setup` | **Dijalankan pemilik**: kunci Gemini + secret jadwal berita (M5) |
-| `npm run ikon` | Buat ulang favicon, ikon HP, dan `og.png` dari `web/src/lib/logo.js` |
+| `npm run ikon` | Buat ulang favicon & ikon HP dari `web/src/lib/logo.js` |
+| `npm run og` | Gambar pratinjau tautan: `docs/peluncuran/og-a.png` & `og-b.png`, pasang opsi aktif ke `web/public/og.png` (`npm run og -- b`) |
 | `npm run bot:setup` | **Dijalankan pemilik**: token bot Telegram + webhook (rahasia) |
 | `npm run bangun:setup` | **Dijalankan pemilik**: URL Vercel Deploy Hook → Vault (build ulang harian, 1.8 B) |
 | `npm run kota:isi` | Isi kab/kota tempat yang kosong lewat Nominatim → file migrasi data (lalu `db push`) |
@@ -752,11 +756,11 @@ laporan motor"). Bila tarif resmi daerah sudah diperiksa pemilik, tampil berdamp
   **5 tab: Beranda, Peta, Daftar, Info, Saya** (tab Data ditunda, bagian 1.2). **Di tab Peta bilah aksi tidak ditampilkan**
   (tombol "Laporkan parkir" ada di lembar tempat; dua tombol sama bertumpuk membingungkan).
 - **Header:** logo perisai heksagon + "JukirHub" (tagline **tidak** di dekat logo maupun di Beranda, permintaan
-  pemilik 1 Okt; `SITUS.tagline` hanya dipakai og.png), pilihan **Motor / Mobil** (menentukan tarif yang ditampilkan dan kendaraan di form lapor),
+  pemilik 1 Okt; `SITUS.tagline` tidak dipakai lagi; og.png diganti 5 Okt), pilihan **Motor / Mobil** (menentukan tarif yang ditampilkan dan kendaraan di form lapor),
   lalu ikon tema di kanan. **Jangan menaruh pemilih zona/provinsi di header** (masukan pemilik); letaknya di halaman
   (bagian 1.5). Di HP < 360 px tulisan "JukirHub" disembunyikan, logo tetap.
 - **Logo** (`web/src/lib/logo.js`, satu sumber untuk header, HTML statis, `npm run ikon`): perisai heksagon cyan +
-  "P" + titik sinyal kuning. Ikon HP/favicon: kotak gelap `#060a13`. `og.png`: latar gelap ber-grid + tagline.
+  "P" + titik sinyal kuning. Ikon HP/favicon: kotak gelap `#060a13`. `og.png`: ilustrasi ajakan klik bergaya Radar (`scripts/buat-og.js`, tanpa tagline).
 - **Peta:** MapLibre dimuat belakangan, peta dasar OpenFreeMap `dark` / `positron` mengikuti tema (cadangan tile OSM),
   atribusi wajib terlihat. **Kolom cari di atas peta.** Penanda hanya untuk tempat yang sudah dilaporkan (bagian 1.2
   poin 4). Tata letak lapisan lain sama dengan Adami (zoom kanan atas di bawah kolom cari, panel info + legenda kiri
@@ -1056,5 +1060,3 @@ Keputusan yang sudah diambil pemilik proyek. Jangan dibalik tanpa bertanya.
   tambahan).
 - Rencana nasional (1.5): kapan N3 (kota besar Jawa–Bali), moderator per zona, dan apakah imbauan manual boleh dari
   mitra (Dishub / komunitas).
-- Tagline "Melaporkan juru parkir liar" sudah dihapus dari header & Beranda (pemilik, 1 Okt); hanya tersisa di `og.png`.
-  Hapus juga dari og.png? (kata "liar" bernada menuduh, 1.1, dan berisiko ditolak iklan Meta).
