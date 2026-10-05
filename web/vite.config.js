@@ -9,7 +9,8 @@ import {
   JALUR_STATIS, buatDaftarTautanTempat, buatDaftarTautanWilayah, buatIsiStatis, buatIsiTempat, buatIsiWilayah, buatKepalaSeo,
   buatRobots, buatSitemap, khususTempat, khususWilayah, kodeAdsenseSah
 } from './src/lib/seo.js';
-import { KOLOM_IMBAUAN, KOLOM_RINGKASAN, KOLOM_TITIK, ambilView, konfigurasiData } from './src/lib/data.js';
+import { KOLOM_IMBAUAN, KOLOM_RINGKASAN, KOLOM_TARIF, KOLOM_TITIK, ambilView, konfigurasiData } from './src/lib/data.js';
+import { petaTarif } from '../supabase/functions/_shared/tarif-peta.js';
 import { gabungTempat, jarakM } from './src/lib/tempat.js';
 import { jalurTempat } from './src/lib/halaman-tempat.js';
 import { ringkasWilayah, semuaWilayah } from './src/lib/halaman-wilayah.js';
@@ -79,6 +80,7 @@ function seoHalaman() {
       // (halaman tetap bisa dibuka lewat React). Data baru tampil di HTML statis pada build berikutnya.
       let tempat = [];
       let barisImbauan = [];
+      let tarif = {};
       if (konfigData) {
         try {
           const [titik, ringkasan] = await Promise.all([
@@ -94,6 +96,8 @@ function seoHalaman() {
           console.warn('[seo] imbauan_publik dilewati:', err.message);
           return [];
         });
+        // Tarif resmi yang sudah disetujui pemilik (1.8 C). View belum ada / gagal → tanpa tarif.
+        tarif = petaTarif(await ambilView(fetch, konfigData, 'tarif_resmi_publik', KOLOM_TARIF).catch(() => []));
       }
       fs.mkdirSync(path.join(options.dir, 'tempat'), { recursive: true });
       for (const t of tempat) {
@@ -111,7 +115,7 @@ function seoHalaman() {
         fs.mkdirSync(path.dirname(path.join(options.dir, `${jalur.slice(1)}.html`)), { recursive: true });
         const html = index
           .replace(kepalaBeranda, () => buatKepalaSeo(url, { supabaseUrl, jalur, adsense, khusus: khususWilayah(r) }))
-          .replace(isiBeranda, () => buatIsiWilayah(r));
+          .replace(isiBeranda, () => buatIsiWilayah(r, r.wilayah.jenis === 'kabupaten' ? tarif[r.wilayah.kode] : null));
         fs.writeFileSync(path.join(options.dir, `${jalur.slice(1)}.html`), html);
       }
       // /daftar statis memuat tautan ke semua tempat & wilayah berlaporan; sitemap memuat yang layak diindeks.

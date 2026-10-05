@@ -37,6 +37,9 @@ export const KOLOM_BERITA = '*';
 // Imbauan parkir per kab/kota (view imbauan_publik, 30 hari): angka agregat, ambang tampil di _shared/imbauan.js.
 export const KOLOM_IMBAUAN = '*';
 
+// Tarif resmi yang sudah disetujui pemilik (view tarif_resmi_publik, AGENTS.md 1.8 C).
+export const KOLOM_TARIF = 'kota,kendaraan,tarif,dasar_hukum,sumber_url,berlaku_sejak';
+
 // Riwayat laporan satu tempat (view riwayat_publik, M4): terbaru dulu, per halaman. Ambil satu baris lebih untuk tahu
 // apakah masih ada halaman berikutnya.
 export const KOLOM_RIWAYAT = 'id,waktu,ada_jukir,kendaraan,bantu_datang,bantu_pergi,bayar,pungli,bintang,komentar_id,komentar';

@@ -62,7 +62,7 @@ export default function LembarTempat({ tempat, onTutup, onLapor }) {
       </div>
 
       {terlapor ? (
-        <RingkasanTempat r={r} kendaraan={kendaraan} />
+        <RingkasanTempat r={r} kendaraan={kendaraan} kota={tempat.kota} />
       ) : (
         <p className="ajakan">Belum ada laporan parkir di sini. Jadilah yang pertama melapor.</p>
       )}

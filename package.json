@@ -11,6 +11,7 @@
     "cek:tayang": "node scripts/cek-tayang.js",
     "qr": "node scripts/buat-qr.js",
     "kampanye": "node --env-file-if-exists=web/.env.local scripts/kampanye.js",
+    "tarif:sumber": "node scripts/sumber-tarif.js",
     "kota:isi": "node --env-file-if-exists=web/.env.local scripts/isi-kota.js"
   },
   "devDependencies": {

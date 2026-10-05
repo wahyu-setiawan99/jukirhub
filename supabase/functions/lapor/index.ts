@@ -8,6 +8,7 @@ import { pesanTempatBaru, tombolUntuk } from '../_shared/kabar-pemilik.js';
 import { moderasiKomentarBaru } from '../_shared/moderasi-komentar.js';
 import { SKEMA_KOMENTAR, bacaJawabanKomentar, promptKomentar } from '../_shared/periksa-komentar.js';
 import { KUNCI_GEMINI, panggilGemini } from '../_shared/gemini.ts';
+import { bacaTarifKota } from '../_shared/tarif-db.ts';
 import { kabupatenDariAlamat, urlKabupatenNominatim } from '../_shared/wilayah.js';
 
 const supabase = createClient(
@@ -94,6 +95,8 @@ const db = {
     periksa(await supabase.from('ringkasan_titik')
       .upsert({ titik_id: titikId, ...ringkasan, diperbarui: new Date().toISOString() }));
   },
+  // Tarif resmi yang sudah disetujui pemilik (migrasi 20261005000001_tarif_ai.sql) → indikasi kemahalan.
+  tarifKota: (kota: string) => bacaTarifKota(supabase, kota),
   // Koin (migrasi 20261001000003_koin.sql)
   async kotaTitik(titikId: number) {
     const baris = periksa(await supabase.from('titik_parkir').select('kota').eq('id', titikId).maybeSingle()) as { kota: string | null } | null;

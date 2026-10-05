@@ -17,7 +17,7 @@ Terakhir diperbarui: 2 Okt 2026.
 
 ---
 
-## Serah terima (status terkini, 3 Okt 2026) — baca ini dulu
+## Serah terima (status terkini, 5 Okt 2026) — baca ini dulu
 
 **Tayang di https://jukirhub.site** (domain utama). `jukirhub.vercel.app` &
 `www.jukirhub.site` dialihkan 308 ke `jukirhub.site` (diuji, termasuk halaman depan). Isi: M0–M6 lengkap.
@@ -49,8 +49,13 @@ root berisi token OIDC: di-gitignore, jangan dibaca/di-commit).
    cetak ulang poster dengan QR baru (`docs/peluncuran/qr-jukirhub.svg`).
 
 **Rencana 1.8 (dipilih pemilik 3 Okt):** A aturan indeks tempat ≥ 2 perangkat **dibuat 3 Okt**, B halaman wilayah +
-build ulang harian **dibuat 3 Okt**, C tarif resmi per kota **belum** (berikutnya). A & B **belum di-commit** (pemilik
-yang commit/push). Langkah tayang A & B (urut):
+build ulang harian **dibuat & tayang 3 Okt** (`cdb6125`; migrasi sudah di-push, dicek live), C tarif resmi **dibuat 5 Okt, belum di-commit / belum
+tayang**: AI (Gemini 2.5 Flash-Lite + Google Search) membaca Perda/berita tiap ±6 bulan → usulan ke Telegram → tayang
+setelah pemilik menekan ✅ Pakai (lihat 1.8 C). Langkah tayang C (urut): `npx supabase db push` (migrasi
+`20261005000001_tarif_ai.sql`) → `npx supabase functions deploy tarif telegram lapor` → push web → uji sekali (perintah
+`curl` di 1.8 C) → tekan Pakai/Abaikan di Telegram. Tanpa secret baru (kunci Gemini & secret jadwal berita).
+Iklan FB: gambar iklan dibuat ulang pemilik (prompt di `docs/peluncuran/iklan.md`), lalu dipasang sebagai `og.png`.
+Langkah tayang A & B (sudah dijalankan):
 1. `npx supabase db push` → migrasi `20261003000001_layak_indeks.sql`, `20261003000002_bangun_ulang.sql`,
    `20261003022330_isi_kota.sql` (7 tempat pertama → Makassar).
 2. Push web (Vercel build membuat 87 halaman wilayah + sitemap).
@@ -146,8 +151,9 @@ Pengguna utama: pengendara motor dan mobil, warga sekitar, dan petugas Dishub/Ba
 3. **Pelapor tanpa akun, tidak dikenali** (sama dengan Adami): kunci perangkat yang di-hash, lapor wajib di lokasi.
 4. **Sederhana dulu.** Satu pertanyaan = satu ketukan. Jangan menambah isian, layar, tabel, atau layanan di luar
    bagian 1.2–1.3 tanpa persetujuan pemilik.
-5. **Tarif resmi harus punya sumber** (nomor Perda/Perwali/Perbup + tautan) dan diperiksa pemilik.
-   AI tidak boleh mengarang angka tarif.
+5. **Tarif resmi harus punya sumber** (nomor Perda/Perwali/Perbup + tautan) dan disetujui pemilik.
+   AI tidak boleh mengarang angka tarif: AI hanya boleh **mengutip** angka dari sumber (dengan kutipan & tautan) sebagai
+   usulan; angka baru dipakai setelah pemilik menekan ✅ Pakai di Telegram (keputusan pemilik 5 Okt 2026, bagian 1.8 C).
 6. **Jujur soal sedikitnya data**: tampilkan jumlah laporan di setiap kesimpulan.
 7. Bahasa tidak alarmis, mobile-first, lapor selesai **< 30 detik**.
 
@@ -531,15 +537,41 @@ pg_cron `bangun-ulang` (migrasi `20261003000002`), `npm run bangun:setup`.
 - Uji: `tests/halaman-wilayah.test.js` (87 slug unik, aturan indeks, deskripsi kalimat utuh ≤ 160), build menulis
   `dist/wilayah/**.html`, Lighthouse halaman wilayah ≥ 90 (bagian 7).
 
-**C. Tarif resmi per kota (bagian 5; angka hanya dari pemilik, 1.1)** *Belum dikerjakan (berikutnya).*
+**C. Tarif resmi per kota (bagian 5 & 1.1)** *Langkah 1 selesai 3 Okt; 5 Okt pemilik memilih: AI membaca Perda, pemilik
+menyetujui lewat Telegram (dibuat 5 Okt, menggantikan pengisian manual langkah 2–3 di bawah).*
+- **Alur AI (dibuat 5 Okt):** pg_cron `tarif` tiap hari 06:00 WITA → Edge Function `tarif` (`tarif/proses.js` +
+  `index.ts`) mengecek ≤ 3 kab/kota yang jatuh tempo (`_shared/tarif.js`: ketemu → dicek lagi 180 hari, tidak ketemu /
+  jawaban tidak sah 30 hari, galat 3 hari; satu putaran 81 kab/kota ≈ 27 hari; jatah AI `tarif` 20/hari). Gemini
+  **2.5 Flash-Lite + Google Search** (`panggilGeminiCari` di `_shared/gemini.ts`; satu-satunya keluarga model yang punya
+  pencarian gratis di tier gratis, ≤ 500/hari, cek halaman harga 5 Okt; ganti lewat secret `GEMINI_MODEL_TARIF`). Prompt
+  memakai petunjuk dasar hukum dari lembar isian (`_shared/sumber-tarif.js`, dibuat `npm run tarif:sumber`).
+- **Validasi** (`bacaJawabanTarif`): angka Rp500–50.000, wajib dasar hukum + kutipan, tautan sumber harus dari domain yang
+  dibuka pencarian (`groundingChunks[].web.title`) atau situs `.go.id`. Sama dengan tarif terpakai → tidak dikabarkan.
+- **Persetujuan:** usulan disimpan `usulan_tarif` (`menunggu`) → pesan 🅿️ ke Telegram (angka, tarif lama, dasar hukum,
+  kutipan, tautan) dengan tombol ✅ Pakai (`jh:tp:<id>`) / 🚫 Abaikan (`jh:tx:<id>`). Pakai → RPC
+  `putuskan_usulan_tarif` mengisi `tarif_resmi` (`diperiksa_pemilik`, `sumber = ai`, kutipan) → fungsi `telegram`
+  menghitung ulang ringkasan semua tempat di kab/kota itu (`hitungUlangRingkasanKota`).
+- **Dipakai:** view `tarif_resmi_publik` (tarif terbaru yang **sudah berlaku**, per kab/kota & kendaraan);
+  `ringkasTempat` menerima `{ motor, mobil }` (kemahalan = bayar > tarif kendaraan laporan); `lapor` mengisi kab/kota dulu
+  lalu memakai tarifnya. Web: baris "Tarif resmi" di ringkasan tempat (lembar & halaman tempat, `components/RingkasanTempat.jsx`,
+  `lib/tarif-resmi.js`, dimuat hanya saat ringkasan tampil) dan kartu di halaman wilayah kab/kota (React + HTML statis).
+- **Uji sekali setelah deploy (pemilik, rahasia tidak diketik AI):** panggil fungsi untuk satu kota, mis. Makassar:
+  `curl -X POST <URL fungsi tarif> -H "x-berita-secret: <BERITA_SECRET>" -d '{"kota":["Makassar"]}'` (nilai secret
+  sama dengan Vault `berita_secret`; atau tunggu jadwal 06:00 WITA). Dites: `tests/tarif-ai.test.js`, PGlite (migrasi).
+- Lembar isian manual tetap ada sebagai petunjuk AI (boleh dikoreksi pemilik, lalu `npm run tarif:sumber` + deploy `tarif`).
 - Tabel `tarif_resmi` (skema awal) masih kosong dan **belum dipakai server**: `ringkasTempat` (`_shared/skor-pungli.js`)
   menerima satu `tarifResmi`, tetapi `lapor` tidak pernah mengirimnya, dan tarif motor ≠ mobil.
-- Langkah 1 (AI): lembar isian `scripts/data/tarif-resmi.json` untuk 24 kab/kota Sulsel (mulai Kota Makassar, Gowa,
-  Maros, Parepare, Palopo, Soppeng, Bone): `kota` (label `wilayah.js`), `kendaraan`, `tarif: null`, `jenis`
-  (`tepi_jalan_umum`), `dasar_hukum`, `sumber_url` (JDIH/Perda/Perwali yang ditemukan), `berlaku_sejak`,
-  `diperiksa_pemilik: false`, `catatan`. **AI hanya mengisi sumber, tidak mengisi angka.**
-- Langkah 2 (pemilik): buka sumber, isi `tarif`, ubah `diperiksa_pemilik: true`.
-- Langkah 3 (AI): `npm run tarif` (`scripts/tarif.js`) membuat file migrasi data dari baris yang sudah diperiksa saja;
+- Langkah 1 (AI) **selesai 3 Okt**, diperluas ke **81 kab/kota Sulawesi** (permintaan pemilik): `scripts/data/tarif-resmi.json`,
+  satu objek per kab/kota: `kota` (label `wilayah.js`), `provinsi`, `jenis` (`tepi_jalan_umum`), `tarif: { motor: null,
+  mobil: null }`, `dasar_hukum`, `sumber_url`, `status_sumber`, `catatan`, `berlaku_sejak`, `diperiksa_pemilik: false`.
+  **AI hanya mengisi sumber, tidak mengisi angka** (dijaga `tests/tarif-resmi.test.js`: angka hanya boleh ada bila
+  `diperiksa_pemilik: true` + dasar hukum + sumber). Hasil penelusuran: 38 `resmi` (BPK/JDIH/pemda), 14 `tidak_resmi`
+  (pasal.id/DDTC/scribd), 14 `perlu_dicek` (nomor Perda diketahui, dokumen belum), 15 `belum`. Hampir semua daerah
+  memakai satu **Perda PDRD 2023/2024** (UU 1/2022); tarif parkir tepi jalan ada di lampirannya. Banyak yang sudah/sedang
+  diubah 2025–2026 (Gowa, Pinrang, Luwu, Palu, Sigi, Tojo Una-Una, Morowali Utara, Tolitoli, Banggai, Konawe Selatan,
+  Kotamobagu): lihat `catatan`, pakai versi terbaru.
+- *(Digantikan alur AI 5 Okt)* Langkah 2 (pemilik): isi angka manual di lembar isian.
+- *(Digantikan alur AI 5 Okt)* Langkah 3 (AI): `npm run tarif` membuat file migrasi data dari baris yang sudah diperiksa;
   view `tarif_resmi_publik` (hanya `diperiksa_pemilik`); `ringkasTempat` menerima `{ motor, mobil }` sesuai kendaraan
   laporan; `lapor` memuat tarif kota tempat saat menghitung ulang ringkasan; tempat lama dihitung ulang sekali.
   Indikasi "kemahalan" = bayar di atas tarif resmi (selain aturan lama), tetap disebut indikasi.
@@ -561,12 +593,12 @@ pg_cron `bangun-ulang` (migrasi `20261003000002`), `npm run bangun:setup`.
 | `web/src/lib/` | Logika web tanpa React bila memungkinkan: `data.js` (baca view publik lewat `fetch` REST, tanpa supabase-js), `tempat.js` (gabung data, cocokkan tempat, kalimat ringkasan), `lokasi.js`, `cari.js` (Nominatim), `offline.js`, `seo.js`, `tema.js`, `koneksi.js`, `konten-beranda.js`, `util.js` |
 | `web/src/state.jsx` | Context app: data tempat + ringkasan, posisi pengguna, zona aktif (provinsi) & kab/kota pengguna, kendaraan terpilih (motor/mobil) |
 | `web/src/app.css` | **Satu file CSS**, semua warna lewat variabel (bagian 6.3) |
-| `supabase/functions/` | Edge Function: `lapor` (juga membuat tempat baru & mencatat koin), `telegram` (tombol pemilik), `aduan` (laporkan komentar), `kontribusi` (tab Saya), `foto` (foto bukti → Telegram pemilik), `berita` (M5, cron), `kontak` (formulir kontak → Telegram), `pemantauan` (ringkasan harian, cron). Logika di `proses.js` (JS murni, dites), `index.ts` = pembungkus Deno |
+| `supabase/functions/` | Edge Function: `lapor` (juga membuat tempat baru & mencatat koin), `telegram` (tombol pemilik), `aduan` (laporkan komentar), `kontribusi` (tab Saya), `foto` (foto bukti → Telegram pemilik), `berita` (M5, cron), `kontak` (formulir kontak → Telegram), `pemantauan` (ringkasan harian, cron), `tarif` (tarif resmi dibaca AI, cron, 1.8 C). Logika di `proses.js` (JS murni, dites), `index.ts` = pembungkus Deno |
 | `supabase/functions/_shared/` | Modul bersama. File `.js` = ESM murni, dipakai web (alias `@shared`), Edge Function, dan tes. File `.ts` hanya untuk Edge Function |
 | `supabase/migrations/` | Skema, RLS, view publik, retensi, cron |
 | `supabase/seed.sql` | Data awal lokal. Tarif resmi belum diisi (5, menunggu pemilik) |
 | `scripts/` | `setup-telegram.js`, `setup-berita.js` (rahasia, dijalankan pemilik), `cek-tayang.js`, `buat-ikon.js`, `buat-qr.js`, `kampanye.js`, `setup-bangun-ulang.js` (rahasia, pemilik), `isi-kota.js` (→ file migrasi) |
-| `scripts/data/` | Kosong; nanti `tarif-resmi.json` (diisi/diperiksa pemilik) |
+| `scripts/data/` | `tarif-resmi.json`: lembar isian tarif resmi 81 kab/kota (sumber oleh AI, angka oleh pemilik, 1.8 C) |
 | `tests/` | `node:test`, satu file per modul |
 | `docs/` | Dokumen pendukung, materi peluncuran |
 
@@ -587,6 +619,7 @@ pg_cron `bangun-ulang` (migrasi `20261003000002`), `npm run bangun:setup`.
 | `npm run bot:setup` | **Dijalankan pemilik**: token bot Telegram + webhook (rahasia) |
 | `npm run bangun:setup` | **Dijalankan pemilik**: URL Vercel Deploy Hook → Vault (build ulang harian, 1.8 B) |
 | `npm run kota:isi` | Isi kab/kota tempat yang kosong lewat Nominatim → file migrasi data (lalu `db push`) |
+| `npm run tarif:sumber` | Lembar isian tarif → `_shared/sumber-tarif.js` (petunjuk AI tarif; lalu deploy fungsi `tarif`) |
 | *(belum ada)* `seed`, `moderasi`, `cloud:secrets`, `pemantauan:setup` | Pola Adami, tidak dibuat di JukirHub; moderasi lewat tombol Telegram (+ AI), rahasia lewat `npx supabase secrets set`, `pemantauan` memakai secret & Vault berita |
 | `npx supabase db push` | Terapkan migrasi baru ke cloud |
 
@@ -866,14 +899,15 @@ Teks di `web/src/lib/konten-beranda.js`, dijaga `tests/seo.test.js`.
 - **Environment Vercel**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (kunci anon **atau** publishable `sb_publishable_…`; hanya dikirim di header `apikey`); opsional `VITE_SITE_URL` (tidak dipakai: bawaan `SITUS.urlBawaan` = jukirhub.site) dan `VITE_ADSENSE_CLIENT` (belum diisi; meta AdSense & Search Console sementara ditulis langsung pemilik di `web/index.html`, `ads.txt` belum ada, 1.6). Tanpa keduanya app tetap jalan dengan data kosong. Untuk dev: `web/.env.local` (di-gitignore).
 - **Edge Function** (dideploy pemilik): `npx supabase functions deploy <nama>`.
 - **Secret Edge Function** (`npx supabase secrets set …`): `ALLOWED_ORIGINS`, `URL_WEB`, `REPORTER_SALT`, `IP_SALT`,
-  `GEMINI_API_KEY` & `BERITA_SECRET` (`npm run berita:setup`), `TELEGRAM_*` (`npm run bot:setup`).
+  `GEMINI_API_KEY` & `BERITA_SECRET` (`npm run berita:setup`), `TELEGRAM_*` (`npm run bot:setup`). Opsional:
+  `GEMINI_MODEL`, `GEMINI_MODEL_TARIF` (bawaan `gemini-2.5-flash-lite`, harus model yang mendukung Google Search).
 - **Bot Telegram pemilik:** `npm run bot:setup` (dijalankan pemilik; `scripts/setup-telegram.js`) memasang
   `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`, `URL_WEB` dan webhook ke fungsi `telegram`.
   Tanpa itu kabar tempat baru diam saja (no-op), laporan tetap jalan.
 - **Cek tipe Edge Function** tanpa memasang Deno: salin `supabase/functions` ke folder sementara berisi
   `deno.json` `{ "nodeModulesDir": "auto" }`, lalu `npx --yes deno@2 check functions/<nama>/index.ts`.
 - **Migrasi:** file baru di `supabase/migrations/` (`YYYYMMDDNNNNNN_nama.sql`), lalu `npx supabase db push`.
-- **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA), `bersihkan-koin-harian` (03:40), `bersihkan-foto-laporan` (03:45), `bersihkan-pesan-kontak` (03:50), `bersihkan-berita` (04:10), `berita` (tiap 3 jam menit ke-20, lewat pg_net + Vault; aktif), `pemantauan` (21:00 WITA, URL fungsi diturunkan dari Vault `berita_url`, header `x-berita-secret`), `bangun-ulang` (02:00 WITA, Vercel Deploy Hook dari Vault `deploy_hook_url`, hanya bila ada laporan/tempat baru 24 jam).
+- **pg_cron:** `bersihkan-data-pribadi` (03:00 WITA), `bersihkan-koin-harian` (03:40), `bersihkan-foto-laporan` (03:45), `bersihkan-pesan-kontak` (03:50), `bersihkan-berita` (04:10), `berita` (tiap 3 jam menit ke-20, lewat pg_net + Vault; aktif), `pemantauan` (21:00 WITA, URL fungsi diturunkan dari Vault `berita_url`, header `x-berita-secret`), `bangun-ulang` (02:00 WITA, Vercel Deploy Hook dari Vault `deploy_hook_url`, hanya bila ada laporan/tempat baru 24 jam), `tarif` (06:00 WITA, ≤ 3 kab/kota yang jatuh tempo, URL dari Vault `berita_url`).
 - Kabar Telegram ke pemilik: tempat baru, komentar baru (dengan hasil AI), komentar diadukan, foto bukti, pesan kontak,
   dan **ringkasan harian 21:00 WITA** (Edge Function `pemantauan` + RPC `ringkasan_pemantauan`, migrasi
   `20261001000008_pemantauan_ai.sql`; `_shared/pemantauan.js`): angka 24 jam (laporan, perangkat, tempat baru, komentar
@@ -912,7 +946,7 @@ Urutan mengikuti bagian 1.2. Satu tahap selesai (tes + build lolos, dicek di HP)
 | **M5 Berita parkir** | Berita parkir per daerah pengguna (kartu Beranda + halaman `/berita`): RSS media Sulawesi + ringkasan Gemini + kab/kota & provinsi yang disebut (bagian 1.3.2) *Selesai & aktif 1 Okt.* |
 | **M6 Koin & tab Saya** | Koin tanpa nilai uang, lencana, seri, peringkat per kabupaten, tab Saya, foto bukti ke Telegram pemilik (bagian 1.4) *Dibuat 1 Okt. Tombol "Ambil foto" + sumber foto di Telegram dikerjakan 2 Okt; deploy fungsi `foto` menunggu pemilik.* |
 | **M7 Nasional** | Zonasi pulau / provinsi / kab-kota, imbauan parkir per zona, halaman wilayah (bagian 1.5), per fase N1–N4 *N2 pulau Sulawesi dibuat 1 Okt (pilihan pemilik); N3–N4 rencana.* |
-| **M8 Rapikan & SEO lokal** | Aturan indeks tempat ≥ 2 perangkat, halaman wilayah, tarif resmi per kota (bagian 1.8) *Dipilih pemilik 3 Okt; A & B (+ build ulang harian) dibuat 3 Okt, C berikutnya.* |
+| **M8 Rapikan & SEO lokal** | Aturan indeks tempat ≥ 2 perangkat, halaman wilayah, tarif resmi per kota (bagian 1.8) *A & B (+ build ulang harian) tayang 3 Okt; C tarif resmi dibaca AI + persetujuan Telegram dibuat 5 Okt.* |
 
 **Ditunda (hanya bila pemilik meminta setelah M3):** estimasi pendapatan / mode amati, tab Data & dashboard per
 wilayah + CSV, rincian kerja jukir, atribut resmi, tag sikap, foto publik, notifikasi, bot

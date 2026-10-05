@@ -17,16 +17,18 @@ export const escapeHtml = (teks) =>
   String(teks ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // Data tombol Telegram (maks. 64 byte). Tempat: "jh:s:<id>" sembunyikan, "jh:t:<id>" tampilkan.
-// Komentar: "jh:ks:<id>" tampilkan, "jh:kx:<id>" tolak / sembunyikan. (Berita tidak lewat Telegram.)
+// Komentar: "jh:ks:<id>" tampilkan, "jh:kx:<id>" tolak / sembunyikan. Usulan tarif (_shared/tarif.js): "jh:tp:<id>" pakai,
+// "jh:tx:<id>" abaikan. (Berita tidak lewat Telegram.)
 export const dataTombol = (aksi, id) => `jh:${aksi === 'sembunyikan' ? 's' : 't'}:${id}`;
 export const dataTombolKomentar = (aksi, id) => `jh:${aksi === 'tampilkan' ? 'ks' : 'kx'}:${id}`;
 
 export function bacaTombol(data) {
-  const m = /^jh:(s|t|ks|kx):([0-9]{1,15})$/.exec(String(data ?? ''));
+  const m = /^jh:(s|t|ks|kx|tp|tx):([0-9]{1,15})$/.exec(String(data ?? ''));
   if (!m) return null;
   const id = Number(m[2]);
   if (m[1] === 's') return { jenis: 'tempat', aksi: 'sembunyikan', id };
   if (m[1] === 't') return { jenis: 'tempat', aksi: 'tampilkan', id };
+  if (m[1] === 'tp' || m[1] === 'tx') return { jenis: 'tarif', aksi: m[1] === 'tp' ? 'pakai' : 'abaikan', id };
   return { jenis: 'komentar', aksi: m[1] === 'ks' ? 'tampilkan' : 'tolak', id };
 }
 

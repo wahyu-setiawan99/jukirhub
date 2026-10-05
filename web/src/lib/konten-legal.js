@@ -131,8 +131,9 @@ export const ISI_LEGAL = {
           'Vercel: hosting situs.',
           'OpenStreetMap Nominatim dan OpenFreeMap: pencarian tempat dan peta. Layanan ini melihat alamat IP Anda saat ' +
           'peta dimuat.',
-          'Google Gemini: membuat ringkasan judul berita dan memeriksa isi komentar (hanya teks komentar dan nama tempat, ' +
-          'tanpa data pelapor).',
+          'Google Gemini: membuat ringkasan judul berita, memeriksa isi komentar (hanya teks komentar dan nama tempat, ' +
+          'tanpa data pelapor), dan mencari tarif parkir resmi di peraturan daerah (tanpa data pengguna; tarif tampil ' +
+          'setelah diperiksa pengelola).',
           'Telegram: pengelola menerima foto bukti, komentar untuk diperiksa, dan pesan kontak.',
           'Google AdSense (bila iklan aktif): menayangkan iklan, lihat bagian di atas.',
           'Google Maps: hanya bila Anda menekan "Petunjuk arah".'

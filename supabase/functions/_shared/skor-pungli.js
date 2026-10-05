@@ -8,11 +8,13 @@ const POIN = Object.fromEntries(INDIKASI_PUNGLI.map(i => [i.kode, i.poin]));
 // Indikasi ini hanya bermakna bila pelapor memang membayar.
 const BUTUH_BAYAR = new Set(['tanpa_karcis', 'tanda_gratis']);
 
-// Indikasi yang dihitung dari satu laporan (dipakai skor & alasan). `tarifResmi` (angka, opsional) hanya diisi
-// bila tarif daerah sudah diperiksa pemilik: bayar di atasnya dihitung sebagai "kemahalan".
-export function indikasiEfektif({ bayar = 0, pungli = [] }, { tarifResmi = null } = {}) {
+// Indikasi yang dihitung dari satu laporan (dipakai skor & alasan). `tarifResmi` (opsional) hanya diisi bila tarif
+// daerah sudah disetujui pemilik (AGENTS.md 1.8 C): angka untuk semua kendaraan, atau { motor, mobil } per kendaraan
+// laporan. Bayar di atasnya dihitung sebagai "kemahalan".
+export function indikasiEfektif({ bayar = 0, pungli = [], kendaraan = null }, { tarifResmi = null } = {}) {
   const hasil = new Set((pungli ?? []).filter(k => k in POIN && (!BUTUH_BAYAR.has(k) || bayar > 0)));
-  if (Number.isFinite(tarifResmi) && tarifResmi > 0 && bayar > tarifResmi) hasil.add('kemahalan');
+  const tarif = tarifResmi && typeof tarifResmi === 'object' ? tarifResmi[kendaraan] : tarifResmi;
+  if (Number.isFinite(tarif) && tarif > 0 && bayar > tarif) hasil.add('kemahalan');
   return [...hasil];
 }
 

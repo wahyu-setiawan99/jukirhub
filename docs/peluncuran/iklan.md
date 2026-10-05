@@ -174,6 +174,34 @@ Tangkapan layar peta dengan beberapa penanda + kartu ringkasan, judul besar **"I
 Makassar"**, sub "Membantu atau tidak · bayar berapa · rating". Teks di gambar sedikit saja (Meta menurunkan jangkauan
 gambar yang penuh teks).
 
+### G2 `g2-warga-jukir`: foto ilustrasi warga + jukir ramah (1,91:1 untuk pratinjau tautan, 4:5 / 1:1 untuk feed)
+
+Konsep pemilik (5 Okt 2026): warga menunjukkan app JukirHub, jukir tersenyum, suasana jalan pertokoan. Draf pertama
+(gambar AI) **tidak dipakai** karena: tulisan "Dapatkan koin ke uang" (koin JukirHub tidak bernilai uang = klaim
+palsu), logo Alfamart & Google (merek pihak lain), rompi "JukirHub" + kartu "Juru Parkir Resmi" (kesan JukirHub
+mempekerjakan/mengesahkan jukir, bagian 1.3), peta Surabaya & pelat "B …" (layanan baru di Sulawesi; tanpa pelat),
+"Rp 5.000/jam" (app tidak menampilkan tarif per jam), dan teks acak buatan AI. Orang di gambar AI fiktif; jangan memakai
+foto jukir sungguhan tanpa izin tertulis.
+
+Prompt perbaikan (tempel ke pembuat gambar AI, lalu periksa teks di gambar huruf demi huruf):
+
+> Foto realistis, cahaya sore hangat, jalan pertokoan di Makassar (ruko, warung makan, motor terparkir rapi di tepi
+> jalan). Seorang perempuan muda berhijab biru tersenyum sambil menunjukkan layar HP kepada juru parkir pria paruh baya
+> yang ramah. Juru parkir memakai rompi oranye polos tanpa tulisan dan tanpa logo, tanpa kartu nama. Tidak ada logo
+> merek apa pun (papan toko memakai nama generik seperti "Warung Makan" dan "Fotokopi", tanpa logo minimarket). Pelat
+> nomor kendaraan tidak terbaca (buram atau tertutup). Tidak ada spanduk di tiang. Layar HP tidak perlu terbaca jelas.
+> Sisakan ruang kosong polos di sisi kiri atas untuk teks. Rasio 1,91:1 (1200×630), juga versi 4:5 (1080×1350).
+
+Teks ditambahkan sendiri (Canva/CapCut, bukan oleh AI gambar) supaya ejaannya pasti benar, maksimal ±20% luas gambar:
+**"Cek parkir sebelum berhenti"** · sub **"Dari laporan warga Makassar · gratis, tanpa akun"** · `jukirhub.site` + logo
+JukirHub kecil. Jangan menulis koin bisa ditukar uang, "resmi", atau tarif per jam.
+
+Pemakaian:
+- **Iklan FB/IG:** unggah gambar 4:5 / 1:1 langsung di Ads Manager (format Gambar tunggal), URL situs web ber-UTM
+  (bagian 4). Seluruh gambar & tombol "Pelajari Selengkapnya" otomatis bisa diklik ke situs; tidak perlu mengubah situs.
+- **Pratinjau tautan saat jukirhub.site dibagikan biasa** (status FB, grup, WhatsApp): versi 1200×630 diserahkan ke AI
+  untuk dipasang sebagai `og.png`, lalu cache Facebook disegarkan di developers.facebook.com/tools/debug (Scrape Again).
+
 ### Ide video berikutnya (bila V1–V3 sudah jalan)
 
 - **"Berapa yang biasa dibayar warga di …"**: seri per kawasan (Pettarani, Panakkukang, Somba Opu) dari data asli

@@ -11,6 +11,8 @@ import {
 } from '../lib/halaman-wilayah.js';
 import { labelLevel } from '../lib/tempat.js';
 import { useMetaHalaman } from '../lib/meta-halaman.js';
+import { useTarifResmi } from '../lib/tarif-resmi.js';
+import { formatRupiah } from '@shared/format.js';
 import { KartuImbauan } from '../components/Imbauan.jsx';
 import { CATATAN_AI, DaftarBerita } from '../components/KartuBerita.jsx';
 import Remah from '../components/Remah.jsx';
@@ -29,6 +31,7 @@ export default function Wilayah() {
   const navigate = useNavigate();
   const [barisImbauan, setBarisImbauan] = useState([]);
   const [berita, setBerita] = useState([]);
+  const tarif = useTarifResmi()[w?.jenis === 'kabupaten' ? w.kode : ''];
 
   useEffect(() => {
     if (!KONFIGURASI) return undefined;
@@ -85,6 +88,21 @@ export default function Wilayah() {
           <dl className="angka-wilayah">
             {angkaWilayah(r).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
           </dl>
+
+          {tarif && (
+            <section className="kartu" aria-labelledby="judul-tarif-resmi">
+              <h2 id="judul-tarif-resmi">Tarif resmi parkir tepi jalan umum</h2>
+              <dl className="baris-ringkas">
+                {tarif.motor && <><dt>Motor</dt><dd>{formatRupiah(tarif.motor)} sekali parkir</dd></>}
+                {tarif.mobil && <><dt>Mobil</dt><dd>{formatRupiah(tarif.mobil)} sekali parkir</dd></>}
+              </dl>
+              <p className="redup kecil">
+                {tarif.sumber_url
+                  ? <a href={tarif.sumber_url} target="_blank" rel="noopener noreferrer nofollow">{tarif.dasar_hukum ?? 'Sumber'}</a>
+                  : tarif.dasar_hukum}. Tarif bisa berbeda di lokasi tertentu; cek papan resmi.
+              </p>
+            </section>
+          )}
 
           {r.imbauan && <KartuImbauan imbauan={r.imbauan} />}
 

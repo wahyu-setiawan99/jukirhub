@@ -67,7 +67,7 @@ export default function Tempat() {
       </div>
 
       <section className="kartu">
-        <RingkasanTempat r={t.ringkasan} kendaraan={kendaraan} />
+        <RingkasanTempat r={t.ringkasan} kendaraan={kendaraan} kota={t.kota} />
       </section>
 
       <section className="kartu">

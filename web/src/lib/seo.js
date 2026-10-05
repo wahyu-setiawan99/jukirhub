@@ -298,10 +298,16 @@ export const khususWilayah = (r) => ({
 
 const MAKS_TEMPAT_WILAYAH = 20;
 
-export function buatIsiWilayah(r) {
+// `tarif` = tarif resmi kab/kota { motor, mobil, dasar_hukum } yang sudah disetujui pemilik (1.8 C), atau null.
+export function buatIsiWilayah(r, tarif = null) {
   const e = escHtml;
   const w = r.wilayah;
   const angka = angkaWilayah(r).map(([k, v]) => `<div><dt>${e(k)}</dt><dd>${e(v)}</dd></div>`).join('');
+  const rp = (n) => `Rp ${Number(n).toLocaleString('id-ID')}`;
+  const tarifResmi = tarif && (tarif.motor || tarif.mobil)
+    ? `<section class="kartu"><h2>Tarif resmi parkir tepi jalan umum</h2><dl class="baris-ringkas">${tarif.motor ? `<dt>Motor</dt><dd>${rp(tarif.motor)} sekali parkir</dd>` : ''}${tarif.mobil ? `<dt>Mobil</dt><dd>${rp(tarif.mobil)} sekali parkir</dd>` : ''}</dl>` +
+      `<p class="redup kecil">${e(tarif.dasar_hukum ?? '')}. Tarif bisa berbeda di lokasi tertentu; cek papan resmi.</p></section>`
+    : '';
   const imbauan = r.imbauan
     ? `<section class="kartu imbauan"><h2>${e(r.imbauan.judul)}</h2><ul class="poin">${r.imbauan.kalimat.map(k => `<li>${e(k)}</li>`).join('')}</ul></section>`
     : '';
@@ -326,6 +332,7 @@ export function buatIsiWilayah(r) {
           <p class="redup">${e(deskripsiWilayah(r))}</p>
         </section>
         <dl class="angka-wilayah">${angka}</dl>
+        ${tarifResmi}
         ${imbauan}
         ${tempat}
         ${kab}

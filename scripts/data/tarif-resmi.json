@@ -1,0 +1,1227 @@
+{
+  "_petunjuk": [
+    "Lembar isian tarif resmi retribusi parkir tepi jalan umum per kab/kota (AGENTS.md 1.8 C). Disusun AI 3 Okt 2026: AI HANYA mengisi dasar hukum & tautan sumber, TIDAK mengisi angka.",
+    "Pemilik: buka sumber_url, cari tabel tarif retribusi pelayanan parkir di tepi jalan umum (biasanya di lampiran Perda PDRD), isi tarif.motor & tarif.mobil (rupiah per sekali parkir, angka bulat), isi berlaku_sejak (YYYY-MM-DD), lalu ubah diperiksa_pemilik menjadi true.",
+    "Bila tarif dibedakan per zona/kelas jalan: isi tarif zona yang paling umum dan tulis rinciannya di catatan. Bila Perda sudah diubah (lihat catatan), pakai versi terbaru dan perbarui dasar_hukum.",
+    "status_sumber: resmi = dokumen di BPK/JDIH/situs pemda; tidak_resmi = hanya di situs pihak ketiga (cocokkan dulu); perlu_dicek = nomor diketahui, dokumen belum; belum = belum ditemukan.",
+    "Hanya baris dengan diperiksa_pemilik: true yang dipakai aplikasi (npm run tarif, menyusul)."
+  ],
+  "disusun": "2026-10-03",
+  "kota": [
+    {
+      "kota": "Makassar",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Makassar No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://bapenda.makassarkota.go.id/wp-content/uploads/2024/08/PERDA-NOMOR-1-TAHUN-2024-TENTANG-PDRD.pdf",
+      "status_sumber": "resmi",
+      "catatan": "Parkir tepi jalan dikelola Perumda Parkir Makassar Raya: cek juga apakah tarif diatur ulang lewat Perwali.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Gowa",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Gowa No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/307322/perda-kab-gowa-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": "Berita Humas Gowa: perubahan Perda PDRD sudah disahkan. Pakai versi perubahan bila tarif parkir ikut berubah.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Maros",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Maros No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/307602/perda-kab-maros-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Takalar",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Takalar No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/293053/perda-kab-takalar-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Pangkep",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Pangkajene dan Kepulauan No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/331987",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Barru",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Barru No. 3 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/280410/perda-kab-barru-no-03-tahun-2023",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Parepare",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Parepare No. 12 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://jdih.pareparekota.go.id/?p=8465",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Sidrap",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Sidenreng Rappang No. 4 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://sidrapkab.go.id/site/dokumendaerah/detail/Dokumen053436-Perda-No-4-Tahun-2023-tentang-Pajak-Daerah-dan-Retribusi-Daerah",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Pinrang",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Pinrang No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/309627/perda-kab-pinrang-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": "Rancangan perubahan disepakati DPRD (berita Jan 2026): cek versi terbaru.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Enrekang",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Enrekang No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/303130/perda-kab-enrekang-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Tana Toraja",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Tana Toraja No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah (perlu dipastikan)",
+      "sumber_url": null,
+      "status_sumber": "perlu_dicek",
+      "catatan": "Nomor dari situs pihak ketiga. Di BPK ada Perda Kab. Tana Toraja No. 6 Tahun 2023 (judul belum dicek): https://peraturan.bpk.go.id/Details/283116/perda-kab-tana-toraja-no-6-tahun-2023",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Toraja Utara",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Toraja Utara No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah (perlu dipastikan)",
+      "sumber_url": "https://bapenda.torajautarakab.go.id/dasar-hukum/",
+      "status_sumber": "perlu_dicek",
+      "catatan": "Tautan = halaman dasar hukum Bapenda; cari dokumen Perdanya di sana.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Luwu Timur",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Luwu Timur No. 9 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-luwu-timur-9-2023",
+      "status_sumber": "tidak_resmi",
+      "catatan": "Cocokkan dengan JDIH Luwu Timur / BPK.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Luwu Utara",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Luwu Utara No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://jdih.luwuutarakab.go.id/uploads/produk_hukum/Produk-Hukum-1-1725604986.pdf",
+      "status_sumber": "perlu_dicek",
+      "catatan": "PDF JDIH Luwu Utara; pastikan isinya Perda PDRD.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Luwu",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Luwu No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://jdih.luwukab.go.id/dokumen/view?id=717",
+      "status_sumber": "resmi",
+      "catatan": "Ranperda perubahan sudah diajukan: cek versi terbaru.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Palopo",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": "https://jdih.palopokota.go.id/",
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD Kota Palopo belum ditemukan di BPK; cari di JDIH Kota Palopo.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Wajo",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD Kab. Wajo belum ditemukan (BPK hanya memuat Perda lama 2009–2017).",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Soppeng",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Soppeng No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-soppeng-no-1-tahun-2024",
+      "status_sumber": "tidak_resmi",
+      "catatan": "Cocokkan dengan JDIH Soppeng / BPK.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bone",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Bone No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah (perlu dipastikan)",
+      "sumber_url": null,
+      "status_sumber": "perlu_dicek",
+      "catatan": "Nomor dari berita (penyesuaian ZNT PBB 2025); dokumen belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Sinjai",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Sinjai No. 3 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/286166/perda-kab-sinjai-no-3-tahun-2023",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bulukumba",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Bulukumba No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah (perlu dipastikan)",
+      "sumber_url": null,
+      "status_sumber": "perlu_dicek",
+      "catatan": "Nomor dari berita; pelaksananya Perbup No. 10 Tahun 2024.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bantaeng",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Bantaeng No. 3 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/279880/perda-kab-bantaeng-no-3-tahun-2023",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Jeneponto",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Jeneponto No. 7 Tahun 2023 tentang Pajak dan Retribusi Daerah",
+      "sumber_url": "https://www.scribd.com/document/702118699/Perda-Nomor-7-Tahun-2023-Tentang-Pajak-Dan-Retribusi-Daerah-Kabupaten-Jeneponto-Ok-Fix",
+      "status_sumber": "tidak_resmi",
+      "catatan": "Sebagian pemungutan sempat ditunda bupati (berita). Cari salinan resmi.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kepulauan Selayar",
+      "provinsi": "sulsel",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan (BPK hanya memuat Perda lama 2016–2017).",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Mamuju Tengah",
+      "provinsi": "sulbar",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Mamuju Tengah No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/296996/perda-kab-mamuju-tengah-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Pasangkayu",
+      "provinsi": "sulbar",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Pasangkayu No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/296989/perda-kab-pasangkayu-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Mamuju",
+      "provinsi": "sulbar",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Mamuju No. 10 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/288288/perda-kab-mamuju-no-10-tahun-2023",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Majene",
+      "provinsi": "sulbar",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Majene No. 1 Tahun 2024 tentang Pajak dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/299282/perda-kab-majene-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Polewali Mandar",
+      "provinsi": "sulbar",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Polewali Mandar No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/293921/perda-kab-polewali-mandar-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": "Ada Perbup No. 22 Tahun 2024 tentang perubahan tarif retribusi jasa usaha (parkir tepi jalan = jasa umum, tetap cek).",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Mamasa",
+      "provinsi": "sulbar",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Mamasa No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/293432/perda-kab-mamasa-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": "PDF: https://jdih.mamasakab.go.id/common/dokumen/Perda%20No.%201%20Tahun%202024.pdf",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Palu",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Palu No. 9 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://perpajakan.ddtc.co.id/id/sumber-hukum/peraturan-daerah/perda-kota-palu-9-tahun-2023",
+      "status_sumber": "tidak_resmi",
+      "catatan": "DPRD Palu menyetujui rancangan perubahan Perda 9/2023: cek versi terbaru di JDIH Kota Palu.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Donggala",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Donggala No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/311064/perda-kab-donggala-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Sigi",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Sigi No. 11 Tahun 2023 tentang Pajak dan Retribusi Daerah (perlu dipastikan)",
+      "sumber_url": "https://jdih.sigikab.go.id/Peraturan/searching/?id_peraturan_cat=83",
+      "status_sumber": "perlu_dicek",
+      "catatan": "Nomor dari berita ANTARA; rancangan perubahan diajukan April 2026.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Parigi Moutong",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": "https://bapenda.parigimoutongkab.go.id/",
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Poso",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Tojo Una-Una",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Tojo Una-Una No. 9 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah, diubah Perda No. 1 Tahun 2026",
+      "sumber_url": "https://sulteng.bpk.go.id/kabupaten-tojo-una-una/",
+      "status_sumber": "perlu_dicek",
+      "catatan": "Tautan = daftar Perda di BPK Perwakilan Sulteng.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Morowali Utara",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Morowali Utara No. 9 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah, diubah Perda No. 1 Tahun 2025",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-morowali-utara-9-2023",
+      "status_sumber": "tidak_resmi",
+      "catatan": "Pakai versi perubahan 2025 bila tarif parkir berubah.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Morowali",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Morowali No. 17 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": null,
+      "status_sumber": "perlu_dicek",
+      "catatan": "Nomor disebut dalam Perbup Kab. Morowali No. 21 Tahun 2024: https://peraturan.bpk.go.id/Details/306142/perbup-kab-morowali-no-21-tahun-2024",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Banggai Kepulauan",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": "https://jdih.banggaikep.go.id/Peraturan/searching/?id_peraturan_cat=82",
+      "status_sumber": "perlu_dicek",
+      "catatan": "Kandidat: Perda Kab. Banggai Kepulauan No. 4 Tahun 2023 (https://pasal.id/peraturan/perda/perda-kab-banggai-kepulauan-4-2023), belum dipastikan judulnya.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Banggai Laut",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Banggai",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Banggai No. 5 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Download/366771/Perbup%20Banggai_21_2024_Peraturan%20Pelaksanaan%20Perda%20No%205%20Tahun%202023%20tentang%20Pajak%20Daerah%20dan%20Retribusi%20Daerah.pdf",
+      "status_sumber": "perlu_dicek",
+      "catatan": "Tautan = Perbup pelaksananya; dokumen Perda belum ditemukan. Perubahan Perda sedang diusulkan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Toli-Toli",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Tolitoli No. 9 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah, diubah Perda No. 1 Tahun 2026",
+      "sumber_url": "https://infoperaturan.id/jdih/peraturan-daerah-kabupaten-tolitoli-nomor-9-tahun-2023/",
+      "status_sumber": "tidak_resmi",
+      "catatan": "Perubahan 2026: https://pasal.id/peraturan/perda/perda-kab-toli-toli-no-1-tahun-2026",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Buol",
+      "provinsi": "sulteng",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kendari",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Kendari No. 6 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": null,
+      "status_sumber": "perlu_dicek",
+      "catatan": "Nomor disebut dalam Perwali Kota Kendari No. 3 Tahun 2024: https://peraturan.bpk.go.id/Details/288707/perwali-kota-kendari-no-3-tahun-2024",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Baubau",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Baubau No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/299988/perda-kota-bau-bau-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bombana",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Bombana No. 6 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-bombana-no-6-tahun-2023",
+      "status_sumber": "tidak_resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Wakatobi",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Wakatobi No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-wakatobi-no-1-tahun-2024",
+      "status_sumber": "tidak_resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kolaka Utara",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Kolaka Utara No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/309230/perda-kab-kolaka-utara-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kolaka Timur",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Kolaka Timur No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/300157/perda-kab-kolaka-timur-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kolaka",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Kolaka No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah (perlu dipastikan)",
+      "sumber_url": null,
+      "status_sumber": "perlu_dicek",
+      "catatan": "Nomor dari ringkasan pencarian; cek Perbup Kab. Kolaka No. 10 Tahun 2024: https://peraturan.bpk.go.id/Details/302998/perbup-kab-kolaka-no-10-tahun-2024",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Konawe Selatan",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Konawe Selatan No. 8 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/291609/perda-kab-konawe-selatan-no-8-tahun-2023",
+      "status_sumber": "resmi",
+      "catatan": "Bapenda sedang menyiapkan perubahan (Okt 2026).",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Konawe Utara",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Konawe Utara No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/304190/perda-kab-konawe-utara-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Konawe Kepulauan",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Konawe",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Konawe No. 3 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-konawe-no-3-tahun-2023",
+      "status_sumber": "tidak_resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Buton Utara",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Buton Utara No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/278192/perda-kab-buton-utara-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Buton Tengah",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Buton Tengah No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-buton-tengah-no-1-tahun-2024",
+      "status_sumber": "tidak_resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Buton Selatan",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Buton",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Buton No. 6 Tahun 2023 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-buton-no-6-tahun-2023",
+      "status_sumber": "tidak_resmi",
+      "catatan": "JDIH Buton: https://jdih.butonkab.go.id/peraturan/perda",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Muna Barat",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan (ada Perbup Muna Barat No. 4 Tahun 2024 tentang insentif pajak).",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Muna",
+      "provinsi": "sultra",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Muna No. 2 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/298899/perda-kab-muna-no-2-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kota Gorontalo",
+      "provinsi": "gorontalo",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Gorontalo No. 1 Tahun 2024 tentang Pajak dan Retribusi",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/284016/perda-kota-gorontalo-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Gorontalo Utara",
+      "provinsi": "gorontalo",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Gorontalo Utara No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/283611/perda-kab-gorontalo-utara-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Gorontalo",
+      "provinsi": "gorontalo",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Gorontalo No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/313975/perda-kab-gorontalo-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Boalemo",
+      "provinsi": "gorontalo",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Boalemo No. 6 Tahun 2022 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/244513/perda-kab-boalemo-no-6-tahun-2022",
+      "status_sumber": "perlu_dicek",
+      "catatan": "Terbit sebelum PP 35/2023; cek apakah ada Perda PDRD baru/perubahan (kandidat: https://pasal.id/peraturan/perda/perda-kab-boalemo-no-4-tahun-2024).",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Pohuwato",
+      "provinsi": "gorontalo",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bone Bolango",
+      "provinsi": "gorontalo",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Bone Bolango No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/300225/perda-kab-bone-bolango-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Manado",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Manado No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://perpajakan.ddtc.co.id/id/sumber-hukum/peraturan-daerah/perda-kota-manado-1-tahun-2024",
+      "status_sumber": "tidak_resmi",
+      "catatan": "Cari salinan resmi di JDIH Kota Manado.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bitung",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Bitung No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/308953/perda-kota-bitung-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Tomohon",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Tomohon No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/311336/perda-kota-tomohon-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kotamobagu",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kota Kotamobagu No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/310060/perda-kota-kotamobagu-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": "Pemkot sedang mengubah Perda ini (berita): cek versi terbaru.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Minahasa Utara",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Minahasa Utara No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/311326/perda-kab-minahasa-utara-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Minahasa Selatan",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Minahasa Selatan No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/311272/perda-kab-minahasa-selatan-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Minahasa Tenggara",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Minahasa Tenggara No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-minahasa-tenggara-1-2024",
+      "status_sumber": "tidak_resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Minahasa",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Minahasa No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://peraturan.bpk.go.id/Details/310101/perda-kab-minahasa-no-1-tahun-2024",
+      "status_sumber": "resmi",
+      "catatan": "PDF: https://dpmptsp.minahasa.go.id/wp-content/uploads/2024/07/PERDA-NO-1-TAHUN-2024-TTG-PAJAK-DAN-RETRIBUSI-DAERAH.pdf",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bolaang Mongondow Utara",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Bolaang Mongondow Utara No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://jdih.bolmutkab.go.id/login/detailprodukhukum/5503",
+      "status_sumber": "resmi",
+      "catatan": "PDF: https://jdih.bolmutkab.go.id/uploads/produkhukum/2024pd7108001.pdf",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bolaang Mongondow Timur",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Bolaang Mongondow Timur No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah",
+      "sumber_url": "https://pasal.id/peraturan/perda/perda-kab-bolaang-mongondow-timur-1-2024",
+      "status_sumber": "tidak_resmi",
+      "catatan": null,
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bolaang Mongondow Selatan",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Bolaang Mongondow",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kepulauan Sangihe",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": "Perda Kab. Kepulauan Sangihe No. 1 Tahun 2024 tentang Pajak Daerah dan Retribusi Daerah (perlu dipastikan)",
+      "sumber_url": null,
+      "status_sumber": "perlu_dicek",
+      "catatan": "Nomor dari ringkasan pencarian (berlaku 22 Mar 2024); dokumen belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kepulauan Talaud",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": null,
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    },
+    {
+      "kota": "Kepulauan Sitaro",
+      "provinsi": "sulut",
+      "jenis": "tepi_jalan_umum",
+      "tarif": {
+        "motor": null,
+        "mobil": null
+      },
+      "dasar_hukum": null,
+      "sumber_url": "https://sulut.bpk.go.id/category/perda-kabupaten-kepulauan-siau-tagulandang-biaro/",
+      "status_sumber": "belum",
+      "catatan": "Perda PDRD belum ditemukan; tautan = daftar Perda di BPK Perwakilan Sulut.",
+      "berlaku_sejak": null,
+      "diperiksa_pemilik": false
+    }
+  ]
+}

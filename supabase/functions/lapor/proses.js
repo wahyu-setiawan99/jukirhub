@@ -29,6 +29,17 @@ async function kabupatenTitik(titik, db, geo) {
   }
 }
 
+// Tarif resmi kab/kota { motor, mobil } yang sudah disetujui pemilik, atau null. Galat tidak menggagalkan laporan.
+async function tarifKota(db, kabupaten) {
+  if (!kabupaten || !db.tarifKota) return null;
+  try {
+    return await db.tarifKota(kabupaten);
+  } catch (err) {
+    console.warn('[lapor] tarif resmi:', err?.message ?? err);
+    return null;
+  }
+}
+
 // Koin laporan ini (AGENTS.md 10.4). Galat koin tidak boleh menggagalkan laporan → null.
 // Mengembalikan { ringkasan (untuk pelapor), koinSah (hanya server) }.
 async function beriKoin({ db, reporterKey, kabupaten, pembukaData, sah, laporanSebelumnyaDiTempat, sekarang }) {
@@ -74,6 +85,7 @@ const sukses = (titik) => ({ status: 200, body: { ok: true, pesan: PESAN_SUKSES,
  *   laporanTitik(titikId: number, sejakHari: number): Promise<Array<Record<string, unknown>>>,
  *   simpanRingkasan(titikId: number, ringkasan: Record<string, unknown>): Promise<void>,
  *   kotaTitik?(titikId: number): Promise<string | null>,
+ *   tarifKota?(kota: string): Promise<{ motor: number | null, mobil: number | null } | null>,
  *   isiKota?(titikId: number, kota: string): Promise<void>,
  *   bacaReputasi?(reporterKey: string): Promise<Record<string, any> | null>,
  *   simpanReputasi?(baris: Record<string, unknown>): Promise<void>,
@@ -186,13 +198,16 @@ export async function prosesLapor({ body, ip, garam, db, kabar, geo, sekarang = 
     try { kabar?.komentarBaru?.({ id: idKomentar, isi: d.komentar, namaTempat: titik.nama }); } catch { /* abaikan */ }
   }
 
-  // Ringkasan publik tempat ini dihitung ulang langsung (AGENTS.md 6.2).
+  // Kab/kota tempat (peringkat koin & tarif resmi), lalu ringkasan publik tempat ini dihitung ulang langsung (6.2):
+  // bayar di atas tarif resmi yang sudah disetujui pemilik dihitung "kemahalan" (1.8 C).
+  const kabupaten = await kabupatenTitik(titik, db, geo);
+  const tarifResmi = await tarifKota(db, kabupaten);
   const laporan = await db.laporanTitik(titik.id, HARI_RINGKASAN);
-  await db.simpanRingkasan(titik.id, ringkasTempat(laporan, { sekarang }));
+  await db.simpanRingkasan(titik.id, ringkasTempat(laporan, { sekarang, tarifResmi }));
 
   // Koin (setelah laporan tersimpan). GPS palsu (bobot < 1) → koin tampil saja, diam-diam.
   const koin = await beriKoin({
-    db, reporterKey, kabupaten: await kabupatenTitik(titik, db, geo), pembukaData,
+    db, reporterKey, kabupaten, pembukaData,
     sah: gps.bobotManual >= 1, laporanSebelumnyaDiTempat, sekarang
   });
   if (koin?.koinSah > 0) {
